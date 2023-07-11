@@ -58,6 +58,9 @@
         cursor: pointer;
 
     }
+    :global(.headerLogoContainer svg) {
+        transform: scale(0.4);
+    }
     .MainAppContainer {
         max-width: 100%;
         max-width: 400px;
@@ -67,12 +70,6 @@
         border-radius: 15px;
         padding: 15px;
     }
-    :global(.profile-icon) {
-        margin: 10px 5px;
-    } 
-    :global(.profile-icon:hover) {
-        color: var(--hover-color) !important;
-    } 
 
     :global(.header-content){
 	flex-direction: row;
