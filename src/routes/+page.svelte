@@ -1,7 +1,6 @@
 <script lang="ts">
     import { NDKNip07Signer, NDKUser } from '@nostr-dev-kit/ndk';
     import ndk from '$lib/stores/provider';
-    import { currentUser } from '$lib/stores/currentUser';
     import { goto } from '$app/navigation';
     import { Button } from "agnostic-svelte";
     import LinktrLogo from '$lib/elements/icons/LinktrLogo.svelte';
@@ -27,6 +26,7 @@
         <p>Nostr based application for link lists </p>
     </div>
     <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
+    <Button mode="secondary" isBlock isRounded><a href="https://pinstr.app" target="_blank" rel="noreferrer">Create list (pinstr.app)</a></Button>
 </div>
 
 <style>
