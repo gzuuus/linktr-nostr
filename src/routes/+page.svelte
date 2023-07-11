@@ -3,6 +3,8 @@
     import ndk from '$lib/stores/provider';
     import { currentUser } from '$lib/stores/currentUser';
     import { goto } from '$app/navigation';
+    import { Button } from "agnostic-svelte";
+    import LinktrLogo from '$lib/elements/icons/LinktrLogo.svelte';
 
     let user: NDKUser;
 
@@ -16,6 +18,29 @@
         });
     }
 </script>
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
-<button on:click={login}>Login</button>
+<div class="homeContainer">
+    <div class="logoContainer">
+        <LinktrLogo/>
+    </div>
+    <div class="p16">
+        <h1>Linktr</h1>
+        <p>Nostr based application for link lists </p>
+    </div>
+    <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
+</div>
+
+<style>
+    .homeContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 20px;
+    }
+    .logoContainer {
+        display: flex;
+        border: 1px solid var(--agnostic-focus-ring-color);
+        padding: 25px 20px;
+        border-radius: 100px;
+    }
+</style>
