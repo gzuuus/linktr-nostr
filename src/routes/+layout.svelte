@@ -1,16 +1,22 @@
+<script lang="ts">
+    import Header from "$lib/components/header.svelte"
+</script>
+<Header/>
 <div class="MainAppContainer">
     <slot/>
 </div>
 
 <style>
     :root {
-        
+        --common-transition:all 0.2s ease-in-out;
+        --common-border-style:1px solid var(--accent-color);
         --agnostic-header-background-color: transparent;
         --agnostic-focus-ring-outline-width: 2px;
-        --agnostic-btn-primary:#2a193e;
+        --agnostic-btn-primary:white;
         --agnostic-radius: 15px;
-        --agnostic-focus-ring-color: #3d2657;
-        --agnostic-link-color:white !important;
+        --agnostic-focus-ring-color: var(--hover-b-color);
+        --agnostic-btn-primary-color: var(--background-color);
+        --agnostic-dark: var(--background-color);        
         --background-color: #10051e;
         --container-b-color: #210b3c;
         --elements-b-color: #2a193e;
@@ -19,9 +25,6 @@
         --text-color: #ffffff;
         --hover-color: #ff9900;
         --accent-color: #916dbb;
-    }
-    :global(.header) {
-        border: 0 !important;
     }
     :global(body) {
         background: var(--background-color);
@@ -32,37 +35,42 @@
         text-align: center;
     }
     :global(button) {
-        margin : 8px 0;
+        margin: 8px 0;
+        background-color: white;
+        border-radius: var(--agnostic-radius);
+        color: var(--background-color);
+        border: none;
+        padding: 0.5em;
+        transition: var(--common-transition) ;
     }
-    :global(.btn-primary:hover) {
-        background: var(--hover-b-color) !important;
+    :global(button:hover) {
+        opacity: 0.8;
     }
     :global(a) {
-        --agnostic-link-color: var(--agnostic-link-color);
-        color: var(--agnostic-link-color);
-        text-decoration: none;
+        color: var(--accent-color);
     }
+
     :global(hr) {
         color: var(--hover-b-color);
     }
     :global(.tag){
-        background-color: var(--agnostic-btn-primary) !important;
+        background: var(--background-color) !important;
         color: var(--accent-color) !important;
-        margin: 2px 0px;
-        opacity: 0.6;
-        transition: all 0.15s ease-in-out;
-
+        border-radius: var(--agnostic-radius);
+        border: 1px solid var(--hover-b-color);
+        margin-top: 0.3em !important;
+        transition: all 0.2s ease-in-out;
     }
+
     :global(.tag:hover){
-        opacity: 1;
-        cursor: pointer;
+        color: var(--text-color) !important;
+    }
+    :global(.btn-link) {
+	border: 1px solid var(--accent-color) !important;
+	border-radius: var(--agnostic-radius) !important;
+    }
 
-    }
-    :global(.headerLogoContainer svg) {
-        transform: scale(0.4);
-    }
     .MainAppContainer {
-        max-width: 100%;
         max-width: 400px;
         display: block;
         background: transparent;
@@ -70,11 +78,4 @@
         border-radius: 15px;
         padding: 15px;
     }
-
-    :global(.header-content){
-	flex-direction: row;
-	justify-content: center !important;
-    }   
-
-
 </style>

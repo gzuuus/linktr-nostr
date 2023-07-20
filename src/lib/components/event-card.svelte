@@ -1,11 +1,12 @@
 <script lang="ts">
-    export let userPub: any;
+    export let userPub: string;
     import { Kind, nip19 } from "nostr-tools";
   
     import ndk from "$lib/stores/provider";
     import type { NDKEvent, NDKTag } from "@nostr-dev-kit/ndk";
 
     import { Button } from "agnostic-svelte";
+    import { fade } from "svelte/transition";
     
     let userPubDecoded: string = nip19.decode(userPub).data.toString();
     let eventsKind1: NDKEvent[] = [];
@@ -13,7 +14,7 @@
     let eventsKind30001: NDKEvent[] = [];
     
     const filter30001 = 33888 as Kind
-    const sub= $ndk.subscribe({kinds:[1, 30023, filter30001], authors:[userPubDecoded]});
+    const sub= $ndk.subscribe({kinds:[filter30001], authors:[userPubDecoded]});
 
         sub.on("event", (event: NDKEvent) => {
             if (event.kind == 1) {
@@ -88,7 +89,7 @@
     {/each} -->
 
     {#each eventsKind30001 as event}
-    <div class="eventContainer">
+    <div transition:fade class="eventContainer">
         <h3>{findEventTags(event.tags, "d")}</h3>
         <hr>
         <div class="linkContainer">

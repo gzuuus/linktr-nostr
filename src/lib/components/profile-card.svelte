@@ -1,7 +1,9 @@
 <script lang="ts">
-    export let userPub: string;
+    export let userPub: string | undefined;
     import ndk from '$lib/stores/provider';
     import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+    import { fade } from 'svelte/transition';
+    import ParsedContent from './parse-content.svelte';
     
     let userProfile: NDKUserProfile;
     
@@ -10,22 +12,18 @@
          });
     user.fetchProfile().then(() => {
              userProfile = user.profile as NDKUserProfile;
-             console.log(userProfile);
          })
 
 </script>
 
-<div class="profileContainer">
-  <div>
-    {#if userProfile}
-    <img src={userProfile.image} alt="avatar"/>
-    <h2>{userProfile.name}</h2>
-    <p>{userProfile.about}</p>
-    <div class="p_btnContainer">
-    </div>
-  {/if}
-  </div>
+
+{#if userProfile}
+<div transition:fade class="profileContainer">
+  <img transition:fade src={userProfile.image} alt="avatar"/>
+  <h2>{userProfile.name}</h2>
+  <!-- <p>{userProfile.about}</p> -->
 </div>
+{/if}
 
 
 <style>
@@ -33,15 +31,9 @@
     margin: 10px;
     border-radius: 15px;
     word-wrap: anywhere;
-    /* background: var(--elements-b-color); */
   }
   img {
     max-width: 160px;
     border-radius: 15px;
   }
-  .p_btnContainer {
-    display: flex;
-    justify-content: center;
-  }
-
 </style>

@@ -7,7 +7,10 @@ const ndk = new NDK({
         'wss://relay.nostr.band',
         'wss://nos.lol',
         'wss://relay.snort.social',
-        'wss://relay.damus.io'
+        'wss://relay.damus.io',
+        'wss://relayable.com',
+        'wss://free.nostr.lc',
+        'wss://nostr.wine',
     ]
 });
 

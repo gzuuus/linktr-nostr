@@ -1,0 +1,73 @@
+<script lang="ts">
+  export let content: string;
+  export let charLimit: number = 132;
+  import PlusSmall from "$lib/elements/icons/plus-small.svelte";
+  import MinusSmall from "$lib/elements/icons/minus-small.svelte";
+  import MarkdownIt from 'markdown-it';
+  import LinkifyIt from 'linkify-it';
+
+  const md = new MarkdownIt();
+  const linkify = new LinkifyIt();
+
+  let showMore: boolean = false;
+
+  function parseLinks(rawContent: string): string {
+    const matches = linkify.match(rawContent);
+    if (matches) {
+      for (const match of matches) {
+        rawContent = rawContent.replace(
+          match.text,
+          `<a href="${match.url}" target="_blank" rel="noopener noreferrer">${match.text}</a>`
+        );
+      }
+    }
+    return rawContent;
+  }
+
+  let parsedContent: string;
+
+  $: {
+    const rawContent = md.render(content);
+    parsedContent = parseLinks(rawContent);
+  }
+
+  function toggleShowMore() {
+    showMore = !showMore;
+  }
+
+  function getTruncatedContent() {
+    return parsedContent.length > charLimit ? parsedContent.slice(0, charLimit) + "..." : parsedContent;
+  }
+</script>
+
+<div class="parsedContentContainer">
+  {@html (showMore ? parsedContent : getTruncatedContent())}
+
+  {#if parsedContent.length > charLimit}
+    <button class="showMoreButton" on:click={toggleShowMore}>
+      {#if showMore}
+        <MinusSmall size={20}/>
+      {:else}
+        <PlusSmall size={20}/>
+      {/if}
+    </button>
+  {/if}
+</div>
+
+<style>
+  .showMoreButton {
+    display: flex;
+    background: var(--elements-b-color);
+    border: 1px solid var(--hover-b-color);
+    border-radius: var(--agnostic-radius);
+    transition: all 0.2s ease-in-out;
+    position: absolute;
+    bottom: 0;
+    padding: 0;
+    right: 0;
+    margin:0.4em;
+  }
+  .showMoreButton:hover {
+    background: var(--hover-b-color);
+  }
+</style>

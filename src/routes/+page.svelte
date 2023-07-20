@@ -3,7 +3,8 @@
     import ndk from '$lib/stores/provider';
     import { goto } from '$app/navigation';
     import { Button } from "agnostic-svelte";
-    import LinktrLogo from '$lib/elements/icons/LinktrLogo.svelte';
+    import Logo from '$lib/elements/icons/logo.svelte';
+
 
     let user: NDKUser;
 
@@ -12,21 +13,21 @@
         $ndk.signer = signer;
         ndk.set($ndk);
         signer.user().then(async (ndkUser) => {
-            console.log(ndkUser);
+            // console.log(ndkUser);
             goto(`/${ndkUser.npub}`);
         });
     }
 </script>
 <div class="homeContainer">
     <div class="logoContainer">
-        <LinktrLogo/>
+        <Logo size={100}/>
     </div>
     <div class="p16">
         <h1>Linktr</h1>
-        <p>Nostr based application for link lists </p>
+        <p>Nostr based application to show link lists, notes, and other stuff </p>
     </div>
     <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
-    <Button mode="secondary" isBlock isRounded><a href="https://pinstr.app" target="_blank" rel="noreferrer">Create list (pinstr.app)</a></Button>
+    <Button mode="primary" isBlock isRounded><a href="https://pinstr.app" target="_blank" rel="noreferrer">Create list (pinstr.app)</a></Button>
 </div>
 
 <style>
@@ -35,7 +36,6 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin: 20px;
     }
     .logoContainer {
         display: flex;
