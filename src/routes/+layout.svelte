@@ -1,5 +1,7 @@
 <script lang="ts">
     import Header from "$lib/components/header.svelte"
+    
+    
 </script>
 <Header/>
 <div class="MainAppContainer">
@@ -33,6 +35,7 @@
         place-content: center;
         min-height: 100vh;
         text-align: center;
+        margin: 0;
     }
     :global(button) {
         margin: 8px 0;
@@ -66,10 +69,21 @@
         color: var(--text-color) !important;
     }
     :global(.btn-link) {
-	border: 1px solid var(--accent-color) !important;
-	border-radius: var(--agnostic-radius) !important;
+        border: 1px solid var(--accent-color) !important;
+        border-radius: var(--agnostic-radius) !important;
     }
-
+    :global(img){
+        width: 100%;
+        padding: 5px;
+    }
+    :global(.userMenu){
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 1em;
+        display: flex;
+        gap: 0.5em;
+    }
     .MainAppContainer {
         max-width: 400px;
         display: block;

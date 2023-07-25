@@ -1,6 +1,7 @@
 <script lang="ts">
   export let content: string;
   export let charLimit: number = 132;
+  import { parseNostrUrls } from "$lib/utils/helpers";
   import PlusSmall from "$lib/elements/icons/plus-small.svelte";
   import MinusSmall from "$lib/elements/icons/minus-small.svelte";
   import MarkdownIt from 'markdown-it';
@@ -8,23 +9,36 @@
 
   const md = new MarkdownIt();
   const linkify = new LinkifyIt();
-
+  
+  let parsedContent: string;
   let showMore: boolean = false;
 
-  function parseLinks(rawContent: string): string {
-    const matches = linkify.match(rawContent);
-    if (matches) {
-      for (const match of matches) {
+
+
+function parseLinks(rawContent: string): string {
+  rawContent = parseNostrUrls(rawContent);
+
+  const matches = linkify.match(rawContent);
+  if (matches) {
+    for (const match of matches) {
+      if (isImageLink(match.url)) {
+        rawContent = rawContent.replace(
+          match.text,
+          `<img src="${match.url}" alt="${match.text}" />`
+        );
+      } else {
         rawContent = rawContent.replace(
           match.text,
           `<a href="${match.url}" target="_blank" rel="noopener noreferrer">${match.text}</a>`
         );
       }
     }
-    return rawContent;
   }
-
-  let parsedContent: string;
+  return rawContent;
+}
+  function isImageLink(url: string): boolean {
+    return /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(url);
+  }
 
   $: {
     const rawContent = md.render(content);

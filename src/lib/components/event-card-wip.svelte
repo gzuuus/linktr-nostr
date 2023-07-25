@@ -21,7 +21,7 @@
 
     eventKind = eventKind as Kind;
   
-    const sub = $ndk.subscribe({ kinds: [eventKind], authors: [userPubDecoded], limit: 5 });
+    const sub = $ndk.subscribe({ kinds: [eventKind], authors: [userPubDecoded], limit: 5 }, { closeOnEose: false });
 
     sub.on("event", (event: Event) => {
         eventsList = utils.insertEventIntoDescendingList(eventsList, event);

@@ -6,7 +6,7 @@ const ndk = new NDK({
         'wss://purplepag.es',
         'wss://relay.nostr.band',
         'wss://nos.lol',
-        'wss://relayable.com',
+        'wss://relayable.org',
         'wss://free.nostr.lc',
         'wss://nostr.wine',
     ]

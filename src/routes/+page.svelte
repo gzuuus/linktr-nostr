@@ -4,17 +4,16 @@
     import { goto } from '$app/navigation';
     import { Button } from "agnostic-svelte";
     import Logo from '$lib/elements/icons/logo.svelte';
-
+    import { ndkUser } from '$lib/stores/user';
 
     let user: NDKUser;
-
     async function login() {
         const signer = new NDKNip07Signer();
         $ndk.signer = signer;
         ndk.set($ndk);
-        signer.user().then(async (ndkUser) => {
-            // console.log(ndkUser);
-            goto(`/${ndkUser.npub}`);
+        signer.user().then(async (ndkCurrentUser) => {
+            ndkUser.set(ndkCurrentUser);
+            goto(`/${ndkCurrentUser.npub}`);
         });
     }
 </script>
