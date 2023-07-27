@@ -84,6 +84,20 @@
         display: flex;
         gap: 0.5em;
     }
+    :global(summary){
+        list-style: none;
+        align-items: center;
+    }
+    :global(input){
+        background-color: var(--background-color);
+        border: var(--common-border-style);
+        border-radius: var(--agnostic-radius);
+        padding: 0.2em;
+        padding-left: 0.5em;
+    }
+    :global(input:focus){
+        background-color: var(--elements-b-color);
+    }
     .MainAppContainer {
         max-width: 400px;
         display: block;
@@ -91,5 +105,8 @@
         border: 2px solid var(--hover-b-color);
         border-radius: 15px;
         padding: 15px;
+    }
+    :global(input::placeholder) {
+    color: var(--accent-color);
     }
 </style>

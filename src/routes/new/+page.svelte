@@ -1,14 +1,10 @@
 <script lang="ts">
-
-    import { NDKEvent, NDKNip07Signer } from '@nostr-dev-kit/ndk';
+    import { NDKNip07Signer } from '@nostr-dev-kit/ndk';
     import type { NDKUser } from '@nostr-dev-kit/ndk';
-    import { unixTimeNow } from '$lib/utils/helpers';
-    import ndkStore from '$lib/stores/provider';
-    import { get } from 'svelte/store';
     import ndk from '$lib/stores/provider';
-    import { Button } from "agnostic-svelte";
     import { onMount } from 'svelte';
-    
+    import CreateNewList from '$lib/components/create-new-list.svelte';
+    import { ndkUser } from '$lib/stores/user';
     onMount(() => {
         if (!$ndk.signer) {
             login();
@@ -19,26 +15,14 @@
         const signer = new NDKNip07Signer();
         $ndk.signer = signer;
         ndk.set($ndk);
-        signer.user().then( console.log );
-    }
-    // console.log($ndk)
-    function publish() {
-        const ndkEvent = new NDKEvent($ndk);
-        ndkEvent.kind = 1;
-        ndkEvent.content = "Hello, brave new world!";
-        ndkEvent.tags = [['title','value'],['r','https://example.com', 'example.com']];
-        ndkEvent.publish();
+        signer.user().then(async (ndkCurrentUser) => {
+            ndkUser.set(ndkCurrentUser);
+        });
     }
 </script>
 
 <div class="homeContainer">
-    <div class="logoContainer">
-
-    </div>
     <div class="p16">
-        <h1>Linktr</h1>
-        <p>Nostr based application to show link lists, notes, and other stuff </p>
-            <Button on:click={publish} mode="primary" isBlock isRounded>publish</Button>
-
+        <CreateNewList/>
     </div>
 </div>

@@ -26,7 +26,7 @@
         <p>Nostr based application to show link lists, notes, and other stuff </p>
     </div>
     <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
-    <Button mode="primary" isBlock isRounded><a href="https://pinstr.app" target="_blank" rel="noreferrer">Create list (pinstr.app)</a></Button>
+    <Button on:click={() =>goto('/new')} mode="primary" isBlock isRounded>Create list</Button>
 </div>
 
 <style>

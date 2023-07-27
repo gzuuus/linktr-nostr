@@ -1,9 +1,8 @@
-import { type NDKUserProfile, NDKUser, type NDKTag} from '@nostr-dev-kit/ndk';
+import { NDKUser, type NDKTag} from '@nostr-dev-kit/ndk';
 import { nip19 } from 'nostr-tools';
 import { get as getStore } from 'svelte/store';
 import ndkStore from '$lib/stores/provider';
-import type { ProfilePointer } from 'nostr-tools/lib/nip19';
-import { NDKNip07Signer} from '@nostr-dev-kit/ndk';
+import 'agnostic-svelte/css/common.min.css';
 const ndk = getStore(ndkStore);
 
 export async function nip05toPub (params:string) {
@@ -76,3 +75,35 @@ export function parseNostrUrls(rawContent: string): string {
       }
     });
   }
+  
+  export function truncateString(str?: string): string {
+    if (str === undefined) { return '';} 
+    else {return str.substring(0, 12) + '...' + str.substring(str.length - 6);}
+  }
+
+  export function truncatedBech(bech32: string, length?: number): string {
+    return `${bech32.substring(0, length || 9)}...`;
+}
+
+export async function copyToClipboard(textToCopy: string){
+  try {
+    await navigator.clipboard.writeText(textToCopy);
+  } catch (err) {
+    console.error('Failed to copy: ', err);
+  }
+}
+
+export async function shareContent() {
+  try {
+    const url = window.location.href;
+    if (navigator.share) {
+      await navigator.share({
+        url: url,
+      });
+    } else {
+      alert('Your browser does not support the sharing function. You can copy the link and share it manually.');
+    }
+  } catch (err) {
+    console.error('Error', err);
+  }
+}
