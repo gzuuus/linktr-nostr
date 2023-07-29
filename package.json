@@ -35,11 +35,11 @@
 	"type": "module",
 	"dependencies": {
 		"@nostr-dev-kit/ndk": "^0.7.5",
-		"@nostr-dev-kit/ndk-svelte-components": "^0.3.2",
 		"agnostic-svelte": "^1.1.27",
 		"linkify-it": "^4.0.1",
 		"markdown-it": "^13.0.1",
 		"nostr-tools": "^1.12.1",
-		"qrcode-generator": "^1.4.4"
+		"qrcode-generator": "^1.4.4",
+		"svelte-a11y-dialog": "^0.2.0"
 	}
 }

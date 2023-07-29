@@ -1,5 +1,4 @@
 import { nip19 } from 'nostr-tools';
-import 'agnostic-svelte/css/common.min.css';
 import type { NDKTag } from '@nostr-dev-kit/ndk';
 
 export function unixTimeNow() {
