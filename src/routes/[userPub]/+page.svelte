@@ -24,6 +24,7 @@
 
 <button class="switchButtons" class:unSelected={eventCardWipValue != 1} on:click={() => updateEventKind(1)}>My notes</button>
 <button class="switchButtons" class:unSelected={eventCardWipValue != 30023} on:click={() => updateEventKind(30023)}>My articles</button>
+<button class="switchButtons" class:unSelected={eventCardWipValue != 30303} on:click={() => updateEventKind(30303)}>My links</button>
 
 <style>
   .switchButtons {

@@ -57,6 +57,13 @@ export function isNip05(input: string): boolean {
     return titleTag ? titleTag[1] : null;
   }
 
+export function findListTags(tags: NDKTag[]) {
+  const matchingTags = tags.filter(tag => tag[0] === 'r');
+  return matchingTags.map(tag => {
+    const [url, text] = tag.slice(1);
+    return { url, text };
+  });
+  };
 export function parseNostrUrls(rawContent: string): string {
     const nostrPattern = /nostr:(nprofile|nevent|naddr)(\w+)/g;
     return rawContent.replace(nostrPattern, (match, type, id) => {

@@ -4,39 +4,44 @@
 
     import { Kind, nip19, type Event } from "nostr-tools";
     import ndk from "$lib/stores/provider";
-    import { unixToDate, buildEventPointer, getTagValue} from "$lib/utils/helpers";
+    import { unixToDate, buildEventPointer, getTagValue, findListTags} from "$lib/utils/helpers";
     import { utils } from "nostr-tools";
     import { fade } from 'svelte/transition';
-    import { Tag } from "agnostic-svelte";
+    import { Button, Tag } from "agnostic-svelte";
     import LinktOut from "$lib/elements/icons/linkt-out.svelte";
     import ParsedContent from './parse-content.svelte';
+    import type { NDKEvent } from "@nostr-dev-kit/ndk";
     
-
+    const linkListEventKind = 30303 as Kind;
     let userPubDecoded: string = nip19.decode(userPub).data.toString();
     let eventsList: Event<number>[] = [];
+    let linkListEvent: NDKEvent | null;
     
     let relaysList: string[] = Array.from($ndk.pool.relays.keys());
+      if (eventKind != linkListEventKind) {
+        eventKind = eventKind as Kind;
+        const sub = $ndk.subscribe({ kinds: [eventKind], authors: [userPubDecoded], limit: 5 }, { closeOnEose: false });
+        sub.on("event", (event: Event) => {
+            eventsList = utils.insertEventIntoDescendingList(eventsList, event);
+        });
+      
+        sub.on("eose", () => {
+          console.log("eose");
+        });
+      
+        sub.on("notice", (notice: string) => {
+          console.log(notice);
+        });
+      } else{
+        $ndk.fetchEvent({ kinds: [eventKind], authors: [userPubDecoded]}).then((fetchedEvent) => {
+          linkListEvent = fetchedEvent;
+        });
+      }
 
-
-
-    eventKind = eventKind as Kind;
-  
-    const sub = $ndk.subscribe({ kinds: [eventKind], authors: [userPubDecoded], limit: 5 }, { closeOnEose: false });
-
-    sub.on("event", (event: Event) => {
-        eventsList = utils.insertEventIntoDescendingList(eventsList, event);
-    });
-  
-    sub.on("eose", () => {
-      console.log("eose");
-    });
-  
-    sub.on("notice", (notice: string) => {
-      console.log(notice);
-    });
 </script>
   
 <div class="sectionContainer">
+  {#if eventKind != linkListEventKind}
     {#each eventsList as event}
       <div transition:fade class="eventContainer" >
         <div class="eventContentContainer">
@@ -54,6 +59,16 @@
 
       </div>
     {/each}
+  {:else}
+    {#if linkListEvent}
+      <div class="eventContentContainer">
+      <h3>{getTagValue(linkListEvent.tags, "title")}</h3>
+      {#each findListTags(linkListEvent.tags) as { url, text }}
+        <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
+      {/each}
+      </div>
+    {/if}
+  {/if}
 </div>
   
 <style>

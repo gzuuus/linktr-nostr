@@ -17,8 +17,7 @@
   let qrImageUrl: string = '';
   let showQR: boolean = false;
   let showAbout: boolean = false;
-  let isSharingSupported = Boolean(navigator.share);
-  console.log(isSharingSupported);
+
   const user = $ndk.getUser({
     npub: userPub,
   });
@@ -54,9 +53,6 @@
       <div>
         <button on:click={() =>generateQRCode(window.location.href)}><QrIcon size={18} /></button>
         <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
-        {#if isSharingSupported}
-        <button on:click={() =>shareContent()}><ShareIcon size={18} /></button>
-        {/if}
         {#if userProfile.about}
         <button on:click={() =>handleMoreInfo()}><PlusSmall size={18} /></button>
         {/if}
