@@ -1,14 +1,6 @@
-import { NDKUser, type NDKTag} from '@nostr-dev-kit/ndk';
 import { nip19 } from 'nostr-tools';
-import { get as getStore } from 'svelte/store';
-import ndkStore from '$lib/stores/provider';
 import 'agnostic-svelte/css/common.min.css';
-const ndk = getStore(ndkStore);
-
-export async function nip05toPub (params:string) {
-    let nip05PubValue = await NDKUser.fromNip05(params);
-    return nip05PubValue?.npub
-}
+import type { NDKTag } from '@nostr-dev-kit/ndk';
 
 export function unixTimeNow() {
     return Math.floor(new Date().getTime() / 1000);
@@ -21,7 +13,7 @@ export function dateTomorrow() {
 export function isNip05(input: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(input);
-  }
+}
 
   export function unixToDate(unixTimestamp: number | undefined) {
     if (unixTimestamp === undefined) { return ''; }
@@ -76,7 +68,6 @@ export function parseNostrUrls(rawContent: string): string {
           return `<a href="https://nostr.com/${nostrEntity}" target="_blank" rel="noopener noreferrer">Perfil ${nostrEntity.slice(0,16)}</a>`;
         case 'naddr':
           return `<a href="https://nostr.com/${nostrEntity}" target="_blank" rel="noopener noreferrer">Perfil ${nostrEntity.slice(0,16)}</a>`;
- 
         default:
           return match;
       }

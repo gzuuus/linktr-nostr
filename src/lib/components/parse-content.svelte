@@ -16,7 +16,7 @@
 
 
 function parseLinks(rawContent: string): string {
-  rawContent = parseNostrUrls(rawContent);
+  // rawContent = parseNostrUrls(rawContent);
 
   const matches = linkify.match(rawContent);
   if (matches) {

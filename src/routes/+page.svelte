@@ -6,7 +6,6 @@
     import Logo from '$lib/elements/icons/logo.svelte';
     import { ndkUser } from '$lib/stores/user';
 
-    let user: NDKUser;
     async function login() {
         const signer = new NDKNip07Signer();
         $ndk.signer = signer;
