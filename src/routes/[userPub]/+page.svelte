@@ -2,7 +2,6 @@
     import type { PageData } from './$types';
   
     import ProfileCard from '$lib/components/profile-card.svelte';
-    import EventCard from '$lib/components/event-card.svelte';
     import EventCardWip from '$lib/components/event-card-wip.svelte';
   
     export let data: PageData;
@@ -17,7 +16,6 @@
   </script>
   
 <ProfileCard userPub={user} />
-<EventCard userPub={user} />
 {#key eventCardWipValue}
 <EventCardWip userPub={user} eventKind={eventCardWipValue} />
 {/key}

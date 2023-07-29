@@ -1,5 +1,4 @@
 <script lang="ts">
-    import 'agnostic-svelte/css/common.min.css';
     import Logo from '$lib/elements/icons/logo.svelte';
     import ProfileIcon from '$lib/elements/icons/profile-icon.svelte';
     import { Button } from 'agnostic-svelte';
