@@ -1,7 +1,8 @@
 import type { PageLoad } from './$types';
 import { get as getStore } from 'svelte/store';
 import ndkStore from '$lib/stores/provider';
-import { nip05toPub, isNip05 } from '$lib/utils/helpers';
+import { isNip05 } from '$lib/utils/helpers';
+import { NDKUser} from '@nostr-dev-kit/ndk';
 
 export const load = (async ({ params }) => {
     const paramsArg = params.userPub;
@@ -9,7 +10,9 @@ export const load = (async ({ params }) => {
     let npub: any;
   
     if (isNip05(paramsArg)) {
-      npub = await nip05toPub(paramsArg);
+      // npub = await nip05toPub(paramsArg);
+      let npubPromise = await NDKUser.fromNip05(paramsArg);
+      npub = npubPromise?.npub;
     } else {
       npub = paramsArg;
     }
