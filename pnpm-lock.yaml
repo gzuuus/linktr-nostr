@@ -68,7 +68,7 @@ devDependencies:
     specifier: ^2.10.1
     version: 2.10.1(prettier@2.8.8)(svelte@4.0.5)
   svelte:
-    specifier: ^4.0.5
+    specifier: ^4.0.0
     version: 4.0.5
   svelte-check:
     specifier: ^3.4.3
