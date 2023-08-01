@@ -80,6 +80,7 @@ function parseLinks(rawContent: string): string {
     padding: 0;
     right: 0;
     margin:0.4em;
+    color: white;
   }
   .showMoreButton:hover {
     background: var(--hover-b-color);

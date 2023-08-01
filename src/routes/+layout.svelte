@@ -110,4 +110,13 @@
     :global(input::placeholder) {
     color: var(--accent-color);
     }
+    :global(.eventContainer) {
+        margin: 10px;
+        padding: 5px;
+        border-radius: 15px;
+        word-wrap: anywhere;
+        border: 1px solid var(--hover-b-color);
+        transition: max-height 0.3s ease-in-out;
+        position: relative;
+    }
 </style>

@@ -1,7 +1,6 @@
 <script lang="ts">
     export let userPub: string;
     export let eventKind: number;
-
     import { Kind, nip19, type Event } from "nostr-tools";
     import ndk from "$lib/stores/provider";
     import { unixToDate, buildEventPointer, getTagValue, findListTags} from "$lib/utils/helpers";
@@ -79,16 +78,6 @@
   background: transparent;
   border: none;
   transition: all 0.2s ease-in-out;
-}
-
-.eventContainer {
-  margin: 10px;
-  padding: 5px;
-  border-radius: 15px;
-  word-wrap: anywhere;
-  border: 1px solid var(--hover-b-color);
-  transition: max-height 0.3s ease-in-out;
-  position: relative;
 }
 
 .eventContentContainer {

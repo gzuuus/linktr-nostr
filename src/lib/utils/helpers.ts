@@ -1,5 +1,8 @@
 import { nip19 } from 'nostr-tools';
 import type { NDKTag } from '@nostr-dev-kit/ndk';
+import { ndkUser } from '$lib/stores/user';
+import { goto } from '$app/navigation';
+import type { LinkData } from "$lib/classes/list";
 
 export function unixTimeNow() {
     return Math.floor(new Date().getTime() / 1000);
@@ -103,4 +106,9 @@ export async function shareContent() {
   } catch (err) {
     console.error('Error', err);
   }
+}
+
+export function logout() {
+  ndkUser.set(null);
+  goto('/');
 }

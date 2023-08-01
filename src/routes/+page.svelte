@@ -5,6 +5,7 @@
     import { Button } from "agnostic-svelte";
     import Logo from '$lib/elements/icons/logo.svelte';
     import { ndkUser } from '$lib/stores/user';
+    import { writable } from 'svelte/store';
 
     async function login() {
         const signer = new NDKNip07Signer();
@@ -24,7 +25,9 @@
         <h1>Linktr</h1>
         <p>Nostr based application to show link lists, notes, and other stuff </p>
     </div>
+    {#if !$ndkUser}
     <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
+    {/if}
     <Button on:click={() =>goto('/new')} mode="primary" isBlock isRounded>Create list</Button>
 </div>
 
