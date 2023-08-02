@@ -1,6 +1,7 @@
 import { nip19 } from 'nostr-tools';
 import type { NDKTag } from '@nostr-dev-kit/ndk';
 import { ndkUser } from '$lib/stores/user';
+import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from '$app/navigation';
 import type { LinkData } from "$lib/classes/list";
 
@@ -110,6 +111,7 @@ export async function shareContent() {
 
 export function logout() {
   ndkUser.set(null);
+  lengthStore.set({});
   goto('/');
 }
 

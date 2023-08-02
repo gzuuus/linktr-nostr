@@ -22,7 +22,6 @@
     links: [{ link: '', description: '' }],
   };
   if (eventToEdit) {
-    console.log(eventToEdit);
     let title = getTagValue(eventToEdit.tags, "title");
     const rTags = findListTags(eventToEdit.tags);
     const links = rTags.map(tag => ({ link: tag.url, description: tag.text }));

@@ -28,7 +28,7 @@
     {#if !$ndkUser}
     <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
     {/if}
-    <Button on:click={() =>goto('/new')} mode="primary" isBlock isRounded>Create list</Button>
+    <Button on:click={() =>goto('/new')} mode="primary" isBlock isRounded>Manage lists</Button>
 </div>
 
 <style>

@@ -10,6 +10,7 @@
     import LinktOut from "$lib/elements/icons/linkt-out.svelte";
     import ParsedContent from './parse-content.svelte';
     import type { NDKEvent } from "@nostr-dev-kit/ndk";
+    import { updateLength } from "$lib/stores/eventListsLengths";
     
     const linkListEventKind = 30303 as Kind;
     let userPubDecoded: string = nip19.decode(userPub).data.toString();
@@ -22,6 +23,7 @@
         const sub = $ndk.subscribe({ kinds: [eventKind], authors: [userPubDecoded], limit: 5 }, { closeOnEose: false });
         sub.on("event", (event: Event) => {
             eventsList = utils.insertEventIntoDescendingList(eventsList, event);
+            updateLength(eventKind, eventsList.length);
         });
       
         sub.on("eose", () => {
@@ -34,9 +36,13 @@
       } else{
         $ndk.fetchEvent({ kinds: [eventKind], authors: [userPubDecoded]}).then((fetchedEvent) => {
           linkListEvent = fetchedEvent;
+          if (fetchedEvent) {
+            updateLength(eventKind, 1);
+          } else {
+            updateLength(eventKind, 0);
+          }
         });
       }
-
 </script>
   
 <div class="sectionContainer">
@@ -85,14 +91,10 @@
 }
 
 .sectionContainer {
-  max-height: 220px;
+  max-height: 420px;
   overflow: scroll;
 }
 
-.sectionContainer {
-  max-height: 220px;
-  overflow: scroll;
-}
 
 .infoBox {
   display: flex;

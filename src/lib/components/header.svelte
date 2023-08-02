@@ -18,7 +18,7 @@
           <div class="headerLogo"><a href="/"><Logo size={50}/></a></div>
     {#if $ndkUser}
     <div class="userMenu">
-        <Button on:click={handleGotoNewList} mode="primary" isLink>Create list</Button>
+        <Button on:click={handleGotoNewList} mode="primary" isLink>Manage lists</Button>
         <Button on:click={handleGotoProfile} mode="primary" isCircle isLink><ProfileIcon size={20} /></Button>
         <Button on:click={logout} mode="primary" isCircle isLink><LogoutIcon size={20} /></Button>
     </div>

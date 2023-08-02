@@ -15,7 +15,6 @@
 
     // export let data: PageData;
     let events: NDKEvent[] = [];
-    console.log(events.length);
     const linkListEventKind = 30303 as Kind;
     let eventToEdit: any;
     onMount(() => {
@@ -29,11 +28,8 @@
     function showEvents() {
         if ($ndkUser) {
             let userPubDecoded: string = nip19.decode($ndkUser.npub).data.toString();
-            console.log(userPubDecoded);
             $ndk.fetchEvents({ kinds: [linkListEventKind], authors: [userPubDecoded]}).then((fetchedEvent) => {
                 events = Array.from(fetchedEvent); 
-                console.log(events.length);
-                console.log(events);
             });  
         }
     }
