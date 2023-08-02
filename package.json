@@ -20,6 +20,7 @@
 		"@types/crypto-js": "^4.1.1",
 		"@types/linkify-it": "^3.0.2",
 		"@types/markdown-it": "^12.2.3",
+		"@types/uuid": "^9.0.2",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"eslint": "^8.28.0",
@@ -37,11 +38,11 @@
 	"dependencies": {
 		"@nostr-dev-kit/ndk": "^0.7.7",
 		"agnostic-svelte": "^1.1.27",
-		"crypto-js": "^4.1.1",
 		"linkify-it": "^4.0.1",
 		"markdown-it": "^13.0.1",
 		"nostr-tools": "^1.12.1",
 		"qrcode-generator": "^1.4.4",
-		"svelte-a11y-dialog": "^0.2.0"
+		"svelte-a11y-dialog": "^0.2.0",
+		"uuid": "^9.0.0"
 	}
 }

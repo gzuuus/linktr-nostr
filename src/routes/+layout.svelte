@@ -1,8 +1,6 @@
 <script lang="ts">
     import Header from "$lib/components/header.svelte"
     import 'agnostic-svelte/css/common.min.css';
-    
-    
 </script>
 <Header/>
 <div class="MainAppContainer">
@@ -19,7 +17,7 @@
         --agnostic-radius: 15px;
         --agnostic-focus-ring-color: var(--hover-b-color);
         --agnostic-btn-primary-color: var(--background-color);
-        --agnostic-dark: var(--background-color);        
+        --agnostic-dark: var(--background-color);
         --background-color: #10051e;
         --container-b-color: #210b3c;
         --elements-b-color: #2a193e;
@@ -77,14 +75,6 @@
         width: 100%;
         padding: 5px;
     }
-    :global(.userMenu){
-        position: absolute;
-        top: 0;
-        right: 0;
-        padding: 0 1em;
-        display: flex;
-        gap: 0.5em;
-    }
     :global(summary){
         list-style: none;
         align-items: center;
@@ -100,12 +90,13 @@
         background-color: var(--elements-b-color);
     }
     .MainAppContainer {
-        max-width: 400px;
+        width: 400px;
         display: block;
         background: transparent;
         border: 2px solid var(--hover-b-color);
         border-radius: 15px;
         padding: 15px;
+        margin: 1em;
     }
     :global(input::placeholder) {
     color: var(--accent-color);
@@ -118,5 +109,18 @@
         border: 1px solid var(--hover-b-color);
         transition: max-height 0.3s ease-in-out;
         position: relative;
+    }
+    :global(.disclose-title::after) {
+        color: var(--text-color) !important;
+    }
+    :global(.disclose-bg .disclose-title) {
+        background-color: var(--container-b-color) !important;
+        border-radius: var(--agnostic-radius) !important;
+    }
+    :global(.disclose){
+	width: 284px;
+    }
+    :global(.disclose-panel){
+        padding: 0 !important;
     }
 </style>

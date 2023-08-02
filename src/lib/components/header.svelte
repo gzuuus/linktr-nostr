@@ -15,7 +15,7 @@
     }
 </script>
   <div class="container">
-          <div><a href="/"><Logo size={50}/></a></div>
+          <div class="headerLogo"><a href="/"><Logo size={50}/></a></div>
     {#if $ndkUser}
     <div class="userMenu">
         <Button on:click={handleGotoNewList} mode="primary" isLink>Create list</Button>
@@ -29,5 +29,19 @@
     .container {
         position: fixed;
         width: 100%;
+    }
+    .userMenu{
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 1em;
+        display: flex;
+        gap: 0.5em;
+    }
+    .headerLogo{
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0 1em;
     }
 </style>

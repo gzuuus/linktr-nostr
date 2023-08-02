@@ -48,7 +48,7 @@ export function isNip05(input: string): boolean {
   
   export function getTagValue(tags:NDKTag[], key:string) {
     const titleTag = tags.find(tag => tag[0] === key);
-    return titleTag ? titleTag[1] : null;
+    return titleTag ? titleTag[1] : '';
   }
 
 export function findListTags(tags: NDKTag[]) {
@@ -112,3 +112,4 @@ export function logout() {
   ndkUser.set(null);
   goto('/');
 }
+

@@ -22,7 +22,7 @@
         <Logo size={100}/>
     </div>
     <div class="p16">
-        <h1>Linktr</h1>
+        <h1>Nostree</h1>
         <p>Nostr based application to show link lists, notes, and other stuff </p>
     </div>
     {#if !$ndkUser}
