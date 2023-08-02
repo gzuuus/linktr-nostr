@@ -17,7 +17,6 @@
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/adapter-cloudflare": "^2.3.1",
 		"@sveltejs/kit": "^1.20.4",
-		"@types/crypto-js": "^4.1.1",
 		"@types/linkify-it": "^3.0.2",
 		"@types/markdown-it": "^12.2.3",
 		"@types/uuid": "^9.0.2",
@@ -36,7 +35,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@nostr-dev-kit/ndk": "^0.7.7",
+		"@nostr-dev-kit/ndk": "^0.8.0",
 		"agnostic-svelte": "^1.1.27",
 		"linkify-it": "^4.0.1",
 		"markdown-it": "^13.0.1",
