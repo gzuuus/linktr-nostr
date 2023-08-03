@@ -92,7 +92,7 @@
 
 .sectionContainer {
   max-height: 420px;
-  overflow: scroll;
+  overflow: auto;
 }
 
 

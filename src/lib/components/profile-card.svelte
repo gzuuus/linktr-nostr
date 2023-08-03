@@ -23,8 +23,14 @@
   });
 
   user.fetchProfile().then(() => {
-    userProfile = user.profile as NDKUserProfile;
-  });
+  userProfile = user.profile as NDKUserProfile;
+}).then(() => {
+  if (userProfile.image == undefined) {
+    generateQRCode(window.location.href);
+  }
+});
+
+
 
   function generateQRCode(value:string) {
     const qr = QRcode(0, 'L');
@@ -40,14 +46,18 @@
 
 {#if userProfile}
 <div transition:fade class="profileContainer">
+
   {#if !showQR}
     <img transition:fade src={userProfile.image} alt="avatar" />
   {:else}
     <img transition:fade src={qrImageUrl} alt="QR Code" />
   {/if}
+ 
   <div class="profileInfoBox">
     <h2>{userProfile.name}</h2>
-    <p>{userProfile.nip05}</p>
+    {#if userProfile.nip05}
+      <p>{userProfile.nip05}</p>
+    {/if}
     <div class="profileButtons">
       <div><button class="userPubString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
       <div>

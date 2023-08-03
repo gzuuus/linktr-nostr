@@ -33,7 +33,9 @@
   {#if lengths[kindLinks] == 0}
   <button class="noEventsButton" on:click={() => goto(`/new`)}>
     <div class="noEvents">
-      <PlusSmall size={30} />
+      <div class="borderedSection">
+        <PlusSmall size={30} />
+      </div>
       <p>There are no links yet, create a new one</p>
     </div>
   </button>
@@ -73,7 +75,7 @@
     display: none;
   }
   .noEvents {
-    background: var(--accent-color);
+    background: var(--background-color);
     display: flex;
     border-radius: var(--agnostic-radius);
     height: 170px;
@@ -82,6 +84,8 @@
     align-items: center;
     flex-direction: column;
     padding: 1em;
+    border: var(--common-border-style);
+    color: var(--text-color);
   }
   .noEventsButton {
     padding: 0;

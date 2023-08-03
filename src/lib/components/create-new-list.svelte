@@ -11,9 +11,12 @@
   import { findListTags, getTagValue } from '$lib/utils/helpers';
   import { v4 as uuidv4 } from 'uuid';
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
+    import { goto } from '$app/navigation';
+    import { ndkUser } from '$lib/stores/user';
 
   export let eventToEdit: NDKEvent | null = null;
-  
+
+  const newDTag = `nostree-${uuidv4()}`;
   const validPrefixes: string[] = ['http://', 'https://', 'ftp://', 'nostr:'];
   let linkValidationStatus: boolean[] = [];
 
@@ -54,32 +57,25 @@
   function handleInput() {
       validateAllURLs();
     };
-  
-  // function validateURL(linkData: LinkData, index: number) {
-  //   const isValidPrefix = validPrefixes.some(prefix => linkData.link.startsWith(prefix));
-  //   linkValidationStatus[index] = isValidPrefix;
-  //   linkValidationStatus = [...linkValidationStatus];
-  // }
 
   let areAllLinksValid: boolean = false;
 
-  $: {
-    areAllLinksValid = linkValidationStatus.length > 0 && linkValidationStatus.every(status => status);
-  }
+  $: areAllLinksValid = linkValidationStatus.length > 0 && linkValidationStatus.every(status => status);
 
   function handleSubmit() {
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = 30303;
+    
     if (eventToEdit) {
       ndkEvent.tags = [['title', formData.title], ['d', getTagValue(eventToEdit.tags, "d")]];
     } else {
-      ndkEvent.tags = [['title', formData.title], ['d', `nostree-${uuidv4()}`]];
+      ndkEvent.tags = [['title', formData.title], ['d', newDTag]];
     }
     for (const linkData of formData.links) {
       const { link, description } = linkData;
       ndkEvent.tags.push(['r', link, description]);
     }
-    ndkEvent.publish();
+    ndkEvent.publish().then(() => goto(`/${$ndkUser?.npub}`));
   }
 
   function addLinkField() {
@@ -135,16 +131,15 @@
     </div>
 
     <div class="formButtons">
-      {#if areAllLinksValid}
+      {#if areAllLinksValid && formData.title.trim() != ''}
       <Button type="button" isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
       <Button isBlock type="submit">Publish</Button>
-      <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
+      
       {:else}
-
       <Button type="button" disabled isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
       <Button isBlock type="submit" disabled>Publish</Button>
-      <Button type="button" isRounded disabled on:click={handleReset}><ResetIcon size={18} /></Button>
       {/if}
+      <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
 
     </div>
   </form>

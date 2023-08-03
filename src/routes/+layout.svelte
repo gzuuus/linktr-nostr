@@ -8,7 +8,11 @@
 </div>
 
 <style>
-    :root {
+    @font-face {
+        font-family: 'Fredoka';
+        src: url('$lib/static/fredoka-variable.woff') format('woff'),
+    }
+    :global(:root) {
         --common-transition:all 0.2s ease-in-out;
         --common-border-style:1px solid var(--accent-color);
         --agnostic-header-background-color: transparent;
@@ -18,6 +22,7 @@
         --agnostic-focus-ring-color: var(--hover-b-color);
         --agnostic-btn-primary-color: var(--background-color);
         --agnostic-dark: var(--background-color);
+        --agnostic-gray-light: white;
         --background-color: #10051e;
         --container-b-color: #210b3c;
         --elements-b-color: #2a193e;
@@ -35,6 +40,7 @@
         min-height: 100vh;
         text-align: center;
         margin: 0;
+        font-family: 'Fredoka', sans-serif;
     }
     :global(button) {
         margin: 8px 0;
@@ -50,6 +56,9 @@
     }
     :global(a) {
         color: var(--accent-color);
+    }
+    :global(p){
+        font-size: 18px;
     }
 
     :global(hr) {
@@ -122,5 +131,36 @@
     }
     :global(.disclose-panel){
         padding: 0 !important;
+    }
+    :global(.spinner::after){
+        border-color: transparent var(--accent-color) transparent transparent !important;
+    }
+    :global(::-webkit-scrollbar) {
+        width: 2px;
+        background-color: transparent;
+    }
+    :global(::-webkit-scrollbar-thumb) {
+        width: 8px;
+        background-color: var(--accent-color);
+    }
+    :global(scrollbar) {
+        width: 0;
+        background-color: transparent;
+    }
+    :global(scrollbar-thumb) {
+        width: 8px;
+        background-color: var(--accent-color);
+        border-radius: 4px;
+    }
+    :global(.borderedSection){
+        border: var(--common-border-style);
+        display: flex;
+        padding: 0.5em;
+        border-radius: var(--agnostic-radius);
+        margin: 0.3em;
+        transition: all 0.2s linear;
+    }
+    :global(.borderedSection:hover){
+        color: var(--hover-color);
     }
 </style>
