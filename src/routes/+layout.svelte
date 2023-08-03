@@ -99,7 +99,7 @@
         background-color: var(--elements-b-color);
     }
     .MainAppContainer {
-        width: 400px;
+        max-width: 400px;
         display: block;
         background: transparent;
         border: 2px solid var(--hover-b-color);
