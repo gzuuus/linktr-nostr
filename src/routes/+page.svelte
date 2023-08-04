@@ -5,7 +5,6 @@
     import { Button } from "agnostic-svelte";
     import Logo from '$lib/elements/icons/logo.svelte';
     import { ndkUser } from '$lib/stores/user';
-    import { writable } from 'svelte/store';
 
     async function login() {
         const signer = new NDKNip07Signer();

@@ -1,4 +1,3 @@
-// $lib/stores/user.ts
 import { writable } from 'svelte/store';
 import type { NDKUser } from '@nostr-dev-kit/ndk';
 

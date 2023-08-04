@@ -71,10 +71,12 @@
         border: 1px solid var(--hover-b-color);
         margin-top: 0.3em !important;
         transition: all 0.2s ease-in-out;
+        align-items: center;
+	    gap: 0.3em;
     }
 
     :global(.tag:hover){
-        color: var(--text-color) !important;
+        color: var(--hover-color) !important;
     }
     :global(.btn-link) {
         border: 1px solid var(--accent-color) !important;
@@ -99,13 +101,19 @@
         background-color: var(--elements-b-color);
     }
     .MainAppContainer {
-        max-width: 400px;
+        width: 25rem;
         display: block;
         background: transparent;
         border: 2px solid var(--hover-b-color);
         border-radius: 15px;
         padding: 15px;
         margin: 1em;
+    }
+    @media screen and (max-width: 479px) {
+    .MainAppContainer {
+        width: auto;
+        max-width: 25rem;
+        }
     }
     :global(input::placeholder) {
     color: var(--accent-color);
@@ -163,4 +171,21 @@
     :global(.borderedSection:hover){
         color: var(--hover-color);
     }
+    :global(.switchButtons ){
+        padding: 0.1em 0.5em;
+        border: var(--common-border-style);
+        color: var(--accent-color);
+        background-color: var(--background-color);
+    }
+    :global(.selected) {
+        background-color: var(--accent-color);
+        color: var(--background-color);
+    }
+    :global(.hidden) {
+            display: none !important;
+    }
+    :global(svg:hover) {
+        color: var(--hover-color);
+    }
+
 </style>

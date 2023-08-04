@@ -3,15 +3,16 @@
   import ndk from '$lib/stores/provider';
   import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
   import { fade } from 'svelte/transition';
-  import ParsedContent from './parse-content.svelte';
-  import { Button } from 'agnostic-svelte';
   import { truncateString, copyToClipboard, shareContent } from '$lib/utils/helpers';
   import CopyIcon from '$lib/elements/icons/copy-icon.svelte';
   import QRcode from 'qrcode-generator';
   import QrIcon from '$lib/elements/icons/qr-icon.svelte';
   import LnIcon from '$lib/elements/icons/ln-icon.svelte';
-    import PlusSmall from '$lib/elements/icons/plus-small.svelte';
-    import ShareIcon from '$lib/elements/icons/share-icon.svelte';
+  import PlusSmall from '$lib/elements/icons/plus-small.svelte';
+  import { ndkUser } from '$lib/stores/user';
+  import { page } from '$app/stores';
+    import { Tag } from 'agnostic-svelte';
+    import CheckIcon from '$lib/elements/icons/check-icon.svelte';
 
   let userProfile: NDKUserProfile;
   let qrImageUrl: string = '';
@@ -23,12 +24,12 @@
   });
 
   user.fetchProfile().then(() => {
-  userProfile = user.profile as NDKUserProfile;
-}).then(() => {
-  if (userProfile.image == undefined) {
-    generateQRCode(window.location.href);
-  }
-});
+  userProfile = user.profile as NDKUserProfile;})
+  .then(() => {
+    if (userProfile.image == undefined) {
+      generateQRCode($page.url.href);
+    }
+})
 
 
 
@@ -56,12 +57,12 @@
   <div class="profileInfoBox">
     <h2>{userProfile.name}</h2>
     {#if userProfile.nip05}
-      <p>{userProfile.nip05}</p>
+      <Tag><CheckIcon size={14} />{userProfile.nip05}</Tag>
     {/if}
     <div class="profileButtons">
       <div><button class="userPubString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
       <div>
-        <button on:click={() =>generateQRCode(window.location.href)}><QrIcon size={18} /></button>
+        <button on:click={() =>generateQRCode($page.url.href)}><QrIcon size={18} /></button>
         <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
         {#if userProfile.about}
         <button on:click={() =>handleMoreInfo()}><PlusSmall size={18} /></button>

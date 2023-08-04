@@ -13,12 +13,13 @@
   let kindLinks = 30303;
   let kindNotes = 1;
   let kindArticles = 30023;
-  let visibleComponent:number = kindLinks;
+  $: visibleComponent = lengths[kindLinks] == 0 ? kindNotes : kindLinks;
   let lengths: { [key: number]: number } = {};
 
   lengthStore.subscribe((newLengths) => {
   lengths = newLengths;
   });
+  
 
   function showComponent(kind: number) {
     visibleComponent = kind;
@@ -36,7 +37,7 @@
       <div class="borderedSection">
         <PlusSmall size={30} />
       </div>
-      <p>There are no links yet, create a new one</p>
+      <p>No links yet</p>
     </div>
   </button>
   {/if}
@@ -51,29 +52,17 @@
 </div>
 
 
-<button class="switchButtons" class:unSelected={visibleComponent != kindLinks} on:click={() => showComponent(kindLinks)}>My links</button>
+<button class="switchButtons" class:selected={visibleComponent == kindLinks} on:click={() => showComponent(kindLinks)}>My links</button>
 
 {#if lengths[kindNotes] >= 1}
-<button class="switchButtons" class:unSelected={visibleComponent != kindNotes} on:click={() => showComponent(kindNotes)}>My notes</button>
+<button class="switchButtons" class:selected={visibleComponent == kindNotes} on:click={() => showComponent(kindNotes)}>My notes</button>
 {/if}
 {#if lengths[kindArticles] >= 1}
-<button class="switchButtons" class:unSelected={visibleComponent != kindArticles} on:click={() => showComponent(kindArticles)}>My articles</button>
+<button class="switchButtons" class:selected={visibleComponent == kindArticles} on:click={() => showComponent(kindArticles)}>My articles</button>
 {/if}
 
 
 <style>
-  .switchButtons {
-    padding: 0.1em 0.5em;
-    background-color: var(--accent-color);
-  }
-  .unSelected {
-    border: var(--common-border-style);
-    color: var(--accent-color);
-    background-color: var(--background-color);
-  }
-  .hidden {
-    display: none;
-  }
   .noEvents {
     background: var(--background-color);
     display: flex;
@@ -89,5 +78,6 @@
   }
   .noEventsButton {
     padding: 0;
+    width: 80%;
   }
 </style>
