@@ -26,6 +26,11 @@ function parseLinks(rawContent: string): string {
           match.text,
           `<img src="${match.url}" alt="${match.text}" />`
         );
+      } else if (isVideoLink(match.url)){
+        rawContent = rawContent.replace(
+          match.text,
+          `<video src="${match.url}" alt="${match.text}" controls></video>`
+        );
       } else {
         rawContent = rawContent.replace(
           match.text,
@@ -38,6 +43,9 @@ function parseLinks(rawContent: string): string {
 }
   function isImageLink(url: string): boolean {
     return /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(url);
+  }
+  function isVideoLink(url: string): boolean {
+    return /\.(mp4|mov|avi|wmv|flv|mkv|webm|mpeg|3gp|ogv)$/i.test(url);
   }
 
   $: {

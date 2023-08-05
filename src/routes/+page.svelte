@@ -20,9 +20,9 @@
     <div class="logoContainer">
         <Logo size={100}/>
     </div>
-    <div class="p16">
+    <div>
         <h1>Nostree</h1>
-        <p>Nostr based application to show link lists, notes, and other stuff </p>
+        <p>Nostr based application to manage link lists, and show notes, and other stuff</p>
     </div>
     {#if !$ndkUser}
     <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
@@ -37,6 +37,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        word-break: break-word;
     }
     .logoContainer {
         display: flex;

@@ -18,9 +18,9 @@
           <div class="headerLogo"><a href="/"><Logo size={50}/></a></div>
     {#if $ndkUser}
     <div class="userMenu">
-        <Button on:click={handleGotoNewList} mode="primary" isLink>Manage lists</Button>
-        <Button on:click={handleGotoProfile} mode="primary" isCircle isLink><ProfileIcon size={20} /></Button>
-        <Button on:click={logout} mode="primary" isCircle isLink><LogoutIcon size={20} /></Button>
+        <button class="secondary-button" on:click={handleGotoNewList}>Manage lists</button>
+        <button class="secondary-button" on:click={handleGotoProfile}><ProfileIcon size={20} /></button>
+        <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
     </div>
     {/if}
   </div>
@@ -37,6 +37,7 @@
         padding: 0 1em;
         display: flex;
         gap: 0.5em;
+        line-height: 0;
     }
     .headerLogo{
         position: absolute;

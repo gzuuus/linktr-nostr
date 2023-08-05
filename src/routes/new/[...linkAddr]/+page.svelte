@@ -14,6 +14,7 @@
     import { Disclose } from "agnostic-svelte";
     import BinIcon from '$lib/elements/icons/bin-icon.svelte';
     import { Spinner } from "agnostic-svelte";
+    import PinIcon from '$lib/elements/icons/pin-icon.svelte';
 
     // export let data: PageData;
     let events: NDKEvent[] = [];
@@ -104,10 +105,10 @@
         {#if events.length > 0}
         <div class="allListsContainer">
             <Disclose isBackground title="All lists">
-            {#each events as event}
+            {#each events as event, i}
                 <div class="eventContainer">
                     <button on:click={() => pickEventToEdit(event)}><EditIcon size={20}/></button>
-                    <button on:click={() => handleSubmit(event)}><RepublishIcon size={20}/></button>
+                    <button class:firstEvent={i == 0} on:click={() => handleSubmit(event)}><PinIcon size={20}/></button>
                     <button on:click={() => handleSubmit(event, true)}><BinIcon size={20}/></button>
                     <h3>{getTagValue(event.tags, "title")}</h3>
                     {#each findListTags(event.tags) as { url, text }}
@@ -135,12 +136,14 @@
     button:hover {
         color: var(--hover-color);
     }
-    .listContainer {
-        display: flex;
-        justify-content: center;
+    .firstEvent {
+        color: var(--hover-color);
     }
-    .allListsContainer {
-        width: 257px;
+    .listContainer {
+        display: block;
+        word-break: break-word;
+        width: 80%;
+        margin: auto;
     }
     .spinnerContainer{
         background: var(--translucid-b-color);
@@ -153,6 +156,9 @@
         height: 100vh;
         display: flex;
         justify-content: center;
+    }
+    .allListsContainer {
+        margin-top: 0.5em;
     }
 
 </style>

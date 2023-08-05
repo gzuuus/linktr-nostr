@@ -2,7 +2,12 @@
     import Header from "$lib/components/header.svelte"
     import 'agnostic-svelte/css/common.min.css';
 </script>
+<svelte:head>
+    <title>Nostree</title>
+    <meta name="description" content="Nostr based application to manage link lists, and show notes, and other stuff">
+</svelte:head>
 <Header/>
+
 <div class="MainAppContainer">
     <slot/>
 </div>
@@ -10,11 +15,12 @@
 <style>
     @font-face {
         font-family: 'Fredoka';
-        src: url('$lib/static/fredoka-variable.woff') format('woff'),
+        src: url('/fredoka-variable.woff') format('woff'),
     }
     :global(:root) {
         --common-transition:all 0.2s ease-in-out;
         --common-border-style:1px solid var(--accent-color);
+        --common-border-style-hover:1px solid var(--hover-color);
         --agnostic-header-background-color: transparent;
         --agnostic-focus-ring-outline-width: 2px;
         --agnostic-btn-primary:white;
@@ -82,7 +88,7 @@
         border: 1px solid var(--accent-color) !important;
         border-radius: var(--agnostic-radius) !important;
     }
-    :global(img){
+    :global(img, video){
         width: 100%;
         padding: 5px;
     }
@@ -110,9 +116,9 @@
         margin: 1em;
     }
     @media screen and (max-width: 479px) {
-    .MainAppContainer {
-        width: auto;
-        max-width: 25rem;
+        .MainAppContainer {
+            width: 95vw;
+            max-width: 100vw;
         }
     }
     :global(input::placeholder) {
@@ -171,11 +177,20 @@
     :global(.borderedSection:hover){
         color: var(--hover-color);
     }
-    :global(.switchButtons ){
+    :global(.switchButtons){
         padding: 0.1em 0.5em;
         border: var(--common-border-style);
         color: var(--accent-color);
         background-color: var(--background-color);
+    }
+    :global(.secondary-button){
+        padding: 0.3em 0.5em;
+        border: var(--common-border-style);
+        color: var(--accent-color);
+        background-color: var(--background-color);
+    }
+    :global(.secondary-button:hover){
+        color: var(--text-color);
     }
     :global(.selected) {
         background-color: var(--accent-color);

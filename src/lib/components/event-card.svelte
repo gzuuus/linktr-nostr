@@ -1,51 +1,50 @@
 <script lang="ts">
-    export let userPub: string;
-    export let eventKind: number;
-    import { Kind, nip19, type Event } from "nostr-tools";
-    import ndk from "$lib/stores/provider";
-    import { unixToDate, buildEventPointer, getTagValue, findListTags} from "$lib/utils/helpers";
-    import { utils } from "nostr-tools";
-    import { fade } from 'svelte/transition';
-    import { Button, Tag } from "agnostic-svelte";
-    import LinktOut from "$lib/elements/icons/linkt-out.svelte";
-    import ParsedContent from './parse-content.svelte';
-    import type { NDKEvent } from "@nostr-dev-kit/ndk";
-    import { updateLength } from "$lib/stores/eventListsLengths";
-    import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";
+  export let userPub: string;
+  export let eventKind: number;
+  import { Kind, nip19, type Event } from "nostr-tools";
+  import ndk from "$lib/stores/provider";
+  import { unixToDate, buildEventPointer, getTagValue, findListTags} from "$lib/utils/helpers";
+  import { utils } from "nostr-tools";
+  import { fade } from 'svelte/transition';
+  import { Button, Tag } from "agnostic-svelte";
+  import LinktOut from "$lib/elements/icons/linkt-out.svelte";
+  import ParsedContent from './parse-content.svelte';
+  import type { NDKEvent } from "@nostr-dev-kit/ndk";
+  import { updateLength } from "$lib/stores/eventListsLengths";
+  import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";
+  
+  const linkListEventKind = 30303 as Kind;
+  let userPubDecoded: string = nip19.decode(userPub).data.toString();
+  let eventsList: Event<number>[] = [];
+  let linkListEvents: NDKEvent[] = [];
+  
+  let relaysList: string[] = Array.from($ndk.pool.relays.keys());
+    if (eventKind != linkListEventKind) {
+      eventKind = eventKind as Kind;
+      const sub = $ndk.subscribe({ kinds: [eventKind], authors: [userPubDecoded], limit: 5 });
+      sub.on("event", (event: Event) => {
+          eventsList = utils.insertEventIntoDescendingList(eventsList, event);
+          updateLength(eventKind, eventsList.length);
+      });
     
-    const linkListEventKind = 30303 as Kind;
-    let userPubDecoded: string = nip19.decode(userPub).data.toString();
-    let eventsList: Event<number>[] = [];
-    let linkListEvents: NDKEvent[] = [];
+      sub.on("eose", () => {
+        console.log("eose");
+      });
     
-    let relaysList: string[] = Array.from($ndk.pool.relays.keys());
-      if (eventKind != linkListEventKind) {
-        eventKind = eventKind as Kind;
-        const sub = $ndk.subscribe({ kinds: [eventKind], authors: [userPubDecoded], limit: 5 }, { closeOnEose: false });
-        sub.on("event", (event: Event) => {
-            eventsList = utils.insertEventIntoDescendingList(eventsList, event);
-            updateLength(eventKind, eventsList.length);
-        });
-      
-        sub.on("eose", () => {
-          console.log("eose");
-        });
-      
-        sub.on("notice", (notice: string) => {
-          console.log(notice);
-        });
-      } else{
-        $ndk.fetchEvents({ kinds: [linkListEventKind], authors: [userPubDecoded]}).then((fetchedEvent) => {
-          linkListEvents = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
-          updateLength(linkListEventKind, linkListEvents.length);
-        });  
-      }
+      sub.on("notice", (notice: string) => {
+        console.log(notice);
+      });
+    } else{
+      $ndk.fetchEvents({ kinds: [linkListEventKind], authors: [userPubDecoded]}).then((fetchedEvent) => {
+        linkListEvents = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
+        updateLength(linkListEventKind, linkListEvents.length);
+      });  
+    }
 
-      $: currentIndex = 0;
-      function clampIndex(value: number, min: number, max: number) {
-        return Math.min(Math.max(value, min), max);
-      }
-
+    $: currentIndex = 0;
+    function clampIndex(value: number, min: number, max: number) {
+      return Math.min(Math.max(value, min), max);
+    }
 </script>
   
 <div class="sectionContainer">
