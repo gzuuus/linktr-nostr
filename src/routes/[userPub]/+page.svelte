@@ -8,7 +8,7 @@
     import { goto } from '$app/navigation';
 
   export let data: PageData;
-  let user = data.pubkey;
+  $: user = data.pubkey;
 
   let kindLinks = 30303;
   let kindNotes = 1;
@@ -26,7 +26,7 @@
   }
 
 </script>
-
+{#key user}
 <ProfileCard userPub={user} />
 
 <div class={visibleComponent === kindLinks ? "visible" : "hidden"}>
@@ -59,8 +59,8 @@
 {/if}
 {#if lengths[kindArticles] >= 1}
 <button class="switchButtons" class:selected={visibleComponent == kindArticles} on:click={() => showComponent(kindArticles)}>My articles</button>
-{/if}
-
+{/if}  
+{/key}
 
 <style>
   .noEvents {

@@ -119,6 +119,13 @@
         .MainAppContainer {
             width: 95vw;
             max-width: 100vw;
+            margin-top: 3.2em;
+            min-height: auto;
+        }
+    }
+    @media screen and (max-width: 830px) {
+        .MainAppContainer {
+            margin-top: 3.2em;
         }
     }
     :global(input::placeholder) {

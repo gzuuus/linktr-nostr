@@ -2,7 +2,6 @@
     import Logo from '$lib/elements/icons/logo.svelte';
     import ProfileIcon from '$lib/elements/icons/profile-icon.svelte';
     import LogoutIcon from '$lib/elements/icons/logout-icon.svelte';
-    import { Button } from 'agnostic-svelte';
     import { ndkUser } from '$lib/stores/user';
     import { goto } from '$app/navigation';
     import { logout } from '$lib/utils/helpers';
@@ -27,7 +26,7 @@
 
 <style>
     .container {
-        position: fixed;
+        position: absolute;
         width: 100%;
     }
     .userMenu{

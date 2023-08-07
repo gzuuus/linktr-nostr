@@ -60,22 +60,24 @@ export function findListTags(tags: NDKTag[]) {
   });
   };
 export function parseNostrUrls(rawContent: string): string {
-    const nostrPattern = /nostr:(nprofile|nevent|naddr)(\w+)/g;
-    return rawContent.replace(nostrPattern, (match, type, id) => {
-      let nostrEntity = type+id
-      let decodedNostrEntity = nip19.decode(type+id);
-      switch (type) {
-        case 'nprofile':
-          return `<a href="https://nostr.com/${nostrEntity}"> hello </a>`;
-        case 'nevent':
-          return `<a href="https://nostr.com/${nostrEntity}" target="_blank" rel="noopener noreferrer">Perfil ${nostrEntity.slice(0,16)}</a>`;
-        case 'naddr':
-          return `<a href="https://nostr.com/${nostrEntity}" target="_blank" rel="noopener noreferrer">Perfil ${nostrEntity.slice(0,16)}</a>`;
-        default:
-          return match;
-      }
-    });
-  }
+  const nostrPattern = /nostr:(nprofile|nevent|naddr)(\w+)/g;
+  
+  return rawContent.replace(nostrPattern, (match, type, id) => {
+    let nostrEntity = type + id;
+    let nostrEntityUrl = `https://nostr.com/${nostrEntity}`;
+    
+    switch (type) {
+      case 'nprofile':
+        return `${nostrEntityUrl}`;
+      case 'nevent':
+      case 'naddr':
+        return `${nostrEntityUrl}`;
+      default:
+        return match;
+    }
+  });
+}
+
   
   export function truncateString(str?: string): string {
     if (str === undefined) { return '';} 
