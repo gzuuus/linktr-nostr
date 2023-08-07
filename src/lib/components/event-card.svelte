@@ -11,9 +11,7 @@
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { updateLength } from "$lib/stores/eventListsLengths";
   import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";
-    import PlusSmall from "$lib/elements/icons/plus-small.svelte";
-    import MinusSmall from "$lib/elements/icons/minus-small.svelte";
-    import DotIcon from "$lib/elements/icons/dot-icon.svelte";
+
   
   const linkListEventKind = 30303 as Kind;
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
