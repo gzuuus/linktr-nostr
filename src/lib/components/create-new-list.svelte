@@ -75,7 +75,14 @@
       const { link, description } = linkData;
       ndkEvent.tags.push(['r', link, description]);
     }
-    ndkEvent.publish().then(() => goto(`/${$ndkUser?.npub}`));
+    ndkEvent.publish().then(() =>{
+      showSpinner = false;
+      goto(`/${$ndkUser?.npub}`)
+
+    }).catch((error) => {
+            console.log("Error:", error);
+            showSpinner = false;
+    });
   }
 
   function addLinkField() {

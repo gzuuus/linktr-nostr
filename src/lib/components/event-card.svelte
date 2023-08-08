@@ -16,11 +16,11 @@
   let eventList: NDKEvent[] = [];
   
     if (eventKind == linkListEventKind){
-      $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded]}, {closeOnEose: true, groupable: true}).then((fetchedEvent) => {
+      $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded]}, {closeOnEose: true}).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
       updateLength(linkListEventKind, eventList.length);
     });} else{
-      $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], limit: 5}, {closeOnEose: false, groupable: true} ).then((fetchedEvent) => {
+      $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], limit: 5}, {closeOnEose: true, groupable: true} ).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent);
       updateLength(eventKind, eventList.length);
     });}
