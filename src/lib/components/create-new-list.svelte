@@ -1,21 +1,20 @@
 <script lang="ts">
   import { NDKEvent } from '@nostr-dev-kit/ndk';
   import ndk from '$lib/stores/provider';
-  import { Button, Tag } from 'agnostic-svelte';
+  import { Button, Spinner, Tag } from 'agnostic-svelte';
   import ResetIcon from '$lib/elements/icons/reset-icon.svelte';
   import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import LinkIcon from '$lib/elements/icons/link-icon.svelte';
   import TextIcon from '$lib/elements/icons/text-icon.svelte';
   import BinIcon from '$lib/elements/icons/bin-icon.svelte';
-  import type { LinkData } from '$lib/classes/list';
   import { findListTags, getTagValue } from '$lib/utils/helpers';
   import { v4 as uuidv4 } from 'uuid';
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
-    import { goto } from '$app/navigation';
-    import { ndkUser } from '$lib/stores/user';
+  import { goto } from '$app/navigation';
+  import { ndkUser } from '$lib/stores/user';
 
   export let eventToEdit: NDKEvent | null = null;
-
+  let showSpinner = false;
   const newDTag = `nostree-${uuidv4()}`;
   const validPrefixes: string[] = ['http://', 'https://', 'ftp://', 'nostr:'];
   let linkValidationStatus: boolean[] = [];
@@ -63,6 +62,7 @@
   $: areAllLinksValid = linkValidationStatus.length > 0 && linkValidationStatus.every(status => status);
 
   function handleSubmit() {
+    showSpinner = true;
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = 30303;
     
@@ -102,7 +102,11 @@
     removeLinkField(index);
   }
 </script>
-
+{#if showSpinner}
+<div class="spinnerContainer">
+<Spinner size="xlarge"/>
+</div>
+{/if}
 <main>
   <h2>{titleText}</h2>
 
@@ -110,37 +114,39 @@
     <div class="formFieldsContainer">
       <label for="title">Title</label>
       <input type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
+
       {#each formData.links as linkData, index}
-      <div class="linkField">
-        <div>
-          <label for={`link-${index}`}><LinkIcon size={18} /></label>
-          <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkData.link} on:input={handleInput} />
+        <div class="linkField">
+          <div class="inputWithIcon">
+            <label for={`link-${index}`}><LinkIcon size={18} /></label>
+            <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkData.link} on:input={handleInput} />
+          </div>
+          
+          {#if !linkValidationStatus[index] && linkData.link.trim() !== ''}
+            <Tag><InfoIcon size={18} /> Prefix needed</Tag>
+          {/if}
+
+          <div class="inputWithIcon">
+            <label for={`description-${index}`}><TextIcon size={18} /></label>
+            <input type="text" id={`description-${index}`} placeholder="Link name" bind:value={linkData.description} />
+          </div>
+
+          {#if formData.links.length > 1}
+            <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
+          {/if}
         </div>
-        {#if !linkValidationStatus[index] && linkData.link.trim() !== ''}
-        <Tag><InfoIcon size={18} /> Prefix needed</Tag>
-        {/if}
-        <div>
-          <label for={`description-${index}`}><TextIcon size={18} /></label>
-          <input type="text" id={`description-${index}`} placeholder="Link name" bind:value={linkData.description} />
-        </div>
-        {#if formData.links.length > 1}
-        <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
-        {/if}
-      </div>
       {/each}
     </div>
 
     <div class="formButtons">
       {#if areAllLinksValid && formData.title.trim() != ''}
-      <Button type="button" isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
-      <Button isBlock type="submit">Publish</Button>
-      
+        <Button type="button" isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
+        <Button isBlock type="submit">Publish</Button>
       {:else}
-      <Button type="button" disabled isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
-      <Button isBlock type="submit" disabled>Publish</Button>
+        <Button type="button" disabled isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
+        <Button isBlock type="submit" disabled>Publish</Button>
       {/if}
       <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
-
     </div>
   </form>
 </main>
@@ -152,18 +158,48 @@
     align-items: center;
     justify-content: center;
   }
+
   button {
     display: inline-flex;
     line-height: normal;
+    padding: 0.3em;
   }
-  form{
+
+  form {
     padding-top: 0.5em;
   }
+
   .formFieldsContainer {
     display: flex;
     flex-direction: column;
-    gap:0.3em
+    gap: 0.3em;
+    width: 80%;
+    margin: auto;
   }
+  @media screen and (max-width: 479px) {
+        .formFieldsContainer {
+          width: auto;
+      }
+    }
+
+  .linkField {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+    align-items: center;
+  }
+
+  .inputWithIcon {
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+  }
+
+  .inputWithIcon label {
+    display: flex;
+    align-items: center;
+  }
+
   #title {
     text-align: center;
   }

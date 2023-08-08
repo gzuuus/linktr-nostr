@@ -1,7 +1,7 @@
 <script lang="ts">
   export let userPub: string;
   import ndk from '$lib/stores/provider';
-  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+  import type { NDKUser, NDKUserProfile } from "@nostr-dev-kit/ndk";
   import { fade } from 'svelte/transition';
   import { truncateString, copyToClipboard, shareContent } from '$lib/utils/helpers';
   import CopyIcon from '$lib/elements/icons/copy-icon.svelte';
@@ -13,25 +13,23 @@
   import { page } from '$app/stores';
     import { Tag } from 'agnostic-svelte';
     import CheckIcon from '$lib/elements/icons/check-icon.svelte';
+    
 
   let userProfile: NDKUserProfile;
   let qrImageUrl: string = '';
   let showQR: boolean = false;
   let showAbout: boolean = false;
 
-  const user = $ndk.getUser({
+  let user = $ndk.getUser({
     npub: userPub,
   });
 
   user.fetchProfile().then(() => {
-  userProfile = user.profile as NDKUserProfile;})
-  .then(() => {
+  userProfile = user.profile as NDKUserProfile;}).then(() => {
     if (userProfile.image == undefined) {
       generateQRCode($page.url.href);
     }
 })
-
-
 
   function generateQRCode(value:string) {
     const qr = QRcode(0, 'L');
@@ -43,6 +41,8 @@
   function handleMoreInfo() {
     showAbout = !showAbout;
   }
+
+
 </script>
 
 {#if userProfile}

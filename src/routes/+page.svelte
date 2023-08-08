@@ -1,18 +1,34 @@
 <script lang="ts">
-    import { NDKNip07Signer, NDKUser } from '@nostr-dev-kit/ndk';
+    import { NDKNip07Signer, NDKRelay, NDKUser } from '@nostr-dev-kit/ndk';
     import ndk from '$lib/stores/provider';
     import { goto } from '$app/navigation';
     import { Button } from "agnostic-svelte";
     import Logo from '$lib/elements/icons/logo.svelte';
     import { ndkUser } from '$lib/stores/user';
+    import { findListTags } from '$lib/utils/helpers';
+    import { NDKRelaySet} from '@nostr-dev-kit/ndk';
+    let userRelayList: string[] = [];
 
     async function login() {
         const signer = new NDKNip07Signer();
         $ndk.signer = signer;
         ndk.set($ndk);
         signer.user().then(async (ndkCurrentUser) => {
-            ndkUser.set(ndkCurrentUser);
-            goto(`/${ndkCurrentUser.npub}`);
+            let user = $ndk.getUser({
+                npub: ndkCurrentUser.npub,
+                relayUrls: userRelayList
+            });
+            user.relayList().then((relays) => {
+                relays.forEach((relay) => {
+                const tags = relay.tags.map(tag => tag);
+                    findListTags(tags).forEach(element => {
+                    userRelayList.push(element.url);
+                });
+                });
+            }).then(() => {
+                ndkUser.set(user);
+                goto(`/${$ndkUser?.npub}`);
+            });
         });
     }
 </script>

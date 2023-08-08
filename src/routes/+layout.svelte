@@ -209,5 +209,17 @@
     :global(svg:hover) {
         color: var(--hover-color);
     }
+    :global(.spinnerContainer){
+        background: var(--translucid-b-color);
+        width: 100%;
+        border-radius: var(--agnostic-radius);
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+    }
 
 </style>

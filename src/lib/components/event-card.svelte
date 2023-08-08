@@ -1,10 +1,9 @@
 <script lang="ts">
   export let userPub: string;
   export let eventKind: number;
-  import { Kind, nip19, type Event } from "nostr-tools";
+  import { Kind, nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
   import { unixToDate, buildEventPointer, getTagValue, findListTags} from "$lib/utils/helpers";
-  import { utils } from "nostr-tools";
   import { Button, Tag } from "agnostic-svelte";
   import LinktOut from "$lib/elements/icons/linkt-out.svelte";
   import ParsedContent from './parse-content.svelte';
@@ -12,17 +11,16 @@
   import { updateLength } from "$lib/stores/eventListsLengths";
   import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";
 
-  
   const linkListEventKind = 30303 as Kind;
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   
     if (eventKind == linkListEventKind){
-      $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded]}).then((fetchedEvent) => {
+      $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded]}, {closeOnEose: true, groupable: true}).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
       updateLength(linkListEventKind, eventList.length);
     });} else{
-      $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], limit: 5}).then((fetchedEvent) => {
+      $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], limit: 5}, {closeOnEose: false, groupable: true} ).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent);
       updateLength(eventKind, eventList.length);
     });}
@@ -31,9 +29,6 @@
     function clampIndex(value: number, min: number, max: number) {
       return Math.min(Math.max(value, min), max);
     }
-    function isCurrentIndex(index:number) {
-    return index === currentIndex;
-  }
 </script>
   
 <div class="sectionContainer">
@@ -45,7 +40,7 @@
         <h3>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
         <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
       </div>
-        <div>
+        <div class:hidden={eventList.length <= 1}>
           {#each eventList as event, index}
               {#if index == currentIndex}
                 <button class="indexDotButton" on:click={() => currentIndex = index}></button>
@@ -97,7 +92,6 @@
   word-wrap: break-word;
 }
 .sectionContainer {
-  max-height: 90vh;
   overflow: auto;
 }
 .indexDotButton {
@@ -113,6 +107,7 @@
 }
 .switchButtons {
   padding: 0;
+  margin: 0;
   display: inline-flex;
 }
 .eventContainerButtons {

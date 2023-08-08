@@ -1,13 +1,12 @@
 <script lang="ts">
   import type { PageData } from './$types';
-
   import ProfileCard from '$lib/components/profile-card.svelte';
   import EventCard from '$lib/components/event-card.svelte';
   import { lengthStore } from '$lib/stores/eventListsLengths';
-    import PlusSmall from '$lib/elements/icons/plus-small.svelte';
-    import { goto } from '$app/navigation';
-
+  import PlusSmall from '$lib/elements/icons/plus-small.svelte';
+  import { goto } from '$app/navigation';
   export let data: PageData;
+
   $: user = data.pubkey;
 
   let kindLinks = 30303;
@@ -19,7 +18,6 @@
   lengthStore.subscribe((newLengths) => {
   lengths = newLengths;
   });
-  
 
   function showComponent(kind: number) {
     visibleComponent = kind;
@@ -51,14 +49,14 @@
   <EventCard userPub={user} eventKind={kindArticles} />
 </div>
 
-
-<button class="switchButtons" class:selected={visibleComponent == kindLinks} on:click={() => showComponent(kindLinks)}>My links</button>
-
+{#if lengths[kindNotes] != 0 || lengths[kindArticles] != 0}
+  <button class="switchButtons" class:selected={visibleComponent == kindLinks} on:click={() => showComponent(kindLinks)}>Links</button>
+{/if}
 {#if lengths[kindNotes] >= 1}
-<button class="switchButtons" class:selected={visibleComponent == kindNotes} on:click={() => showComponent(kindNotes)}>My notes</button>
+  <button class="switchButtons" class:selected={visibleComponent == kindNotes} on:click={() => showComponent(kindNotes)}>Notes</button>
 {/if}
 {#if lengths[kindArticles] >= 1}
-<button class="switchButtons" class:selected={visibleComponent == kindArticles} on:click={() => showComponent(kindArticles)}>My articles</button>
+  <button class="switchButtons" class:selected={visibleComponent == kindArticles} on:click={() => showComponent(kindArticles)}>Articles</button>
 {/if}  
 {/key}
 

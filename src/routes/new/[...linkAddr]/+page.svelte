@@ -20,7 +20,7 @@
     let events: NDKEvent[] = [];
     const linkListEventKind = 30303 as Kind;
     let eventToEdit: any;
-    let showSpinner: boolean = false;
+    let showSpinner = false;
     onMount(() => {
         if (!$ndkUser) {
             login();
@@ -54,7 +54,6 @@
     }
 
     function handleSubmit(eventToPublish: NDKEvent, toDelete:boolean = false) {
-        showSpinner = true
         const ndkEvent = new NDKEvent($ndk);
         ndkEvent.kind = eventToPublish.kind;
         let title = getTagValue(eventToPublish.tags, "title")
@@ -108,8 +107,8 @@
             {#each events as event, i}
                 <div class="eventContainer">
                     <button on:click={() => pickEventToEdit(event)}><EditIcon size={20}/></button>
-                    <button class:firstEvent={i == 0} on:click={() => handleSubmit(event)}><PinIcon size={20}/></button>
-                    <button on:click={() => handleSubmit(event, true)}><BinIcon size={20}/></button>
+                    <button class:firstEvent={i == 0} on:click={() => {handleSubmit(event); showSpinner = true;}}><PinIcon size={20}/></button>
+                    <button on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
                     <h3>{getTagValue(event.tags, "title")}</h3>
                     {#each findListTags(event.tags) as { url, text }}
                         <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
@@ -142,21 +141,8 @@
     .listContainer {
         display: block;
         word-break: break-word;
-        width: 80%;
-        margin: auto;
     }
-    .spinnerContainer{
-        background: var(--translucid-b-color);
-        width: 100%;
-        border-radius: var(--agnostic-radius);
-        position: fixed;
-        z-index: 9999;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-    }
+
     .allListsContainer {
         margin-top: 0.5em;
     }
