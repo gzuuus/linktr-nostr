@@ -1,5 +1,5 @@
 import { nip19 } from 'nostr-tools';
-import type { NDKTag } from '@nostr-dev-kit/ndk';
+import type { NDKEvent, NDKTag } from '@nostr-dev-kit/ndk';
 import { ndkUser } from '$lib/stores/user';
 import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from '$app/navigation';
@@ -60,7 +60,7 @@ export function findListTags(tags: NDKTag[]) {
   });
   };
 export function parseNostrUrls(rawContent: string): string {
-  const nostrPattern = /nostr:(nprofile|nevent|naddr)(\w+)/g;
+  const nostrPattern = /nostr:(nprofile|nevent|naddr|npub1)(\w+)/g;
   
   return rawContent.replace(nostrPattern, (match, type, id) => {
     let nostrEntity = type + id;
@@ -115,5 +115,9 @@ export function logout() {
   ndkUser.set(null);
   lengthStore.set({});
   goto('/');
+}
+
+export function sortEventList(eventList: NDKEvent[]) {
+  eventList.sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 

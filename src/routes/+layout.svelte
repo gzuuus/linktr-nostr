@@ -47,6 +47,7 @@
         text-align: center;
         margin: 0;
         font-family: 'Fredoka', sans-serif;
+        min-height: 100vh;
     }
     :global(button) {
         margin: 8px 0;
@@ -109,11 +110,13 @@
     .MainAppContainer {
         width: 25rem;
         display: block;
-        background: transparent;
+    }
+    :global(.commonContainerStyle){
         border: 2px solid var(--hover-b-color);
         border-radius: 15px;
         padding: 15px;
         margin: 1em;
+        background: var(--background-color);
     }
     @media screen and (max-width: 479px) {
         .MainAppContainer {
@@ -221,5 +224,9 @@
         display: flex;
         justify-content: center;
     }
+
+    :global(.btn) {
+	white-space: inherit !important;
+}
 
 </style>

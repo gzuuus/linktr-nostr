@@ -3,7 +3,7 @@
   export let eventKind: number;
   import { Kind, nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
-  import { unixToDate, buildEventPointer, getTagValue, findListTags} from "$lib/utils/helpers";
+  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList } from "$lib/utils/helpers";
   import { Button, Tag } from "agnostic-svelte";
   import LinktOut from "$lib/elements/icons/linkt-out.svelte";
   import ParsedContent from './parse-content.svelte';
@@ -14,22 +14,29 @@
   const linkListEventKind = 30303 as Kind;
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
-  
-    if (eventKind == linkListEventKind){
-      $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded]}, {closeOnEose: true}).then((fetchedEvent) => {
+
+  if (eventKind == linkListEventKind) {
+    $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded] }, { closeOnEose: true }).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
       updateLength(linkListEventKind, eventList.length);
-    });} else{
-      $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], limit: 5}, {closeOnEose: true, groupable: true} ).then((fetchedEvent) => {
+      sortEventList(eventList);
+    });
+  } else {
+    $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], limit: 5 }, { closeOnEose: true, groupable: true }).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent);
       updateLength(eventKind, eventList.length);
-    });}
+      sortEventList(eventList);
+    });
+  }
 
-    $: currentIndex = 0;
-    function clampIndex(value: number, min: number, max: number) {
-      return Math.min(Math.max(value, min), max);
-    }
+
+
+  $: currentIndex = 0;
+  function clampIndex(value: number, min: number, max: number) {
+    return Math.min(Math.max(value, min), max);
+  }
 </script>
+
   
 <div class="sectionContainer">
   {#if eventKind == linkListEventKind && eventList.length > 0}

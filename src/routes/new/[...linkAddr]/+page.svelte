@@ -16,7 +16,6 @@
     import { Spinner } from "agnostic-svelte";
     import PinIcon from '$lib/elements/icons/pin-icon.svelte';
 
-    // export let data: PageData;
     let events: NDKEvent[] = [];
     const linkListEventKind = 30303 as Kind;
     let eventToEdit: any;
@@ -87,7 +86,7 @@
 <Spinner size="xlarge"/>
 </div>
 {/if}
-<div class="listContainer">
+<div class="listContainer commonContainerStyle">
     <div>
         {#if $ndkUser}
         {#key eventToEdit}
@@ -113,8 +112,6 @@
                     {#each findListTags(event.tags) as { url, text }}
                         <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
                     {/each}
-                    <div class="eventContainerButtons">
-                    </div>
                 </div>
             {/each}
             </Disclose>

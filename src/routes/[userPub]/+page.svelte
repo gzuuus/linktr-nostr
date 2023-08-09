@@ -24,6 +24,7 @@
   }
 
 </script>
+<div class="commonContainerStyle">
 {#key user}
 <ProfileCard userPub={user} />
 
@@ -59,6 +60,7 @@
   <button class="switchButtons" class:selected={visibleComponent == kindArticles} on:click={() => showComponent(kindArticles)}>Articles</button>
 {/if}  
 {/key}
+</div>
 
 <style>
   .noEvents {
