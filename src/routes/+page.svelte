@@ -35,7 +35,7 @@
         </div>
         <div>
             <h1>Nostree</h1>
-            <p>Nostr based application to manage link lists, and show notes, and other stuff</p>
+            <p>A nostr based application to create and manage link lists, show notes, and other stuff </p>
         </div>
         {#if !$ndkUser}
         <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
