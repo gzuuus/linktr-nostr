@@ -8,44 +8,34 @@
     import { ndkUser } from '$lib/stores/user';
     import { Button } from 'agnostic-svelte';
     import { Kind, nip19, type Event } from "nostr-tools";
-    import { findListTags, getTagValue } from '$lib/utils/helpers';
+    import { findListTags, getTagValue, sortEventList } from '$lib/utils/helpers';
     import EditIcon from '$lib/elements/icons/edit-icon.svelte';
     import RepublishIcon from '$lib/elements/icons/republish-icon.svelte';
     import { Disclose } from "agnostic-svelte";
     import BinIcon from '$lib/elements/icons/bin-icon.svelte';
     import { Spinner } from "agnostic-svelte";
     import PinIcon from '$lib/elements/icons/pin-icon.svelte';
+    import Login from '$lib/components/login.svelte';
 
     let events: NDKEvent[] = [];
     const linkListEventKind = 30303 as Kind;
     let eventToEdit: any;
     let showSpinner = false;
-    onMount(() => {
-        if (!$ndkUser) {
-            login();
-        } else {
+
+    $: {
+        if ($ndkUser) {
             showEvents();
         }
-    })
+    }
 
     function showEvents() {
         if ($ndkUser) {
             let userPubDecoded: string = nip19.decode($ndkUser.npub).data.toString();
             $ndk.fetchEvents({ kinds: [linkListEventKind], authors: [userPubDecoded]}).then((fetchedEvent) => {
                 events = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
-            });  
+                sortEventList(events);
+            })
         }
-    }
-
-    let user: NDKUser;
-    async function login() {
-        const signer = new NDKNip07Signer();
-        $ndk.signer = signer;
-        ndk.set($ndk);
-        signer.user().then(async (ndkCurrentUser) => {
-            ndkUser.set(ndkCurrentUser);
-            showEvents();
-        });
     }
 
     function pickEventToEdit(event: NDKEvent) {
@@ -97,7 +87,7 @@
             {/if}
         {/key}
         {:else}
-        <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
+        <Login mode="primary" doGoto={false}/>
         {/if}
 
         {#if events.length > 0}

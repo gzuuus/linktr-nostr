@@ -3,17 +3,16 @@
   import ndk from '$lib/stores/provider';
   import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
   import { fade } from 'svelte/transition';
-  import { truncateString, copyToClipboard, shareContent } from '$lib/utils/helpers';
+  import { truncateString, copyToClipboard} from '$lib/utils/helpers';
   import CopyIcon from '$lib/elements/icons/copy-icon.svelte';
   import QRcode from 'qrcode-generator';
   import QrIcon from '$lib/elements/icons/qr-icon.svelte';
   import LnIcon from '$lib/elements/icons/ln-icon.svelte';
   import { page } from '$app/stores';
-    import { Tag } from 'agnostic-svelte';
-    import CheckIcon from '$lib/elements/icons/check-icon.svelte';
-    import InfoIcon from '$lib/elements/icons/info-icon.svelte';
+  import { Tag } from 'agnostic-svelte';
+  import CheckIcon from '$lib/elements/icons/check-icon.svelte';
+  import InfoIcon from '$lib/elements/icons/info-icon.svelte';
     
-
   let userProfile: NDKUserProfile;
   let qrImageUrl: string = '';
   let showQR: boolean = false;
@@ -41,7 +40,6 @@
     showAbout = !showAbout;
   }
 
-
 </script>
 
 {#if userProfile}
@@ -49,7 +47,7 @@
       <img class="pfp {showQR ? 'hidden' : ''}" src={userProfile.image} alt="avatar" />
       <img class="pfp {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
   <div class="profileInfoBox">
-    <h2>{userProfile.name}</h2>
+    <h2>{userProfile.name ? userProfile.name : userProfile.displayName}</h2>
     {#if userProfile.nip05}
       <Tag><CheckIcon size={14} />{userProfile.nip05}</Tag>
     {/if}

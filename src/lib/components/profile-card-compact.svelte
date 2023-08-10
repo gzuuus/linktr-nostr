@@ -15,7 +15,6 @@
 
   let userProfile: NDKUserProfile;
   let qrImageUrl: string = '';
-  let showQR: boolean = false;
   let showAbout: boolean = false;
   let user: NDKUser;
 
@@ -57,7 +56,7 @@
   {/if}
  
   <div class="profileInfoBox">
-    <h2>{userProfile.name}</h2>
+    <h3>{userProfile.name ? userProfile.name : userProfile.displayName}</h3>
     <div class="profileButtons">
       <div><button class="userPubString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
         <button on:click={() => goto(`${$page.url.origin}/${userPub}`)}><ProfileIcon size={18} /></button>

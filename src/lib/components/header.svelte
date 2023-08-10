@@ -5,6 +5,7 @@
     import { ndkUser } from '$lib/stores/user';
     import { goto } from '$app/navigation';
     import { logout } from '$lib/utils/helpers';
+    import Login from './login.svelte';
 
     function handleGotoProfile() {
         goto(`/${$ndkUser?.npub}`);
@@ -20,6 +21,10 @@
         <button class="secondary-button" on:click={handleGotoNewList}>Manage lists</button>
         <button class="secondary-button" on:click={handleGotoProfile}><ProfileIcon size={20} /></button>
         <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
+    </div>
+    {:else}
+    <div class="userMenu">
+        <Login mode="secondary"/>
     </div>
     {/if}
   </div>

@@ -1,0 +1,99 @@
+<script lang="ts">
+    export let mode: string;
+    export let doGoto: boolean = true;
+    import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
+    import ndk from '$lib/stores/provider';
+    import { ndkUser } from "$lib/stores/user";
+    import { goto } from "$app/navigation";
+    import { Button } from "agnostic-svelte";
+    import { page } from '$app/stores';
+    import CloseIcon from "$lib/elements/icons/close-icon.svelte";
+  
+    let isModalVisible:boolean = false;
+    async function login() {
+      try {
+        const signer = new NDKNip07Signer();
+        $ndk.signer = signer;
+        ndk.set($ndk);
+  
+        const ndkCurrentUser = await signer.user();
+        const user = $ndk.getUser({
+            npub: ndkCurrentUser.npub,
+        });
+        ndkUser.set(user);
+  
+        if (doGoto) {
+            goto(`/${$ndkUser?.npub}`);
+        }
+      } catch (error: unknown) {
+        if (typeof error === 'object' && error instanceof Error) {
+          if (error.message.includes('NIP-07 extension not available')) {
+            console.error('NIP-07 extension not available:', error);
+            isModalVisible = true;
+          } else if (error.message.includes('Prompt was closed')) {
+            // Manejar el error de cierre de la ventana de autenticación
+            console.error('Prompt was closed:', error);
+            // Puedes mostrar un mensaje al usuario o realizar alguna acción específica aquí
+          } else {
+            // Manejar otros tipos de errores no identificados
+            console.error('Error on login:', error);
+            // Puedes mostrar un mensaje de error genérico o realizar alguna acción de respaldo
+          }
+        } else {
+          console.error('Error on login:', error);
+          // Manejar el caso en que no sea una instancia de Error
+        }
+      }
+    }
+  </script>
+  
+  {#if mode === "primary"}
+    <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
+  {:else if mode === "secondary" && $page.url.href !== `${$page.url.origin}/`}
+    <Button on:click={login} mode="primary" isRounded>Login</Button>
+  {/if}
+  {#if isModalVisible}
+  <!-- Modal para mostrar el mensaje -->
+  <div class="modal">
+    <div class="modal-content">
+    <h2>It looks like you don't have a nostr extension installed to log in.</h2>
+    <p>But dont worry, please try to install one of the ones listed below and try again.</p>
+    <a href="https://getalby.com/" target="_blank" rel="noopener noreferrer">GetAlby</a>
+    <a href="https://chrome.google.com/webstore/detail/nos2x/kpgefcfmnafjgpblomihpgmejjdanjjp" target="_blank" rel="noopener noreferrer">Nos2x (chrome)</a>
+    <p>Also consider to read one of this guides to learn more</p>
+    <a href="https://habla.news/tony/1681492751274" target="_blank" rel="noopener noreferrer">Welcome to Nostr by Tony</a>
+    <a href="https://nostr.how/en/what-is-nostr" target="_blank" rel="noopener noreferrer">Nostr.how - What is Nostr?</a>
+    <div class="closeModal">
+        <button on:click={() => isModalVisible = false}><CloseIcon size={18}/></button>
+    </div>
+  </div>
+  </div>
+{/if}
+
+<style>
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--background-color);
+      border: var(--common-border-style);
+      border-radius: var(--agnostic-radius);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+    }
+    .modal-content {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        padding: 3rem;
+        gap: 0.3em;
+        line-height: 2em;
+    }
+    .closeModal {
+        position: absolute;
+        top: 0;
+        right: 0.6em;
+        display: inline-flex;
+    }
+  </style>

@@ -121,3 +121,5 @@ export function sortEventList(eventList: NDKEvent[]) {
   eventList.sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
+
+

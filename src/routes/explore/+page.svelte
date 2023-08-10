@@ -3,13 +3,12 @@ import type { Kind } from "nostr-tools";
 import ndk from "$lib/stores/provider";
 import { unixToDate, getTagValue, findListTags, sortEventList } from "$lib/utils/helpers";
 import { Button, Tag } from "agnostic-svelte";
-import type { NDKEvent, NDKUser} from "@nostr-dev-kit/ndk";
+import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
     import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
 
   const linkListEventKind = 30303 as Kind
   let eventList: NDKEvent[] = [];
-  let user: NDKUser
   const sub = $ndk.subscribe({ kinds: [linkListEventKind]});
       sub.on("event", (event: NDKEvent) => {
         if (getTagValue(event.tags, 'title') !== '') {
@@ -17,7 +16,6 @@ import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
             sortEventList(eventList);
         }
       });
-    
       sub.on("eose", () => {
         console.log("eose");
       });
