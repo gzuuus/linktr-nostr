@@ -46,7 +46,7 @@
         min-height: 100vh;
         text-align: center;
         margin: 0;
-        font-family: 'Fredoka', sans-serif;
+        font-family: 'Fredoka', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         min-height: 100vh;
     }
     :global(button) {
@@ -208,6 +208,7 @@
     }
     :global(.hidden) {
             display: none !important;
+            pointer-events: none !important;
     }
     :global(svg:hover) {
         color: var(--hover-color);

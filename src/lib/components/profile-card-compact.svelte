@@ -104,8 +104,7 @@
     padding: 0.3em 0;
   }
   .profileButtons {
-
-    text-align: left;
+    text-align: start;
   }
   .profileInfoBox {
     display: flex;

@@ -45,9 +45,9 @@
         {/if}
         <Button on:click={() =>goto('/explore')} mode="primary" isBlock isRounded>Explore</Button>
     </div>
-    <h3>From gzuuus with <a href="lightning:gzuuus@getalby.com"><button class="switchButtons"><LnIcon size={18} /></button></a> and 
-        <button on:click={() => goto('/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5ds')} class="switchButtons"><HeartIcon size={18} /></button>
-    </h3>
+    <p>From gzuuus with <a href="lightning:gzuuus@getalby.com"><button class="switchButtons"><LnIcon size={16} /></button></a> and 
+        <button on:click={() => goto('/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5ds')} class="switchButtons"><HeartIcon size={16} /></button>
+    </p>
     </div>
 <style>
     .homeContainer {

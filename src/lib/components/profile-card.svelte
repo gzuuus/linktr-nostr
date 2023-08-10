@@ -8,10 +8,10 @@
   import QRcode from 'qrcode-generator';
   import QrIcon from '$lib/elements/icons/qr-icon.svelte';
   import LnIcon from '$lib/elements/icons/ln-icon.svelte';
-  import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import { page } from '$app/stores';
     import { Tag } from 'agnostic-svelte';
     import CheckIcon from '$lib/elements/icons/check-icon.svelte';
+    import InfoIcon from '$lib/elements/icons/info-icon.svelte';
     
 
   let userProfile: NDKUserProfile;
@@ -46,13 +46,8 @@
 
 {#if userProfile}
 <div transition:fade class="profileContainer">
-
-  {#if !showQR}
-    <img transition:fade src={userProfile.image} alt="avatar" />
-  {:else}
-    <img transition:fade src={qrImageUrl} alt="QR Code" />
-  {/if}
- 
+      <img class="pfp {showQR ? 'hidden' : ''}" src={userProfile.image} alt="avatar" />
+      <img class="pfp {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
   <div class="profileInfoBox">
     <h2>{userProfile.name}</h2>
     {#if userProfile.nip05}
@@ -64,7 +59,7 @@
         <button on:click={() =>generateQRCode($page.url.href)}><QrIcon size={18} /></button>
         <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
         {#if userProfile.about}
-        <button on:click={() =>handleMoreInfo()}><PlusSmall size={18} /></button>
+        <button on:click={() =>handleMoreInfo()}><InfoIcon size={18} /></button>
         {/if}
       </div>
     </div>
