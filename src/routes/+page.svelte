@@ -15,7 +15,7 @@
         </div>
         <div>
             <h1>Nostree</h1>
-            <p>A nostr based application to create and manage link lists, show notes, and other stuff</p>
+            <p>A Nostr-based application to create, manage and discover link lists, show notes and other stuff.</p>
         </div>
         {#if !$ndkUser}
         <Login mode="primary"/>

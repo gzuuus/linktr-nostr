@@ -5,6 +5,7 @@
   import { lengthStore } from '$lib/stores/eventListsLengths';
   import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import { goto } from '$app/navigation';
+    import { ndkUser } from '$lib/stores/user';
   export let data: PageData;
 
   $: user = data.pubkey;
@@ -24,6 +25,18 @@
   }
 
 </script>
+<svelte:head>
+    {#if $ndkUser}
+        <title>Nostree - {$ndkUser.profile?.username ? $ndkUser.profile?.username : $ndkUser.profile?.displayName}</title>
+        <meta
+            name="description"
+            content={`Nostree page of ${$ndkUser.profile?.username ? $ndkUser.profile?.username : $ndkUser.profile?.displayName}`}
+        />
+    {:else}
+        <title>Nostree</title>
+        <meta name="description" content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff." />
+    {/if}
+</svelte:head>
 <div class="commonContainerStyle">
 {#key user}
 <ProfileCard userPub={user} />

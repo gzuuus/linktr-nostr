@@ -1,8 +1,6 @@
 <script lang="ts">
   export let userPub: string;
-  
   import ndk from '$lib/stores/provider';
-  import type { NDKUser, NDKUserProfile } from "@nostr-dev-kit/ndk";
   import { fade } from 'svelte/transition';
   import { truncateString, copyToClipboard } from '$lib/utils/helpers';
   import CopyIcon from '$lib/elements/icons/copy-icon.svelte';
@@ -11,67 +9,74 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import ProfileIcon from '$lib/elements/icons/profile-icon.svelte';
-  import { userProfileStore } from '$lib/stores/usersPubs';
-
-  let userProfile: NDKUserProfile;
+  import Logo from '$lib/elements/icons/logo.svelte';
+  import { onMount } from 'svelte';
+    import type { NDKUserProfile } from '@nostr-dev-kit/ndk';
+    import { userProfileStore } from '$lib/stores/usersPubs';
   let qrImageUrl: string = '';
-  let showAbout: boolean = false;
-  let user: NDKUser;
+  let isImageBlocked = false;
 
-  async function fetchUserProfile() {
-    const storedProfile = $userProfileStore[userPub];
-    if (storedProfile) {
-      userProfile = storedProfile;
-    } else {
-      user = $ndk.getUser({
-        npub: userPub,
-      });
-      await user.fetchProfile();
-      userProfile = user.profile as NDKUserProfile;
-      $userProfileStore[userPub] = userProfile;
-    }
-  }
-
+  $: user = $ndk.getUser({ npub: userPub });
   function generateQRCode(value: string) {
     let qr = QRcode(0, 'L');
     qr.addData(value);
     qr.make();
     qrImageUrl = qr.createDataURL();
     return qrImageUrl;
+  }  
+
+
+  function handleImageError() {
+    isImageBlocked = true;
   }
-
-  import { onMount, afterUpdate } from 'svelte';
-
-  onMount(fetchUserProfile);
-  afterUpdate(fetchUserProfile);
 </script>
 
-{#if userProfile}
 <div transition:fade class="profileContainer">
 
-  {#if userProfile.image != undefined}
-    <img transition:fade src={userProfile.image} alt="avatar" />
-  {:else}
-    <img transition:fade src={generateQRCode(`${$page.url.origin}/${userPub}`)} alt="QR Code" />
-  {/if}
- 
-  <div class="profileInfoBox">
-    <h3>{userProfile.name ? userProfile.name : userProfile.displayName}</h3>
-    <div class="profileButtons">
-      <div><button class="userPubString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
-        <button on:click={() => goto(`${$page.url.origin}/${userPub}`)}><ProfileIcon size={18} /></button>
-        {#if userProfile.lud16}
-        <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
-        {/if}
-    </div>
-    {#if showAbout}
-        <p>{userProfile.about}</p>
+{#await user?.fetchProfile()}
+    <Logo size={50}/>
+    <h3>Loading profile</h3>
+{:then value}
+    {#if !isImageBlocked}
+      <img src={user?.profile?.image??generateQRCode(`${$page.url.origin}/${userPub}`)} alt="Avatar" class="avatar avatar--image {$$props.class}" style={$$props.style} on:error={handleImageError}/>
+    {:else}
+      <img src={generateQRCode(`${$page.url.origin}/${userPub}`)} alt="QRAvatar" class="avatar avatar--image {$$props.class}" style={$$props.style}/>
     {/if}
-  </div>
-</div>
-{/if}
+    <div class="profileInfoBox">
+      <h3>{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</h3>
+      <div class="profileButtons">
+        <div><button class="userPubString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
+          <button on:click={() => goto(`${$page.url.origin}/${userPub}`)}><ProfileIcon size={18} /></button>
+          {#if user?.profile?.lud16}
+          <a href="lightning:{user?.profile?.lud16}"><button><LnIcon size={18} /></button></a>
+          {/if}
+      </div>
+    </div>
+    {:catch error}
+      <img alt="Error loading avatar" class="avatar avatar--error {$$props.class}" style={$$props.style} />
+{/await}
 
+</div>
 <style>
+    .avatar {
+    max-width: 75px;
+    border-radius: var(--agnostic-radius);
+    }
+
+    .avatar--loading {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+        0%,
+        100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+    }
+
   .profileContainer {
     margin: 10px;
     border-radius: 15px;
@@ -79,10 +84,7 @@
     display: flex;
     justify-content: start;
     align-items: center;
-  }
-  img {
-    max-width: 75px;
-    border-radius: 15px;
+    gap: 0.3em;
   }
   button {
     margin: 0;

@@ -26,7 +26,7 @@ import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
 
 </script>
 <div class="commonContainerStyle">
-    <h1><ExploreIcon size={25}/>Explore</h1>
+    <h1><ExploreIcon size={25}/>Explore (beta)</h1>
     {#each eventList as event}
       <div class="eventContainer" >
             <ProfileCardCompact userPub={event.author.npub} />
