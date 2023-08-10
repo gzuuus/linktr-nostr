@@ -31,17 +31,12 @@
             console.error('NIP-07 extension not available:', error);
             isModalVisible = true;
           } else if (error.message.includes('Prompt was closed')) {
-            // Manejar el error de cierre de la ventana de autenticación
             console.error('Prompt was closed:', error);
-            // Puedes mostrar un mensaje al usuario o realizar alguna acción específica aquí
           } else {
-            // Manejar otros tipos de errores no identificados
             console.error('Error on login:', error);
-            // Puedes mostrar un mensaje de error genérico o realizar alguna acción de respaldo
           }
         } else {
           console.error('Error on login:', error);
-          // Manejar el caso en que no sea una instancia de Error
         }
       }
     }
@@ -53,7 +48,6 @@
     <Button on:click={login} mode="primary" isRounded>Login</Button>
   {/if}
   {#if isModalVisible}
-  <!-- Modal para mostrar el mensaje -->
   <div class="modal">
     <div class="modal-content">
     <h2>It looks like you don't have a nostr extension installed to log in.</h2>
