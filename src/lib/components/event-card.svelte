@@ -41,11 +41,11 @@
 
   $: {
     if ($coords.x >= 50 && !actionExecuted) {
-      currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1);
+      currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1);
       actionExecuted = true;
     } else if ($coords.x <= -50 && !actionExecuted) {
-      currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1);
-      actionExecuted = true; // Marcar la acción como ejecutada
+      currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1);
+      actionExecuted = true; 
     } else if ($coords.x > -50 && $coords.x < 50) {
       actionExecuted = false;
     }

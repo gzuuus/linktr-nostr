@@ -96,18 +96,18 @@ export async function copyToClipboard(textToCopy: string){
   }
 }
 
-export async function shareContent() {
-  try {
-    const url = window.location.href;
-    if (navigator.share) {
+export async function sharePage(urlToShare: string) {
+  if (navigator && typeof navigator !== 'undefined' && 'share' in navigator && typeof navigator.share === 'function') {
+    let url = urlToShare;
+    try {
       await navigator.share({
-        url: url,
+        url,
       });
-    } else {
-      alert('Your browser does not support the sharing function. You can copy the link and share it manually.');
+    } catch (error) {
+      console.error('Error :', error);
     }
-  } catch (err) {
-    console.error('Error', err);
+  } else {
+    console.warn('no share');
   }
 }
 

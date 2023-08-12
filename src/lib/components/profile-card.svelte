@@ -3,7 +3,7 @@
   import ndk from '$lib/stores/provider';
   import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
   import { fade } from 'svelte/transition';
-  import { truncateString, copyToClipboard} from '$lib/utils/helpers';
+  import { truncateString, copyToClipboard, sharePage} from '$lib/utils/helpers';
   import CopyIcon from '$lib/elements/icons/copy-icon.svelte';
   import QRcode from 'qrcode-generator';
   import QrIcon from '$lib/elements/icons/qr-icon.svelte';
@@ -12,6 +12,8 @@
   import { Tag } from 'agnostic-svelte';
   import CheckIcon from '$lib/elements/icons/check-icon.svelte';
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
+    import ShareIcon from '$lib/elements/icons/share-icon.svelte';
+
     
   let userProfile: NDKUserProfile;
   let qrImageUrl: string = '';
@@ -28,7 +30,6 @@
       generateQRCode($page.url.href);
     }
 })
-
   function generateQRCode(value:string) {
     let qr = QRcode(0, 'L');
     qr.addData(value);
@@ -39,7 +40,7 @@
   function handleMoreInfo() {
     showAbout = !showAbout;
   }
-
+  let isSharePossible:boolean= typeof navigator !== 'undefined' && 'share' in navigator && typeof navigator.share === 'function';
 </script>
 
 {#if userProfile}
@@ -57,6 +58,7 @@
         <button on:click={() =>generateQRCode($page.url.href)}><QrIcon size={18} /></button>
         <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
         {#if userProfile.about}
+        <button class:hidden={!isSharePossible} on:click={() =>sharePage($page.url.href)}><ShareIcon size={18} /></button>
         <button on:click={() =>handleMoreInfo()}><InfoIcon size={18} /></button>
         {/if}
       </div>

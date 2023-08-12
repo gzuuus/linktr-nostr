@@ -19,6 +19,7 @@ export function pannable(node: HTMLElement) {
 
       window.addEventListener('touchmove', handleTouchMove);
       window.addEventListener('touchend', handleTouchEnd);
+      event.preventDefault();
     }
   }
 
