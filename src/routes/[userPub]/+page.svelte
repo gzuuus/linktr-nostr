@@ -6,23 +6,22 @@
   import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import { goto } from '$app/navigation';
     import { ndkUser } from '$lib/stores/user';
-  export let data: PageData;
+   export let data
+   $: user = data.npub;
 
-  $: user = data.pubkey;
+   let kindLinks = 30303;
+   let kindNotes = 1;
+   let kindArticles = 30023;
+   $: visibleComponent = lengths[kindLinks] == 0 ? kindNotes : kindLinks;
+   let lengths: { [key: number]: number } = {};
 
-  let kindLinks = 30303;
-  let kindNotes = 1;
-  let kindArticles = 30023;
-  $: visibleComponent = lengths[kindLinks] == 0 ? kindNotes : kindLinks;
-  let lengths: { [key: number]: number } = {};
+   lengthStore.subscribe((newLengths) => {
+   lengths = newLengths;
+   });
 
-  lengthStore.subscribe((newLengths) => {
-  lengths = newLengths;
-  });
-
-  function showComponent(kind: number) {
-    visibleComponent = kind;
-  }
+   function showComponent(kind: number) {
+     visibleComponent = kind;
+   }
 
 </script>
 <svelte:head>
