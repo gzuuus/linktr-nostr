@@ -7,46 +7,50 @@ interface Coords {
 export function pannable(node: HTMLElement) {
   let x: number;
 
-  function handleMousedown(event: MouseEvent) {
-    x = event.clientX;
+  function handleTouchStart(event: TouchEvent) {
+    if (event.touches.length === 1) {
+      x = event.touches[0].clientX;
 
-    node.dispatchEvent(
-      new CustomEvent('panstart', {
-        detail: { x },
-      })
-    );
+      node.dispatchEvent(
+        new CustomEvent('panstart', {
+          detail: { x },
+        })
+      );
 
-    window.addEventListener('mousemove', handleMousemove);
-    window.addEventListener('mouseup', handleMouseup);
+      window.addEventListener('touchmove', handleTouchMove);
+      window.addEventListener('touchend', handleTouchEnd);
+    }
   }
 
-  function handleMousemove(event: MouseEvent) {
-    const dx = event.clientX - x;
-    x = event.clientX;
+  function handleTouchMove(event: TouchEvent) {
+    if (event.touches.length === 1) {
+      const dx = event.touches[0].clientX - x;
+      x = event.touches[0].clientX;
 
-    node.dispatchEvent(
-      new CustomEvent('panmove', {
-        detail: { dx },
-      })
-    );
+      node.dispatchEvent(
+        new CustomEvent('panmove', {
+          detail: { dx },
+        })
+      );
+    }
   }
 
-  function handleMouseup() {
+  function handleTouchEnd() {
     x = 0;
 
     node.dispatchEvent(
       new CustomEvent('panend')
     );
 
-    window.removeEventListener('mousemove', handleMousemove);
-    window.removeEventListener('mouseup', handleMouseup);
+    window.removeEventListener('touchmove', handleTouchMove);
+    window.removeEventListener('touchend', handleTouchEnd);
   }
 
-  node.addEventListener('mousedown', handleMousedown);
+  node.addEventListener('touchstart', handleTouchStart);
 
   return {
     destroy() {
-      node.removeEventListener('mousedown', handleMousedown);
+      node.removeEventListener('touchstart', handleTouchStart);
     },
   };
 }
