@@ -40,19 +40,18 @@
   let actionExecuted = false; 
 
   $: {
-    if ($coords.x >= 50 && !actionExecuted) {
+    if ($coords.x >= 70 && !actionExecuted) {
       currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1);
       actionExecuted = true;
-    } else if ($coords.x <= -50 && !actionExecuted) {
+    } else if ($coords.x <= -70 && !actionExecuted) {
       currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1);
       actionExecuted = true; 
-    } else if ($coords.x > -50 && $coords.x < 50) {
+    } else {
       actionExecuted = false;
     }
   }
 </script>
 
-  
 <div class="sectionContainer">
   {#if eventKind == linkListEventKind && eventList.length > 0}
     <div class="eventContentContainer">
