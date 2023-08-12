@@ -1,5 +1,10 @@
+<!-- <script lang="ts">
+  import { page } from "$app/stores";
+  $: npub = $page.data.npub;
+  console.log($page.data.npub);
+</script> -->
 <script lang="ts">
-  import type { PageData } from './$types';
+  import { page } from "$app/stores";
   import ProfileCard from '$lib/components/profile-card.svelte';
   import EventCard from '$lib/components/event-card.svelte';
   import { lengthStore } from '$lib/stores/eventListsLengths';
@@ -7,7 +12,8 @@
   import { goto } from '$app/navigation';
     import { ndkUser } from '$lib/stores/user';
    export let data
-   $: user = data.npub;
+   console.log(data);
+   $: user = $page.data.npub;
 
    let kindLinks = 30303;
    let kindNotes = 1;
