@@ -1,8 +1,3 @@
-<!-- <script lang="ts">
-  import { page } from "$app/stores";
-  $: npub = $page.data.npub;
-  console.log($page.data.npub);
-</script> -->
 <script lang="ts">
   import { page } from "$app/stores";
   import ProfileCard from '$lib/components/profile-card.svelte';
@@ -10,9 +5,8 @@
   import { lengthStore } from '$lib/stores/eventListsLengths';
   import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import { goto } from '$app/navigation';
-    import { ndkUser } from '$lib/stores/user';
-   export let data
-   console.log(data);
+  import { ndkUser } from '$lib/stores/user';
+
    $: user = $page.data.npub;
 
    let kindLinks = 30303;

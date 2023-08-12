@@ -69,9 +69,6 @@
 <style>
     .modal {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       background-color: var(--background-color);
       border: var(--common-border-style);
       border-radius: var(--agnostic-radius);

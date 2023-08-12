@@ -9,7 +9,8 @@
   import ParsedContent from './parse-content.svelte';
   import type { NDKEvent } from "@nostr-dev-kit/ndk";
   import { updateLength } from "$lib/stores/eventListsLengths";
-  import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";
+  import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";  
+  import { pannable, handlePanStart, handlePanMove, initializeCoords,coords } from '$lib/utils/pannable';
 
   const linkListEventKind = 30303 as Kind;
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
@@ -18,22 +19,36 @@
   if (eventKind == linkListEventKind) {
     $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded] }, { closeOnEose: true }).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
+
       updateLength(linkListEventKind, eventList.length);
       sortEventList(eventList);
     });
   } else {
     $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], limit: 5 }, { closeOnEose: true, groupable: true }).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent);
+
       updateLength(eventKind, eventList.length);
       sortEventList(eventList);
     });
   }
 
-
-
   $: currentIndex = 0;
   function clampIndex(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
+  }
+  
+  let actionExecuted = false; 
+
+  $: {
+    if ($coords.x >= 50 && !actionExecuted) {
+      currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1);
+      actionExecuted = true;
+    } else if ($coords.x <= -50 && !actionExecuted) {
+      currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1);
+      actionExecuted = true; // Marcar la acción como ejecutada
+    } else if ($coords.x > -50 && $coords.x < 50) {
+      actionExecuted = false;
+    }
   }
 </script>
 
@@ -48,18 +63,25 @@
         <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
       </div>
         <div class:hidden={eventList.length <= 1}>
-          {#each eventList as event, index}
-              {#if index == currentIndex}
-                <button class="indexDotButton" on:click={() => currentIndex = index}></button>
-                {:else}
-                <button class="indexDotButton inactive"  on:click={() => currentIndex = index}></button>
-              {/if}
-          {/each}
+            {#each eventList as event, index}
+                {#if index == currentIndex}
+                  <button class="indexDotButton" on:click={() => currentIndex = index}></button>
+                  {:else}
+                  <button class="indexDotButton inactive"  on:click={() => currentIndex = index}></button>
+                {/if}
+            {/each}
         </div>
       </div>
-        {#each findListTags(eventList[currentIndex].tags) as { url, text }}
-            <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
-        {/each}
+      <div
+        use:pannable
+        on:panstart={handlePanStart}
+        on:panmove={handlePanMove}
+        on:panend={() => initializeCoords()}
+        style="transform: translateX({$coords.x}px);">
+          {#each findListTags(eventList[currentIndex].tags) as { url, text }}
+              <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
+          {/each}
+      </div>
     </div>
   {:else}
     {#each eventList as event}
@@ -97,6 +119,7 @@
 .eventContentContainer {
   margin: 0.3em 0;
   word-wrap: break-word;
+  overflow: hidden;
 }
 .sectionContainer {
   overflow: auto;
