@@ -14,7 +14,6 @@ export const defaulRelaysUrls: string[] = [
 const ndk = new NDK({
     explicitRelayUrls: defaulRelaysUrls
 });
-ndk.connect().then(() => console.log('ndk connected successfully'));
 
 const ndkStore = writable(ndk);
 

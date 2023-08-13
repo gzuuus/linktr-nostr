@@ -1,6 +1,17 @@
 <script lang="ts">
     import Header from "$lib/components/header.svelte"
     import 'agnostic-svelte/css/common.min.css';
+    import { onMount } from "svelte";
+    import ndk from "$lib/stores/provider";
+    
+    onMount(async () => {
+        try {
+            $ndk.connect().then(() => console.log('ndk connected successfully'));
+        } catch (error) {
+            console.error(`Error`, error);
+        }
+    });
+    
 </script>
 <svelte:head>
     <title>Nostree</title>
