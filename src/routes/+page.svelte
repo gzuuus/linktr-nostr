@@ -37,7 +37,7 @@
         justify-content: center;
         word-break: break-word;
         background: var(--background-color);
-        border-radius: var(--agnostic-radius);
+        border-radius:13px;
         padding: 15px;
     }
     .logoContainer {

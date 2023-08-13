@@ -12,8 +12,7 @@
   import { Tag } from 'agnostic-svelte';
   import CheckIcon from '$lib/elements/icons/check-icon.svelte';
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
-    import ShareIcon from '$lib/elements/icons/share-icon.svelte';
-
+  import ShareIcon from '$lib/elements/icons/share-icon.svelte';
     
   let userProfile: NDKUserProfile;
   let qrImageUrl: string = '';

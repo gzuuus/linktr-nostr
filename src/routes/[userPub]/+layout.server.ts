@@ -1,7 +1,7 @@
 import { NDKUser } from "@nostr-dev-kit/ndk";
 
 export async function load({ params }) {
-    const {userPub} = params;
+    let {userPub} = params;
 
     if (userPub.startsWith('npub')) {
         return { npub: userPub };
