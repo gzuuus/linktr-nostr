@@ -34,6 +34,7 @@
       links: links,
     };
     validateAllURLs();
+    validateAllURLNames()
   }
 
   let isTitleEmpty = true;
