@@ -9,7 +9,7 @@ import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
 
   const linkListEventKind = 30303 as Kind
   let eventList: NDKEvent[] = [];
-  const sub = $ndk.subscribe({ kinds: [linkListEventKind]});
+  const sub = $ndk.subscribe({ kinds: [linkListEventKind], limit: 50}, { closeOnEose: true, groupable: true});
       sub.on("event", (event: NDKEvent) => {
         if (getTagValue(event.tags, 'title') !== '') {
             eventList = [...eventList, event];

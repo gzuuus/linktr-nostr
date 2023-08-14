@@ -24,21 +24,20 @@
    }
 
 </script>
-<svelte:head>
-    {#if $ndkUser}
-        <title>Nostree - {$ndkUser.profile?.username ? $ndkUser.profile?.username : $ndkUser.profile?.displayName}</title>
-        <meta
-            name="description"
-            content={`Nostree page of ${$ndkUser.profile?.username ? $ndkUser.profile?.username : $ndkUser.profile?.displayName}`}
-        />
-    {:else}
-        <title>Nostree</title>
-        <meta name="description" content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff." />
-    {/if}
-</svelte:head>
 <div class="commonContainerStyle">
 {#key user}
 <ProfileCard userPub={user} />
+<div>
+  {#if lengths[kindNotes] != 0 || lengths[kindArticles] != 0}
+    <button class="switchButtons" class:selected={visibleComponent == kindLinks} on:click={() => showComponent(kindLinks)}>Links</button>
+  {/if}
+  {#if lengths[kindNotes] >= 1}
+    <button class="switchButtons" class:selected={visibleComponent == kindNotes} on:click={() => showComponent(kindNotes)}>Notes</button>
+  {/if}
+  {#if lengths[kindArticles] >= 1}
+    <button class="switchButtons" class:selected={visibleComponent == kindArticles} on:click={() => showComponent(kindArticles)}>Articles</button>
+  {/if}
+</div>
 
 <div class={visibleComponent === kindLinks ? "visible" : "hidden"}>
   <EventCard userPub={user} eventKind={kindLinks} />
@@ -62,15 +61,6 @@
   <EventCard userPub={user} eventKind={kindArticles} />
 </div>
 
-{#if lengths[kindNotes] != 0 || lengths[kindArticles] != 0}
-  <button class="switchButtons" class:selected={visibleComponent == kindLinks} on:click={() => showComponent(kindLinks)}>Links</button>
-{/if}
-{#if lengths[kindNotes] >= 1}
-  <button class="switchButtons" class:selected={visibleComponent == kindNotes} on:click={() => showComponent(kindNotes)}>Notes</button>
-{/if}
-{#if lengths[kindArticles] >= 1}
-  <button class="switchButtons" class:selected={visibleComponent == kindArticles} on:click={() => showComponent(kindArticles)}>Articles</button>
-{/if}  
 {/key}
 </div>
 

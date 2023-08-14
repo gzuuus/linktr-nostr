@@ -10,9 +10,6 @@
   import { goto } from '$app/navigation';
   import ProfileIcon from '$lib/elements/icons/profile-icon.svelte';
   import Logo from '$lib/elements/icons/logo.svelte';
-  import { onMount } from 'svelte';
-    import type { NDKUserProfile } from '@nostr-dev-kit/ndk';
-    import { userProfileStore } from '$lib/stores/usersPubs';
   let qrImageUrl: string = '';
   let isImageBlocked = false;
 
@@ -33,7 +30,7 @@
 
 <div transition:fade class="profileContainer">
 
-{#await user?.fetchProfile()}
+{#await user?.fetchProfile({closeOnEose: true, groupable: true, groupableDelay: 1000})}
     <Logo size={50}/>
     <h3>Loading profile</h3>
 {:then value}
@@ -46,7 +43,7 @@
       <h3>{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</h3>
       <div class="profileButtons">
         <div><button class="userPubString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
-          <button on:click={() => goto(`${$page.url.origin}/${userPub}`)}><ProfileIcon size={18} /></button>
+          <button on:click={() => goto(`/${userPub}`)}><ProfileIcon size={18} /></button>
           {#if user?.profile?.lud16}
           <a href="lightning:{user?.profile?.lud16}"><button><LnIcon size={18} /></button></a>
           {/if}
@@ -79,7 +76,7 @@
 
   .profileContainer {
     margin: 10px;
-    border-radius: 15px;
+    border-radius: var(--agnostic-radius);
     word-wrap: anywhere;
     display: flex;
     justify-content: start;

@@ -18,11 +18,13 @@
   const newDTag = `nostree-${uuidv4()}`;
   const validPrefixes: string[] = ['http://', 'https://', 'ftp://', 'nostr:'];
   let linkValidationStatus: boolean[] = [];
+  let linkNameValidationStatus: boolean[] = [];
 
   let formData = {
     title: '',
     links: [{ link: '', description: '' }],
   };
+
   if (eventToEdit) {
     let title = getTagValue(eventToEdit.tags, "title");
     const rTags = findListTags(eventToEdit.tags);
@@ -52,14 +54,18 @@
       return isValidPrefix;
     });
   }
+  
+  function validateAllURLNames() {
+  linkNameValidationStatus = formData.links.map(linkData => linkData.description.trim() !== "");
+}
+
 
   function handleInput() {
       validateAllURLs();
+      validateAllURLNames();
     };
 
-  let areAllLinksValid: boolean = false;
-
-  $: areAllLinksValid = linkValidationStatus.length > 0 && linkValidationStatus.every(status => status);
+  $: areAllLinksValid = linkValidationStatus.length > 0 && linkValidationStatus.every(status => status) && linkNameValidationStatus.length > 0 && linkNameValidationStatus.every(status => status);
 
   function handleSubmit() {
     showSpinner = true;
@@ -88,12 +94,15 @@
   function addLinkField() {
     formData.links = [...formData.links, { link: '', description: '' }];
     linkValidationStatus.push(false);
+    linkNameValidationStatus.push(false);
     validateAllURLs();
+    validateAllURLNames();
   }
 
   function removeLinkField(index: number) {
     formData.links = formData.links.filter((_, i) => i !== index);
     linkValidationStatus.splice(index, 1);
+    linkNameValidationStatus.splice(index, 1);
   }
 
   function handleReset() {
@@ -102,6 +111,7 @@
       links: [{ link: '', description: '' }],
     };
     linkValidationStatus = [];
+    linkNameValidationStatus = [];
     eventToEdit = null;
   }
 
@@ -128,16 +138,17 @@
             <label for={`link-${index}`}><LinkIcon size={18} /></label>
             <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkData.link} on:input={handleInput} />
           </div>
-          
-          {#if !linkValidationStatus[index] && linkData.link.trim() !== ''}
-            <Tag><InfoIcon size={18} /> Prefix needed</Tag>
-          {/if}
 
           <div class="inputWithIcon">
             <label for={`description-${index}`}><TextIcon size={18} /></label>
-            <input type="text" id={`description-${index}`} placeholder="Link name" bind:value={linkData.description} />
+            <input type="text" id={`description-${index}`} placeholder="Link name" bind:value={linkData.description} on:input={handleInput}/>
           </div>
-
+          {#if !linkValidationStatus[index] || !linkNameValidationStatus[index]}
+           {#if linkData.link.trim() || linkData.description.trim()}
+           <span class:hidden={linkData.link.trim() && linkValidationStatus[index]}><Tag><InfoIcon size={18} /> Prefix needed</Tag></span>
+           <span class:hidden={linkData.description.trim() && linkNameValidationStatus[index]}><Tag><InfoIcon size={18} /> Description needed</Tag></span>
+            {/if}
+          {/if}
           {#if formData.links.length > 1}
             <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
           {/if}

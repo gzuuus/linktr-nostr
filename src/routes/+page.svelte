@@ -37,7 +37,7 @@
         justify-content: center;
         word-break: break-word;
         background: var(--background-color);
-        border-radius:13px;
+        border-radius:var(--agnostic-radius);
         padding: 15px;
     }
     .logoContainer {
@@ -54,6 +54,6 @@
     .homeParentContainer {
         background: var(--accent-color);
         padding: 0;
-
+        border-radius: calc(var(--agnostic-radius) + 2px);
     }
 </style>

@@ -35,7 +35,7 @@
         --agnostic-header-background-color: transparent;
         --agnostic-focus-ring-outline-width: 2px;
         --agnostic-btn-primary:white;
-        --agnostic-radius: 15px;
+        --agnostic-radius:30px;
         --agnostic-focus-ring-color: var(--hover-b-color);
         --agnostic-btn-primary-color: var(--background-color);
         --agnostic-dark: var(--background-color);
@@ -124,7 +124,7 @@
     }
     :global(.commonContainerStyle){
         border: 2px solid var(--hover-b-color);
-        border-radius: 15px;
+        border-radius: var(--agnostic-radius);
         padding: 15px;
         margin: 1em;
         background: var(--background-color);
@@ -148,7 +148,7 @@
     :global(.eventContainer) {
         margin: 10px;
         padding: 5px;
-        border-radius: 15px;
+        border-radius: calc(var(--agnostic-radius)/2);
         word-wrap: anywhere;
         border: 1px solid var(--hover-b-color);
         transition: max-height 0.3s ease-in-out;
@@ -239,6 +239,9 @@
 
     :global(.btn) {
 	white-space: inherit !important;
-}
-
+    }
+    :global(code){
+        color: var(--accent-color);
+        font-size: medium;
+    }
 </style>

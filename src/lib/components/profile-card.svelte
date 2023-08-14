@@ -2,26 +2,25 @@
   export let userPub: string;
   import ndk from '$lib/stores/provider';
   import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
-  import { fade } from 'svelte/transition';
   import { truncateString, copyToClipboard, sharePage} from '$lib/utils/helpers';
   import CopyIcon from '$lib/elements/icons/copy-icon.svelte';
   import QRcode from 'qrcode-generator';
   import QrIcon from '$lib/elements/icons/qr-icon.svelte';
   import LnIcon from '$lib/elements/icons/ln-icon.svelte';
   import { page } from '$app/stores';
-  import { Tag } from 'agnostic-svelte';
-  import CheckIcon from '$lib/elements/icons/check-icon.svelte';
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
   import ShareIcon from '$lib/elements/icons/share-icon.svelte';
+  import AtIcon from '$lib/elements/icons/at-icon.svelte';
     
   let userProfile: NDKUserProfile;
   let qrImageUrl: string = '';
   let showQR: boolean = false;
   let showAbout: boolean = false;
-
+  let fetchProfilePromise: Promise<void>;
+    
   let user = $ndk.getUser({
     npub: userPub,
-  });
+  })
 
   user.fetchProfile().then(() => {
   userProfile = user.profile as NDKUserProfile;}).then(() => {
@@ -43,26 +42,24 @@
 </script>
 
 {#if userProfile}
-<div transition:fade class="profileContainer">
-      <img class="pfp {showQR ? 'hidden' : ''}" src={userProfile.image} alt="avatar" />
-      <img class="pfp {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
+<div class="profileContainer">
+      <img class=" {showQR ? 'hidden' : ''}" src={userProfile.image} alt="avatar" />
+      <img class="qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
   <div class="profileInfoBox">
+    <button on:click={() =>generateQRCode($page.url.href)}><QrIcon size={18} /></button>
+    <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
+    <button class:hidden={!isSharePossible} on:click={() =>sharePage($page.url.href)}><ShareIcon size={16} /></button>
     <h2>{userProfile.name ? userProfile.name : userProfile.displayName}</h2>
     {#if userProfile.nip05}
-      <Tag><CheckIcon size={14} />{userProfile.nip05}</Tag>
-    {/if}
-    <div class="profileButtons">
-      <div><button class="userPubString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
-      <div>
-        <button on:click={() =>generateQRCode($page.url.href)}><QrIcon size={18} /></button>
-        <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
-        {#if userProfile.about}
-        <button class:hidden={!isSharePossible} on:click={() =>sharePage($page.url.href)}><ShareIcon size={18} /></button>
-        <button on:click={() =>handleMoreInfo()}><InfoIcon size={18} /></button>
-        {/if}
+      <div class="userInfoString">
+        <button  on:click={() =>copyToClipboard(`${$page.url.origin}/${userProfile.nip05}`)}><AtIcon size={16} />
+          <code >{userProfile.nip05} </code>
+        </button>
       </div>
-    </div>
+    {/if}
+    <button  on:click={() =>handleMoreInfo()}><InfoIcon size={16} /></button>
     {#if showAbout}
+      <div><button class="userInfoString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
         <p>{userProfile.about}</p>
     {/if}
   </div>
@@ -74,36 +71,31 @@
 <style>
   .profileContainer {
     margin: 10px;
-    border-radius: 15px;
+    border-radius: var(--agnostic-radius);
     word-wrap: anywhere;
   }
   img {
-    max-width: 140px;
-    border-radius: 15px;
+    max-width: 125px;
+    border-radius: var(--agnostic-radius);
   }
   button {
     margin: 0;
     display: inline-flex;
     background: transparent;
-
     cursor: pointer;
     color: var(--accent-color);
+    padding: 0.2em;
+    border: var(--common-border-style);
   }
   button:hover{
     color: var(--hover-color);
   }
-  button {
-    padding: 0.3em;
-    border: var(--common-border-style);
-  }
-  .userPubString {
+  .userInfoString {
     border: none;
+    display: inline-flex;
     gap: 5px;
     font-size: 16px;
     align-items: center;
     padding: 0.3em 0;
-  }
-  .profileButtons {
-    margin-bottom: 0.5em;
   }
 </style>
