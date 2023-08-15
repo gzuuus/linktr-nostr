@@ -52,7 +52,7 @@
     <h2>{userProfile.name ? userProfile.name : userProfile.displayName}</h2>
     {#if userProfile.nip05}
       <div class="userInfoString">
-        <button  on:click={() =>copyToClipboard(`${$page.url.origin}/${userProfile.nip05}`)}><AtIcon size={16} />
+        <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userProfile.nip05}`)}><AtIcon size={16} />
           <code >{userProfile.nip05} </code>
         </button>
       </div>
@@ -66,13 +66,14 @@
 </div>
 {/if}
 
-
-
 <style>
   .profileContainer {
     margin: 10px;
     border-radius: var(--agnostic-radius);
     word-wrap: anywhere;
+  }
+  .userPubButton {
+    padding-right: 0.5em;
   }
   img {
     max-width: 125px;

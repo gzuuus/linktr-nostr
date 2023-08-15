@@ -42,7 +42,7 @@
     <div class="profileInfoBox">
       <h3>{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</h3>
       <div class="profileButtons">
-        <div><button class="userPubString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
+        <div><button class="userPubString" on:click={() =>{user?.profile?.nip05 ? copyToClipboard(user?.profile?.nip05):copyToClipboard(userPub) }}>{user?.profile?.nip05 ? user?.profile?.nip05:truncateString(userPub)}<CopyIcon size={14} /></button></div>
           <button on:click={() => goto(`/${userPub}`)}><ProfileIcon size={18} /></button>
           {#if user?.profile?.lud16}
           <a href="lightning:{user?.profile?.lud16}"><button><LnIcon size={18} /></button></a>
@@ -90,6 +90,7 @@
     background: transparent;
     cursor: pointer;
     color: var(--accent-color);
+    align-items: center;
   }
   button:hover{
     color: var(--hover-color);
@@ -100,6 +101,7 @@
     font-size: 16px;
     align-items: start;
     padding: 0.3em 0;
+    text-align: start;
   }
   .profileButtons {
     text-align: start;

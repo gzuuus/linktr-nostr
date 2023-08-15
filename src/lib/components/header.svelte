@@ -14,7 +14,7 @@
         goto('/new');
     }
 </script>
-  <div class="container">
+  <div class="headerContainer">
           <div class="headerLogo"><a href="/"><Logo size={50}/></a></div>
     {#if $ndkUser}
     <div class="userMenu">
@@ -30,7 +30,7 @@
   </div>
 
 <style>
-    .container {
+    .headerContainer{
         position: absolute;
         width: 100%;
     }

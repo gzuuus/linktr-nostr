@@ -71,16 +71,31 @@
             {/each}
         </div>
       </div>
-      <div
-        use:pannable
-        on:panstart={handlePanStart}
-        on:panmove={handlePanMove}
-        on:panend={() => initializeCoords()}
-        style="transform: translateX({$coords.x}px);">
-          {#each findListTags(eventList[currentIndex].tags) as { url, text }}
-              <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
-          {/each}
-      </div>
+      <div>
+        {#if eventList.length > 1}
+          <div
+            use:pannable
+            on:panstart={handlePanStart}
+            on:panmove={handlePanMove}
+            on:panend={() => initializeCoords()}
+            style="transform: translateX({$coords.x}px);"
+          >
+            {#each findListTags(eventList[currentIndex].tags) as { url, text }}
+              <a href={url} target="_blank" rel="noreferrer">
+                <Button isBlock>{text}</Button>
+              </a>
+            {/each}
+          </div>
+        {:else}
+          <div>
+            {#each findListTags(eventList[currentIndex].tags) as { url, text }}
+              <a href={url} target="_blank" rel="noreferrer">
+                <Button isBlock>{text}</Button>
+              </a>
+            {/each}
+          </div>
+        {/if}
+      </div>      
     </div>
   {:else}
     {#each eventList as event}

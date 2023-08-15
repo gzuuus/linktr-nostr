@@ -61,10 +61,12 @@
 }
 
 
-  function handleInput() {
-      validateAllURLs();
-      validateAllURLNames();
-    };
+  // function handleInputURL() {
+  //     validateAllURLs();
+  //   };
+  // function handleInputURLNames() {
+  //     validateAllURLNames();
+  //   };
 
   $: areAllLinksValid = linkValidationStatus.length > 0 && linkValidationStatus.every(status => status) && linkNameValidationStatus.length > 0 && linkNameValidationStatus.every(status => status);
 
@@ -137,19 +139,17 @@
         <div class="linkField">
           <div class="inputWithIcon">
             <label for={`link-${index}`}><LinkIcon size={18} /></label>
-            <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkData.link} on:input={handleInput} />
+            <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkData.link} on:input={validateAllURLs} />
           </div>
 
           <div class="inputWithIcon">
             <label for={`description-${index}`}><TextIcon size={18} /></label>
-            <input type="text" id={`description-${index}`} placeholder="Link name" bind:value={linkData.description} on:input={handleInput}/>
+            <input type="text" id={`description-${index}`} placeholder="Link name" bind:value={linkData.description} on:input={validateAllURLNames}/>
           </div>
-          {#if !linkValidationStatus[index] || !linkNameValidationStatus[index]}
-           {#if linkData.link.trim() || linkData.description.trim()}
-           <span class:hidden={linkData.link.trim() && linkValidationStatus[index]}><Tag><InfoIcon size={18} /> Prefix needed</Tag></span>
-           <span class:hidden={linkData.description.trim() && linkNameValidationStatus[index]}><Tag><InfoIcon size={18} /> Description needed</Tag></span>
-            {/if}
+          {#if !linkValidationStatus[index] && linkData.link.trim()}
+           <span class:hidden={linkData.link.trim() && linkValidationStatus[index]}><Tag><InfoIcon size={18}/> Prefix needed</Tag></span>
           {/if}
+
           {#if formData.links.length > 1}
             <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
           {/if}
@@ -182,6 +182,7 @@
     display: inline-flex;
     line-height: normal;
     padding: 0.3em;
+
   }
 
   form {

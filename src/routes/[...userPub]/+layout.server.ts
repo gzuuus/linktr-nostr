@@ -1,12 +1,12 @@
 import { NDKUser } from "@nostr-dev-kit/ndk";
 
 export async function load({ params }) {
-    let {userPub} = params;
-
-    if (userPub.startsWith('npub')) {
+    const segments = params.userPub.split('/');
+    const userPub = segments.shift();
+    if (userPub?.startsWith('npub')) {
         return { npub: userPub };
     }
-    const user = await NDKUser.fromNip05(userPub);
+    const user = await NDKUser.fromNip05(userPub!);
     console.log(user);
     return {
         npub: user?.npub,
