@@ -3,6 +3,7 @@
     import 'agnostic-svelte/css/common.min.css';
     import { onMount } from "svelte";
     import ndk from "$lib/stores/provider";
+    import { ogImageUrl } from "$lib/utils/helpers";
     
     onMount(async () => {
         try {
@@ -14,8 +15,12 @@
     
 </script>
 <svelte:head>
-    <title>Nostree</title>
-    <meta name="description" content="Nostr based application to manage link lists, and show notes, and other stuff">
+  <title>Nostree</title>
+  <meta name="description" content='A Nostr-based application to create, manage and discover link lists, show notes and other stuff.' />
+
+  <meta property="og:title" content='Nostree' />
+  <meta property="og:description" content='A Nostr-based application to create, manage and discover link lists, show notes and other stuff.' />
+  <meta property="og:image" content={ogImageUrl} />
 </svelte:head>
 <Header/>
 

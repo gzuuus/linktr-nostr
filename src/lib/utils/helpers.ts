@@ -121,5 +121,7 @@ export function sortEventList(eventList: NDKEvent[]) {
   eventList.sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
+export const ogImageUrl = 'https://cdn.nostr.build/i/d050cb88a4c0c315c38bd9909831b65ae1914a530320b1d4a3683e8c8a38baae.jpg'
+
 
 

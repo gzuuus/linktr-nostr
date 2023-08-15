@@ -5,7 +5,6 @@
   import { lengthStore } from '$lib/stores/eventListsLengths';
   import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import { goto } from '$app/navigation';
-  import { ndkUser } from '$lib/stores/user';
 
    $: user = $page.data.npub;
 
