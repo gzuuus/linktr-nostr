@@ -11,16 +11,16 @@
   import { updateLength } from "$lib/stores/eventListsLengths";
   import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";  
   import { pannable, handlePanStart, handlePanMove, initializeCoords,coords } from '$lib/utils/pannable';
+  import { kindLinks, kindNotes, kindArticles } from '$lib/utils/constants';
 
-  const linkListEventKind = 30303 as Kind;
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
 
-  if (eventKind == linkListEventKind) {
-    $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded] }, { closeOnEose: true }).then((fetchedEvent) => {
+  if (eventKind == kindLinks) {
+    $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], '#l': ['nostree'] }, { closeOnEose: true }).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
 
-      updateLength(linkListEventKind, eventList.length);
+      updateLength(kindLinks, eventList.length);
       sortEventList(eventList);
     });
   } else {
@@ -53,7 +53,7 @@
 </script>
 
 <div class="sectionContainer">
-  {#if eventKind == linkListEventKind && eventList.length > 0}
+  {#if eventKind == kindLinks && eventList.length > 0}
     <div class="eventContentContainer">
       <div class="eventContainerButtons">
         <div> 

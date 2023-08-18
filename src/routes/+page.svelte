@@ -15,7 +15,9 @@
         </div>
         <div>
             <h1>Nostree</h1>
-            <p>A Nostr-based application to create, manage and discover link lists, show notes and other stuff.</p>
+            <h2>Migratee</h2>
+            <!-- <p>A Nostr-based application to create, manage and discover link lists, show notes and other stuff.</p> -->
+            <p>You can use this version of the application to migrate your lists to the new format. It will soon be merged into the production version.</p>
         </div>
         {#if !$ndkUser}
         <Login mode="primary"/>

@@ -5,12 +5,9 @@
   import { lengthStore } from '$lib/stores/eventListsLengths';
   import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import { goto } from '$app/navigation';
-
+  import { kindLinks, kindNotes, kindArticles } from '$lib/utils/constants';
    $: user = $page.data.npub;
 
-   let kindLinks = 30303;
-   let kindNotes = 1;
-   let kindArticles = 30023;
    $: visibleComponent = lengths[kindLinks] == 0 ? kindNotes : kindLinks;
    let lengths: { [key: number]: number } = {};
 

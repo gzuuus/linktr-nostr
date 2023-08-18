@@ -3,7 +3,7 @@
     import 'agnostic-svelte/css/common.min.css';
     import { onMount } from "svelte";
     import ndk from "$lib/stores/provider";
-    import { ogImageUrl } from "$lib/utils/helpers";
+    import { ogImageUrl } from "$lib/utils/constants";
     
     onMount(async () => {
         try {

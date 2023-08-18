@@ -22,7 +22,6 @@
         });
         user.fetchProfile();
         ndkUser.set(user);
-        console.log($ndkUser);
   
         if (doGoto) {
             goto(`/${$ndkUser?.npub}`);

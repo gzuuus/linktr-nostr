@@ -7,7 +7,6 @@ export async function load({ params }) {
         return { npub: userPub };
     }
     const user = await NDKUser.fromNip05(userPub!);
-    console.log(user);
     return {
         npub: user?.npub,
     };

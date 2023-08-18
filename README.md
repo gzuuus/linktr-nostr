@@ -10,7 +10,7 @@ https://nostree.me/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5
 
 {
     ...
-    "kind": 30303,
+    "kind": 30001,
     "content": "",
     "tags": [
         ["d", "nostree-{uuidv4}"],
@@ -22,6 +22,7 @@ https://nostree.me/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5
         ...
         ["t", "Music"],
         ["t", "Personal projects"],
+        ["l", "nostree"],
         ...
     ],
     ...

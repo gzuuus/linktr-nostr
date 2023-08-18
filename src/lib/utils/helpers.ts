@@ -1,9 +1,10 @@
-import { nip19 } from 'nostr-tools';
+import { Kind, nip19 } from 'nostr-tools';
 import type { NDKEvent, NDKTag } from '@nostr-dev-kit/ndk';
 import { ndkUser } from '$lib/stores/user';
 import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from '$app/navigation';
 import type { LinkData } from "$lib/classes/list";
+import { nanoid } from 'nanoid';
 
 export function unixTimeNow() {
     return Math.floor(new Date().getTime() / 1000);
@@ -52,13 +53,24 @@ export function isNip05(input: string): boolean {
     return titleTag ? titleTag[1] : '';
   }
 
-export function findListTags(tags: NDKTag[]) {
-  const matchingTags = tags.filter(tag => tag[0] === 'r');
-  return matchingTags.map(tag => {
-    const [url, text] = tag.slice(1);
-    return { url, text };
-  });
-  };
+  export function findListTags(tags: NDKTag[]) {
+    const matchingTags = tags.filter(tag => tag[0] === 'r');
+  
+    return matchingTags.map(tag => {
+        const [url, text] = tag.slice(1);
+        return { url, text } as { url: string; text: string };
+    });
+  }
+  export function findOtherTags(tags: NDKTag[], tagName: string) {
+    const matchingTags = tags.filter(tag => tag[0] === tagName);
+  
+    return matchingTags.map(tag => {
+      const [tagValue] = tag.slice(1);
+      return tagValue as string;
+    });
+  }
+  
+  
 export function parseNostrUrls(rawContent: string): string {
   const nostrPattern = /nostr:(nprofile|nevent|naddr|npub1)(\w+)/g;
   
@@ -121,7 +133,8 @@ export function sortEventList(eventList: NDKEvent[]) {
   eventList.sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
-export const ogImageUrl = 'https://cdn.nostr.build/i/d050cb88a4c0c315c38bd9909831b65ae1914a530320b1d4a3683e8c8a38baae.jpg'
-
-
-
+export function generateNanoId(seed:string | undefined = unixTimeNow().toString()){
+  const userID = seed.slice(-2); 
+  const id = nanoid(8);
+  return userID + id;
+}

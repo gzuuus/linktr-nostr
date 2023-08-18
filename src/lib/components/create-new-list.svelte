@@ -7,11 +7,13 @@
   import LinkIcon from '$lib/elements/icons/link-icon.svelte';
   import TextIcon from '$lib/elements/icons/text-icon.svelte';
   import BinIcon from '$lib/elements/icons/bin-icon.svelte';
-  import { findListTags, getTagValue } from '$lib/utils/helpers';
+  import { findListTags, findOtherTags, getTagValue } from '$lib/utils/helpers';
   import { v4 as uuidv4 } from 'uuid';
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
   import { goto } from '$app/navigation';
   import { ndkUser } from '$lib/stores/user';
+  import { kindLinks } from '$lib/utils/constants';
+  import { generateNanoId } from '$lib/utils/helpers';
 
   export let eventToEdit: NDKEvent | null = null;
   let showSpinner = false;
@@ -73,12 +75,17 @@
   function handleSubmit() {
     showSpinner = true;
     const ndkEvent = new NDKEvent($ndk);
-    ndkEvent.kind = 30303;
+    ndkEvent.kind = kindLinks;
     
     if (eventToEdit) {
-      ndkEvent.tags = [['title', formData.title], ['d', getTagValue(eventToEdit.tags, "d")]];
+    ndkEvent.tags = [['title', formData.title], ['d', getTagValue(eventToEdit.tags, "d")]];
+    let labels = findOtherTags(eventToEdit.tags, 'l').map(tag => ({ label: tag }));
+      for (const labelData of labels) {
+        const { label } = labelData;
+        ndkEvent.tags.push(['l', label]);
+      }
     } else {
-      ndkEvent.tags = [['title', formData.title], ['d', newDTag]];
+      ndkEvent.tags = [['title', formData.title], ['d', newDTag], ['l', 'nostree'], ['l', generateNanoId($ndkUser?.npub)]];
     }
     for (const linkData of formData.links) {
       const { link, description } = linkData;
