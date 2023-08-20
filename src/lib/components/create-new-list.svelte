@@ -25,15 +25,18 @@
   let formData = {
     title: '',
     links: [{ link: '', description: '' }],
+    labels: [{ label: '' }],
   };
 
   if (eventToEdit) {
     let title = getTagValue(eventToEdit.tags, "title");
     const rTags = findListTags(eventToEdit.tags);
     const links = rTags.map(tag => ({ link: tag.url, description: tag.text }));
+    const labels = findOtherTags(eventToEdit.tags, 'l').map(tag => ({ label: tag }));
     formData = {
       title: title,
       links: links,
+      labels: labels
     };
     validateAllURLs();
     validateAllURLNames()
@@ -79,10 +82,9 @@
     
     if (eventToEdit) {
     ndkEvent.tags = [['title', formData.title], ['d', getTagValue(eventToEdit.tags, "d")]];
-    let labels = findOtherTags(eventToEdit.tags, 'l').map(tag => ({ label: tag }));
-      for (const labelData of labels) {
+      for (const labelData of formData.labels) {
         const { label } = labelData;
-        ndkEvent.tags.push(['l', label]);
+        ndkEvent.tags.push(['l', encodeURIComponent(label.trim())]);
       }
     } else {
       ndkEvent.tags = [['title', formData.title], ['d', newDTag], ['l', 'nostree'], ['l', generateNanoId($ndkUser?.npub)]];
@@ -119,6 +121,7 @@
     formData = {
       title: '',
       links: [{ link: '', description: '' }],
+      labels: [{ label: '' }]
     };
     linkValidationStatus = [];
     linkNameValidationStatus = [];
@@ -139,7 +142,7 @@
 
   <form on:submit|preventDefault={handleSubmit}>
     <div class="formFieldsContainer">
-      <label for="title">Title</label>
+      <h3><label for="title">Title</label></h3>
       <input type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
 
       {#each formData.links as linkData, index}
@@ -161,6 +164,26 @@
             <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
           {/if}
         </div>
+      {/each}
+
+      {#each formData.labels as linkLabel, index}
+      {#if linkLabel.label.trim() != 'nostree'}
+        <div class="linkField">
+          <h3>Slug</h3>
+          <div class="inputWithIcon">
+            <label for={`link-${index}`}><LinkIcon size={18} /></label>
+            <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkLabel.label} on:input={validateAllURLNames} />
+          </div>
+
+          {#if !linkValidationStatus[index] && linkLabel.label.trim()}
+           <span class:hidden={linkLabel.label.trim() && linkValidationStatus[index]}><Tag><InfoIcon size={18}/> Prefix needed</Tag></span>
+          {/if}
+
+          {#if formData.links.length > 1}
+            <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
+          {/if}
+        </div>
+        {/if}
       {/each}
     </div>
 

@@ -1,9 +1,10 @@
 <script lang="ts">
   export let userPub: string;
   export let eventKind: number;
+  export let listLabel: string = 'nostree';
   import { Kind, nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
-  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList } from "$lib/utils/helpers";
+  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags } from "$lib/utils/helpers";
   import { Button, Tag } from "agnostic-svelte";
   import LinktOut from "$lib/elements/icons/linkt-out.svelte";
   import ParsedContent from './parse-content.svelte';
@@ -12,12 +13,12 @@
   import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";  
   import { pannable, handlePanStart, handlePanMove, initializeCoords,coords } from '$lib/utils/pannable';
   import { kindLinks, kindNotes, kindArticles } from '$lib/utils/constants';
-
+  import { ndkUser } from "$lib/stores/user";
+  import { page } from "$app/stores";
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
-
   if (eventKind == kindLinks) {
-    $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], '#l': ['nostree'] }, { closeOnEose: true }).then((fetchedEvent) => {
+    $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], '#l': [`${listLabel}`] }, { closeOnEose: true }).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
 
       updateLength(kindLinks, eventList.length);
@@ -59,6 +60,15 @@
         <div> 
         <button class="switchButtons" class:disabled={currentIndex == 0} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1)}><ChevronIcon size={20} /></button>
         <h3>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
+        {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
+        {#if label !== 'nostree' && $page.data.segments.length === 0}
+        <div class="listLinkOutContainer">
+        <a href={`${$page.url.href}/${label}`} target="_blank" rel="noreferrer">
+          <button class="switchButtons noBorder"><LinktOut size={16}/></button>
+        </a>
+        </div>
+        {/if}
+      {/each}
         <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
       </div>
         <div class:hidden={eventList.length <= 1}>
@@ -80,6 +90,7 @@
             on:panend={() => initializeCoords()}
             style="transform: translateX({$coords.x}px);"
           >
+
             {#each findListTags(eventList[currentIndex].tags) as { url, text }}
               <a href={url} target="_blank" rel="noreferrer">
                 <Button isBlock>{text}</Button>

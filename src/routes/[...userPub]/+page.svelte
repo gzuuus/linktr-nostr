@@ -7,7 +7,7 @@
   import { goto } from '$app/navigation';
   import { kindLinks, kindNotes, kindArticles } from '$lib/utils/constants';
    $: user = $page.data.npub;
-
+   $: segments = $page.data.segments;
    $: visibleComponent = lengths[kindLinks] == 0 ? kindNotes : kindLinks;
    let lengths: { [key: number]: number } = {};
 
@@ -22,6 +22,7 @@
 </script>
 <div class="commonContainerStyle">
 {#key user}
+
 <ProfileCard userPub={user} />
 <div>
   {#if lengths[kindNotes] != 0 || lengths[kindArticles] != 0}
@@ -36,7 +37,7 @@
 </div>
 
 <div class={visibleComponent === kindLinks ? "visible" : "hidden"}>
-  <EventCard userPub={user} eventKind={kindLinks} />
+  <EventCard userPub={user} eventKind={kindLinks} listLabel={segments[0]} />
   {#if lengths[kindLinks] == 0}
   <button class="noEventsButton" on:click={() => goto(`/new`)}>
     <div class="noEvents">

@@ -210,6 +210,9 @@
         color: var(--accent-color);
         background-color: var(--background-color);
     }
+    :global(.noBorder){
+        border: none;
+    }
     :global(.secondary-button:hover){
         color: var(--text-color);
     }
