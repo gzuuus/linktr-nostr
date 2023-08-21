@@ -11,6 +11,9 @@
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
   import ShareIcon from '$lib/elements/icons/share-icon.svelte';
   import AtIcon from '$lib/elements/icons/at-icon.svelte';
+  import { isNip05Valid } from '$lib/utils/helpers';
+  import { goto } from '$app/navigation';
+  import { isNip05Valid as isNip05ValidStore } from '$lib/stores/user';
     
   let userProfile: NDKUserProfile;
   let qrImageUrl: string = '';
@@ -20,10 +23,14 @@
     
   let user = $ndk.getUser({
     npub: userPub,
-  })
-
+  });
   user.fetchProfile().then(() => {
   userProfile = user.profile as NDKUserProfile;}).then(() => {
+    isNip05Valid(user.profile?.nip05).then(() => {
+      if ($isNip05ValidStore.isNip05Valid && $page.url.pathname.split('/').length <= 2) {
+        goto(`/${userProfile.nip05}`);
+      }
+    });
     if (userProfile.image == undefined) {
       generateQRCode($page.url.href);
     }

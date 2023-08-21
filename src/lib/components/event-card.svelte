@@ -4,7 +4,7 @@
   export let listLabel: string = 'nostree';
   import { Kind, nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
-  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags } from "$lib/utils/helpers";
+  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags, copyToClipboard } from "$lib/utils/helpers";
   import { Button, Tag } from "agnostic-svelte";
   import LinktOut from "$lib/elements/icons/linkt-out.svelte";
   import ParsedContent from './parse-content.svelte';
@@ -15,6 +15,7 @@
   import { kindLinks, kindNotes, kindArticles } from '$lib/utils/constants';
   import { ndkUser } from "$lib/stores/user";
   import { page } from "$app/stores";
+    import CopyIcon from "$lib/elements/icons/copy-icon.svelte";
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   if (eventKind == kindLinks) {
@@ -57,7 +58,7 @@
   {#if eventKind == kindLinks && eventList.length > 0}
     <div class="eventContentContainer">
       <div class="eventContainerButtons">
-        <div> 
+        <div class:full-width={eventList.length > 1} class:space-between={eventList.length > 1}> 
         <button class="switchButtons" class:disabled={currentIndex == 0} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1)}><ChevronIcon size={20} /></button>
         <h3>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
         {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
@@ -66,11 +67,12 @@
         <a href={`${$page.url.href}/${label}`} target="_blank" rel="noreferrer">
           <button class="switchButtons noBorder"><LinktOut size={16}/></button>
         </a>
+          <button class="switchButtons noBorder" on:click={() => copyToClipboard(`${$page.url.href}/${label}`)}><CopyIcon size={16}/></button>
         </div>
         {/if}
-      {/each}
+        {/each}
         <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
-      </div>
+        </div>
         <div class:hidden={eventList.length <= 1}>
             {#each eventList as event, index}
                 {#if index == currentIndex}
@@ -171,6 +173,14 @@
 	justify-content: center;
   flex-direction: column;
   margin-bottom: 0.3em;
+  width: 100%;
+  justify-content: space-between;
+  position: relative;
+}
+.listLinkOutContainer {
+	position: absolute;
+	right: 0;
+	bottom: 0;
 }
 .eventContainerButtons > div {
 	display: flex;

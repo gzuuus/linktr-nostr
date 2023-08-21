@@ -39,7 +39,7 @@
                 sortEventList(events);
             })
             $ndk.fetchEvents({ kinds: [kindLinks], authors: [userPubDecoded], '#l': ['nostree']}).then((fetchedEvent) => {
-                console.log(fetchedEvent);
+                console.log('new', fetchedEvent);
                 events = Array.from(fetchedEvent);
                 fetchedMigratedEvents = true
                 sortEventList(events);

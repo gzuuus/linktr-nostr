@@ -1,14 +1,14 @@
 <script lang="ts">
     export let mode: string;
     export let doGoto: boolean = true;
-    import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
+    import { NDKNip07Signer, type NDKUserProfile } from "@nostr-dev-kit/ndk";
     import ndk from '$lib/stores/provider';
     import { ndkUser } from "$lib/stores/user";
     import { goto } from "$app/navigation";
     import { Button } from "agnostic-svelte";
     import { page } from '$app/stores';
     import CloseIcon from "$lib/elements/icons/close-icon.svelte";
-  
+    import { isNip05Valid } from "$lib/utils/helpers";
     let isModalVisible:boolean = false;
     async function login() {
       try {
@@ -20,9 +20,11 @@
         let user = $ndk.getUser({
             npub: ndkCurrentUser.npub,
         });
-        user.fetchProfile();
+        user.fetchProfile().then(() => {
+          user.profile as NDKUserProfile}).then(() => {
+          isNip05Valid(user.profile?.nip05);
+        });
         ndkUser.set(user);
-  
         if (doGoto) {
             goto(`/${$ndkUser?.npub}`);
         }

@@ -6,6 +6,7 @@
   import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import { goto } from '$app/navigation';
   import { kindLinks, kindNotes, kindArticles } from '$lib/utils/constants';
+  import { isNip05Valid } from "$lib/stores/user";
    $: user = $page.data.npub;
    $: segments = $page.data.segments;
    $: visibleComponent = lengths[kindLinks] == 0 ? kindNotes : kindLinks;
@@ -21,6 +22,7 @@
 
 </script>
 <div class="commonContainerStyle">
+
 {#key user}
 
 <ProfileCard userPub={user} />

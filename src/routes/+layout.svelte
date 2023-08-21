@@ -247,4 +247,10 @@
         color: var(--accent-color);
         font-size: medium;
     }
+    :global(.full-width){
+        width: 100%;
+    }
+    :global(.space-between){
+        justify-content: space-between;
+    }
 </style>

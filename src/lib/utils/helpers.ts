@@ -1,10 +1,11 @@
 import { Kind, nip19 } from 'nostr-tools';
-import type { NDKEvent, NDKTag } from '@nostr-dev-kit/ndk';
+import { NDKUser, type NDKEvent, type NDKTag } from '@nostr-dev-kit/ndk';
 import { ndkUser } from '$lib/stores/user';
 import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from '$app/navigation';
 import type { LinkData } from "$lib/classes/list";
 import { nanoid } from 'nanoid';
+import { isNip05Valid as isNip05ValidStore } from '$lib/stores/user';
 
 export function unixTimeNow() {
     return Math.floor(new Date().getTime() / 1000);
@@ -18,6 +19,25 @@ export function isNip05(input: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(input);
 }
+export async function isNip05Valid(input: string | undefined = ''): Promise<boolean> {
+  try {
+    let nip05promise = await NDKUser.fromNip05(input);
+
+    if (nip05promise === undefined) {
+      isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined });
+      console.log('isNip05Valid: nip05 is undefined');
+      return false;
+    }
+    isNip05ValidStore.set({isNip05Valid: true, Nip05address: input });
+    console.log('isNip05Valid: true');
+    return true;
+  } catch (error) {
+    isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined });
+    return false;
+  }
+}
+
+
 
   export function unixToDate(unixTimestamp: number | undefined) {
     if (unixTimestamp === undefined) { return ''; }
@@ -90,7 +110,6 @@ export function parseNostrUrls(rawContent: string): string {
   });
 }
 
-  
   export function truncateString(str?: string): string {
     if (str === undefined) { return '';} 
     else {return str.substring(0, 12) + '...' + str.substring(str.length - 6);}
