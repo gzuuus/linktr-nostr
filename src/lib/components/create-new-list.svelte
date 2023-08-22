@@ -134,7 +134,7 @@
 </div>
 {/if}
 <main>
-  <h2><InfoDialog whatInfo="new-list"/>{titleText}</h2>
+  <h2>{titleText}<span class="inline-span"><InfoDialog whatInfo="new-list"/></span></h2>
   
 
   <form on:submit|preventDefault={handleSubmit}>

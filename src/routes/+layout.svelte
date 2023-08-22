@@ -292,6 +292,18 @@
     :global(strong){
         text-decoration: underline;
     }
+    :global(.noButton) {
+    margin: 0;
+    display: inline-flex;
+    background: transparent;
+    cursor: pointer;
+    color: var(--accent-color);
+    padding: 0.2em;
+  }
+    :global(.inline-span) {
+	display: inline-flex;
+	padding: 0 0.2em;
+    }
     /* :global(.closeModal) {
         position: absolute;
         top: 0;

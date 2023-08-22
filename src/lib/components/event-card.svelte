@@ -92,7 +92,7 @@
 
                 <div class:hidden={!showDialog} class="no-line-height">
                   <a href={`${$page.url.origin}/${userIdentifier}/${label}`} target="_blank" rel="noreferrer"><button class="switchButtons noBorder"><LinktOut size={16}/></button></a>
-                  <button class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}><ShareIcon size={16} /></button>
+                  <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}><ShareIcon size={16} /></button>
                   <MinusSmall size={16} flip={true}/>
                   <a href={`${$page.url.origin}/a/${buildEventPointer(
                       undefined,
@@ -103,7 +103,7 @@
                     } target="_blank" rel="noreferrer">
                     <button class="switchButtons noBorder"><ExploreIcon size={16}/></button>
                   </a>
-                  <button class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd'))}`)}><ShareIcon size={16} /></button>
+                  <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd'))}`)}><ShareIcon size={16} /></button>
                 </div>
               </div>
             {/if}
@@ -226,6 +226,7 @@
   border: var(--common-border-style);
   border-radius: var(--agnostic-radius);
   padding: 0.1em;
+  z-index: 9999;
 }
 .eventContainerButtons > div {
 	display: flex;

@@ -9,3 +9,4 @@
   <li>Words separated by '-', '_': <code>ex. 'cool-projects'</code></li>
 </ul>
 <p>💡You can modify this slug at any moment.</p>
+<p>💡If you use the same slug for two different lists, both lists will appear on the same page.</p>
