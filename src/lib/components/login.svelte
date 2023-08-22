@@ -66,28 +66,3 @@
   </div>
   </div>
 {/if}
-
-<style>
-    .modal {
-      position: fixed;
-      background-color: var(--background-color);
-      border: var(--common-border-style);
-      border-radius: var(--agnostic-radius);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      z-index: 9999;
-    }
-    .modal-content {
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        padding: 3rem;
-        gap: 0.3em;
-        line-height: 2em;
-    }
-    .closeModal {
-        position: absolute;
-        top: 0;
-        right: 0.6em;
-        display: inline-flex;
-    }
-  </style>

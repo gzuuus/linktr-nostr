@@ -25,20 +25,15 @@ export async function isNip05Valid(input: string | undefined = ''): Promise<bool
 
     if (nip05promise === undefined) {
       isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined });
-      console.log('isNip05Valid: nip05 is undefined');
       return false;
     }
     isNip05ValidStore.set({isNip05Valid: true, Nip05address: input });
-    console.log('isNip05Valid: true');
     return true;
   } catch (error) {
     isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined });
     return false;
   }
 }
-
-
-
   export function unixToDate(unixTimestamp: number | undefined) {
     if (unixTimestamp === undefined) { return ''; }
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -56,7 +51,6 @@ export async function isNip05Valid(input: string | undefined = ''): Promise<bool
       };
       return encodedPointer = nip19.neventEncode(objPointer);
     } else if (kind === 30023 || kind === 30001) {
-      console.log('buildEventPointer: 30023 || 30001');
       objPointer = {
         identifier: identifier,
         pubkey: author,

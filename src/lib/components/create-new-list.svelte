@@ -14,6 +14,7 @@
   import { ndkUser } from '$lib/stores/user';
   import { kindLinks } from '$lib/utils/constants';
   import { generateNanoId } from '$lib/utils/helpers';
+  import InfoDialog from '$lib/components/info-dialog.svelte';
 
   export let eventToEdit: NDKEvent | null = null;
   let showSpinner = false;
@@ -65,21 +66,12 @@
   linkNameValidationStatus = formData.links.map(linkData => linkData.description.trim() !== "");
 }
 
-
-  // function handleInputURL() {
-  //     validateAllURLs();
-  //   };
-  // function handleInputURLNames() {
-  //     validateAllURLNames();
-  //   };
-
   $: areAllLinksValid = linkValidationStatus.length > 0 && linkValidationStatus.every(status => status) && linkNameValidationStatus.length > 0 && linkNameValidationStatus.every(status => status);
 
   function handleSubmit() {
     showSpinner = true;
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
-    console.log(formData.labels);
     if (eventToEdit) {
     ndkEvent.tags = [['title', formData.title], ['d', getTagValue(eventToEdit.tags, "d")]];
       for (const labelData of formData.labels) {
@@ -142,7 +134,8 @@
 </div>
 {/if}
 <main>
-  <h2>{titleText}</h2>
+  <h2><InfoDialog whatInfo="new-list"/>{titleText}</h2>
+  
 
   <form on:submit|preventDefault={handleSubmit}>
     <div class="formFieldsContainer">
@@ -173,7 +166,8 @@
       {#each formData.labels as linkLabel, index}
       {#if linkLabel.label.trim() != 'nostree'}
         <div class="linkField">
-          <h3>Slug</h3>
+          <h3 class="inputWithIcon">Slug <InfoDialog whatInfo="list-slug"/></h3>
+          
           <div class="inputWithIcon">
             <label for={`slug`}><LinkIcon size={18} /></label>
             <input type="text" id={`link-${index}`} placeholder="short-slug" bind:value={linkLabel.label}/>
@@ -190,7 +184,7 @@
         {/if}
       {/each}
     </div>
-
+    
     <div class="formButtons">
       {#if areAllLinksValid && formData.title.trim() != ''}
         <Button type="button" isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
@@ -241,12 +235,6 @@
     flex-direction: column;
     gap: 0.3em;
     align-items: center;
-  }
-
-  .inputWithIcon {
-    display: flex;
-    align-items: center;
-    gap: 0.3em;
   }
 
   .inputWithIcon label {

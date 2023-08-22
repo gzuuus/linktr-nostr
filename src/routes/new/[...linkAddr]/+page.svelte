@@ -34,12 +34,10 @@
             let userPubDecoded: string = nip19.decode($ndkUser.npub).data.toString();
             $ndk.fetchEvents({ kinds: [30303 as Kind], authors: [userPubDecoded]}).then((fetchedEvent) => {
                 oldEvents = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
-                console.log('old',oldEvents);
                 fetchedOldEvents = true
                 sortEventList(events);
             })
             $ndk.fetchEvents({ kinds: [kindLinks], authors: [userPubDecoded], '#l': ['nostree']}).then((fetchedEvent) => {
-                console.log('new', fetchedEvent);
                 events = Array.from(fetchedEvent);
                 fetchedMigratedEvents = true
                 sortEventList(events);
@@ -70,7 +68,6 @@
                  ndkEvent.tags.push(['r', link, description]);
              }
              labels = findOtherTags(eventToPublish.tags, 'l').map(tag => ({ label: tag }));
-             console.log(labels)
              if (labels.length === 0 ){
                 ndkEvent.tags.push(['l', 'nostree'], ['l', generateNanoId($ndkUser?.npub)]);
              } else if (labels.length === 1 && getTagValue(eventToPublish.tags, 'l') === 'nostree') {

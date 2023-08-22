@@ -54,6 +54,9 @@
         --hover-color: #ff9900;
         --accent-color: #916dbb;
     }
+    :global(.no-line-height){
+        line-height: 0;
+    }
     :global(body) {
         background: var(--background-color);
         color: var(--text-color);
@@ -203,6 +206,7 @@
         border: var(--common-border-style);
         color: var(--accent-color);
         background-color: var(--background-color);
+        display: inline-flex;
     }
     :global(.secondary-button){
         padding: 0.3em 0.5em;
@@ -212,6 +216,9 @@
     }
     :global(.noBorder){
         border: none;
+    }
+    :global(.noPadding){
+        padding: 0;
     }
     :global(.secondary-button:hover){
         color: var(--text-color);
@@ -253,4 +260,42 @@
     :global(.space-between){
         justify-content: space-between;
     }
+    :global(.inputWithIcon){
+        display: flex;
+        align-items: center;
+        gap: 0.3em;
+    }
+    :global(.modal) {
+        position: fixed;
+        top: 0.2em;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: start;
+        justify-content: center;
+        z-index: 9999;
+        overflow: scroll;
+    }
+    :global(.modal-content) {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        padding: 1em;
+        border-radius: var(--agnostic-radius);
+        border: var(--common-border-style);
+        overflow: scroll;
+    }
+    :global(ul li){
+        font-size: 1rem;
+    }
+    :global(strong){
+        text-decoration: underline;
+    }
+    /* :global(.closeModal) {
+        position: absolute;
+        top: 0;
+        right: 0.6em;
+        display: inline-flex;
+    } */
 </style>
