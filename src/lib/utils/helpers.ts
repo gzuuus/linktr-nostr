@@ -45,7 +45,7 @@ export async function isNip05Valid(input: string | undefined = ''): Promise<bool
     return new Date(unixTimestamp * 1000).toLocaleString('en-US', options);
   }
   
-  export function buildEventPointer(id: string, relays?: string[], author?: string, kind?: number, tags:NDKTag[] = []) {
+  export function buildEventPointer(id: string | undefined = '', relays: string[] | undefined=[], author: string, kind?: number, identifier:string | undefined = '') {
     let objPointer: any;
     let encodedPointer: string ="";
     if (kind === 1) {
@@ -54,20 +54,25 @@ export async function isNip05Valid(input: string | undefined = ''): Promise<bool
         relays: relays,
         author: author
       };
-      encodedPointer = nip19.neventEncode(objPointer);
-    } else if (kind === 30023) {
+      return encodedPointer = nip19.neventEncode(objPointer);
+    } else if (kind === 30023 || kind === 30001) {
+      console.log('buildEventPointer: 30023 || 30001');
       objPointer = {
-        identifier: getTagValue(tags, 'd'),
+        identifier: identifier,
         pubkey: author,
         kind: kind,
         relays: relays
       };
-      encodedPointer = nip19.naddrEncode(objPointer);
+      return encodedPointer = nip19.naddrEncode(objPointer);
     }
 
-    return encodedPointer;
+    // return encodedPointer;
   }
   
+  export function decodeEventPointer(encodedPointer: string) {
+    const objPointer = nip19.decode(encodedPointer);
+    return objPointer
+  }
   export function getTagValue(tags:NDKTag[], key:string) {
     const titleTag = tags.find(tag => tag[0] === key);
     return titleTag ? titleTag[1] : '';

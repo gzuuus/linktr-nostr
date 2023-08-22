@@ -79,7 +79,7 @@
     showSpinner = true;
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
-    
+    console.log(formData.labels);
     if (eventToEdit) {
     ndkEvent.tags = [['title', formData.title], ['d', getTagValue(eventToEdit.tags, "d")]];
       for (const labelData of formData.labels) {
@@ -87,7 +87,11 @@
         ndkEvent.tags.push(['l', encodeURIComponent(label.trim())]);
       }
     } else {
-      ndkEvent.tags = [['title', formData.title], ['d', newDTag], ['l', 'nostree'], ['l', generateNanoId($ndkUser?.npub)]];
+      
+      ndkEvent.tags = [['title', formData.title], 
+      ['d', newDTag], 
+      ['l', 'nostree'],
+      ['l', formData.labels[0].label ? formData.labels[0].label : generateNanoId($ndkUser?.npub)]];
     }
     for (const linkData of formData.links) {
       const { link, description } = linkData;
@@ -171,8 +175,8 @@
         <div class="linkField">
           <h3>Slug</h3>
           <div class="inputWithIcon">
-            <label for={`link-${index}`}><LinkIcon size={18} /></label>
-            <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkLabel.label} on:input={validateAllURLNames} />
+            <label for={`slug`}><LinkIcon size={18} /></label>
+            <input type="text" id={`link-${index}`} placeholder="short-slug" bind:value={linkLabel.label}/>
           </div>
 
           {#if !linkValidationStatus[index] && linkLabel.label.trim()}

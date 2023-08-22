@@ -2,6 +2,7 @@
   export let userPub: string;
   export let eventKind: number;
   export let listLabel: string = 'nostree';
+  export let dValue: string = '';
   import { Kind, nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
   import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags, copyToClipboard } from "$lib/utils/helpers";
@@ -20,7 +21,7 @@
   let eventList: NDKEvent[] = [];
   if (eventKind == kindLinks) {
     $ndk.fetchEvents({ kinds: [eventKind], authors: [userPubDecoded], '#l': [`${listLabel}`] }, { closeOnEose: true }).then((fetchedEvent) => {
-      eventList = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
+      eventList = Array.from(fetchedEvent);
 
       updateLength(kindLinks, eventList.length);
       sortEventList(eventList);
@@ -68,9 +69,12 @@
           <button class="switchButtons noBorder"><LinktOut size={16}/></button>
         </a>
           <button class="switchButtons noBorder" on:click={() => copyToClipboard(`${$page.url.href}/${label}`)}><CopyIcon size={16}/></button>
+          
         </div>
         {/if}
+        
         {/each}
+        <!-- <button class="switchButtons noBorder" on:click={() => copyToClipboard(`${$page.url.href}/a/${buildEventPointer(undefined, [''], userPubDecoded, eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd'))}`)}><CopyIcon size={16}/></button> -->
         <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
         </div>
         <div class:hidden={eventList.length <= 1}>
@@ -123,7 +127,7 @@
         </div>
         <div class="infoBox">
             <Tag>{unixToDate(event.created_at)}</Tag>
-            <a href="https://nostr.com/{buildEventPointer(event.id, [event.relay?.url ?? ''], event.pubkey, event.kind, event.tags)}" target="_blank" rel="noreferrer"><button class="infoButton"><LinktOut size={20} color=var(--accent-color)/></button></a>
+            <a href="https://nostr.com/{buildEventPointer(event.id, [event.relay?.url ?? ''], event.pubkey, event.kind, getTagValue(event.tags, 'd'))}" target="_blank" rel="noreferrer"><button class="infoButton"><LinktOut size={20}/></button></a>
           </div>
       </div>
     {/each}
