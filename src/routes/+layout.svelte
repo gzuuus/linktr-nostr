@@ -86,6 +86,9 @@
     :global(p){
         font-size: 18px;
     }
+    :global(.text-color){
+        color: var(--text-color);
+    }
 
     :global(hr) {
         color: var(--hover-b-color);
@@ -219,6 +222,12 @@
     }
     :global(.noPadding){
         padding: 0;
+    }
+    :global(.noMargin){
+        margin: 0;
+    }
+    :global(.commonPadding){
+        padding: 0.2em 0.3em !important;
     }
     :global(.secondary-button:hover){
         color: var(--text-color);

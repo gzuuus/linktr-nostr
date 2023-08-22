@@ -21,7 +21,6 @@
   let qrImageUrl: string = '';
   let showQR: boolean = false;
   let showAbout: boolean = false;
-  let fetchProfilePromise: Promise<void>;
     
   let user = $ndk.getUser({
     npub: userPub,
@@ -62,7 +61,7 @@
     <button on:click={() =>generateQRCode($page.url.href)}><QrIcon size={18} /></button>
     <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
     <button class:hidden={!isSharePossible} on:click={() =>sharePage($page.url.href)}><ShareIcon size={16} /></button>
-    <h2>{userProfile.name ? userProfile.name : userProfile.displayName}</h2>
+    <h2><a class="text-color" href={$page.url.origin}/{userProfile.nip05}>{userProfile.name ? userProfile.name : userProfile.displayName}</a></h2>
 
     {#if userProfile.nip05 && $isNip05ValidStore.isNip05Valid}
       <div class="userInfoString">

@@ -38,6 +38,7 @@
   {/if}
 </div>
 
+{#key $page.url.pathname.split('/').length > 2}
 <div class={visibleComponent === kindLinks ? "visible" : "hidden"}>
   <EventCard userPub={user} eventKind={kindLinks} listLabel={segments[0]} />
   {#if lengths[kindLinks] == 0}
@@ -51,6 +52,8 @@
   </button>
   {/if}
 </div>
+{/key}
+
 
 <div class={visibleComponent === kindNotes ? "visible" : "hidden"}>
   <EventCard userPub={user} eventKind={kindNotes} />

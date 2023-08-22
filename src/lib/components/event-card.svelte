@@ -22,6 +22,7 @@
     import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
     import MinusSmall from "$lib/elements/icons/minus-small.svelte";
     import ParseContent from "./parse-content.svelte";
+    import { goto } from "$app/navigation";
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   let showDialog: boolean = false;
@@ -131,9 +132,15 @@
             style="transform: translateX({$coords.x}px);"
           >
             {#each findListTags(eventList[currentIndex].tags) as { url, text }}
+              {#if url.startsWith('nostr:')}
+              <a href={`https://nostr.com/${url.split(':')[url.split(':').length - 1]}`} target="_blank" rel="noreferrer">
+                <Button isBlock>{text}</Button>
+              </a>
+              {:else}
               <a href={url} target="_blank" rel="noreferrer">
                 <Button isBlock>{text}</Button>
               </a>
+              {/if}
             {/each}
           </div>
         {:else}
@@ -145,14 +152,19 @@
             {/each}
           </div>
         {/if}
-      </div>      
+      </div>
+      {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
+      {#if label !== 'nostree'}
+      <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${userIdentifier}/${label}`)}><code>{label}</code></button>
+      {/if}
+      {/each}
     </div>
   {:else}
     {#each eventList as event}
       <div class="eventContainer" >
         <div class="eventContentContainer">
           {#if event.kind === 30023}
-            <h2>{getTagValue(event.tags, "title")}</h2>
+            <h3>{getTagValue(event.tags, "title")}</h3>
             {#if showSummary}
             <p>{getTagValue(event.tags, "summary")}</p>
             {/if}
@@ -171,11 +183,13 @@
 </div>
   
 <style>
+  button.switchButtons.commonPadding{
+    margin-top: 0.3em;
+  }
   button.disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-
 .infoButton {
   margin: 0;
   display: flex;

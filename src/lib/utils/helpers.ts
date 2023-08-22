@@ -88,8 +88,6 @@ export async function isNip05Valid(input: string | undefined = ''): Promise<bool
       return tagValue as string;
     });
   }
-  
-  
 export function parseNostrUrls(rawContent: string): string {
   const nostrPattern = /nostr:(nprofile|nevent|naddr|npub1)(\w+)/g;
   
