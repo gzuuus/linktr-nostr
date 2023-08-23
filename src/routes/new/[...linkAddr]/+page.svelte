@@ -15,6 +15,7 @@
     import { kindLinks } from '$lib/utils/constants';
     import { generateNanoId } from '$lib/utils/helpers';
     import RepublishIcon from '$lib/elements/icons/republish-icon.svelte';
+    import InfoDialog from '$lib/components/info-dialog.svelte';
 
     let events: NDKEvent[] = [];
     let oldEvents: NDKEvent[] = [];
@@ -151,7 +152,7 @@
                     {#if !checkBetwList(event)}
                     <hr/>
                     <div class="alertContainer">
-                        <h3>🔺 List in the old format</h3>
+                        <h3>🔺 List in the old format <span class="inline-span"><InfoDialog whatInfo="list-old-format-migrate"/></span></h3>
                         <div class="eventContainer">
                             <button on:click={() => {handleSubmit(event); showSpinner = true;}}><RepublishIcon size={20}/></button>
                             <button on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>

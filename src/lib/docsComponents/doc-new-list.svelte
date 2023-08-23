@@ -5,8 +5,10 @@
     import PlusSmall from "$lib/elements/icons/plus-small.svelte";
     import ResetIcon from "$lib/elements/icons/reset-icon.svelte";
 </script>
-<h2>New List</h2>
+<div class="DocsContentContainer">
+<h2>Create New List</h2>
 <h3>Lists are a way to organize your links</h3>
+<p>You can create, edit and manage in the <a href="/new">Manage page</a></p>
 <hr>
 <h4>Form</h4>
 <p>Here you can find a basic form that you can fill with as many links as you want.</p>
@@ -18,13 +20,14 @@
 </ul>
 <hr>
 <h4>Form Buttons</h4>
-<p>The buttons are <PlusSmall size={16}/> to add more link fields, 'Publish' to publish your list, and <ResetIcon size={16}/>, to reset the list form</p>
+<p>The buttons are <PlusSmall size={18}/> to add more link fields, 'Publish' to publish your list, and <ResetIcon size={18}/>, to reset the list form</p>
 <hr>
 <h4>Manage Your Lists</h4>
 <p>If you have already created more lists, they will appear under a dropdown called 'All Lists'</p>
 <p>There you will find your other lists and three buttons to manage them:</p>
 <ul>
-  <li><EditIcon size={16}/> To edit the list</li>
-  <li><PinIcon size={16}/> To feature the list and move it to the first position</li>
-  <li><BinIcon size={16}/> To delete the list</li>
+  <li><EditIcon size={18}/> To edit the list</li>
+  <li><PinIcon size={18}/> To feature the list and move it to the first position</li>
+  <li><BinIcon size={18}/> To delete the list</li>
 </ul>
+</div>

@@ -24,6 +24,7 @@
         <Button on:click={() =>goto('/new')} mode="primary" isBlock isRounded>Manage lists</Button>
         {/if}
         <Button on:click={() =>goto('/explore')} mode="primary" isBlock isRounded>Explore</Button>
+        <Button on:click={() =>goto('/docs')} mode="primary" isBlock isRounded>Docs</Button>
     </div>
     <p>From gzuuus with <a href="lightning:gzuuus@getalby.com"><button class="switchButtons"><LnIcon size={16} /></button></a> and 
         <button on:click={() => goto('/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5ds')} class="switchButtons"><HeartIcon size={16} /></button>

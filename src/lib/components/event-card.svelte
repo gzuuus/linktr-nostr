@@ -6,23 +6,23 @@
   export let showSummary: boolean = false;
   import { nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
-  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags, copyToClipboard, sharePage } from "$lib/utils/helpers";
+  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags, sharePage } from "$lib/utils/helpers";
   import { Button, Tag } from "agnostic-svelte";
-  import LinktOut from "$lib/elements/icons/linkt-out.svelte";
   import ParsedContent from './parse-content.svelte';
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import { updateLength } from "$lib/stores/eventListsLengths";
-  import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";  
   import { pannable, handlePanStart, handlePanMove, initializeCoords,coords } from '$lib/utils/pannable';
   import { kindLinks } from '$lib/utils/constants';
   import { page } from "$app/stores";
-    import ThreeDotsIcon from "$lib/elements/icons/three-dots-icon.svelte";
-    import ShareIcon from "$lib/elements/icons/share-icon.svelte";
-    import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-    import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
-    import MinusSmall from "$lib/elements/icons/minus-small.svelte";
-    import ParseContent from "./parse-content.svelte";
-    import { goto } from "$app/navigation";
+  import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
+  import { goto } from "$app/navigation";
+  import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
+  import InfoDialog from "./info-dialog.svelte";
+  import OpenDrawerIcon from "$lib/elements/icons/open-drawer-icon.svelte";
+  import ShareIcon from "$lib/elements/icons/share-icon.svelte";
+  import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";
+  import LinktOut from "$lib/elements/icons/linkt-out.svelte"; 
+
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   let showDialog: boolean = false;
@@ -88,13 +88,24 @@
           <h3>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
           {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
             {#if label !== 'nostree'}
-              <div class="listLinkOutContainer">
-                <button class="switchButtons noBorder" on:click={() => showDialog = !showDialog}><ThreeDotsIcon size={16} flip={false}/></button>
-
-                <div class:hidden={!showDialog} class="no-line-height">
-                  <a href={`${$page.url.origin}/${userIdentifier}/${label}`} target="_blank" rel="noreferrer"><button class="switchButtons noBorder"><LinktOut size={16}/></button></a>
-                  <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}><ShareIcon size={16} /></button>
-                  <MinusSmall size={16} flip={true}/>
+              <div class="listLinkOutContainer" style="{showDialog ? 'top: 0' : 'bottom: 0'}; padding: {showDialog ? '2em 1em' : '0.1em'};">
+                <button class="switchButtons noBorder" on:click={() => showDialog = !showDialog}>
+                  {#if !showDialog}
+                  <OpenDrawerIcon size={16} flip={false}/>
+                  {:else}
+                  <OpenDrawerIcon size={20} flip={true}/>
+                  {/if}
+                </button>
+                <div class:hidden={!showDialog} class="no-line-height listLinkOutContainerContent">
+                  <hr>
+                  <div class="listLinkOutSection">
+                    <InfoDialog whatInfo="list-slug-share" buttonText="slug" showInfoIcon={true} InfoIconSize={12}/>
+                    <a href={`${$page.url.origin}/${userIdentifier}/${label}`} target="_blank" rel="noreferrer"><button class="switchButtons noBorder"><LinktOut size={16}/></button></a>
+                    <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}><ShareIcon size={16} /></button>
+                  </div>
+                  <hr>
+                  <div class="listLinkOutSection">
+                    <InfoDialog whatInfo="list-naddr-share" buttonText="naddr" showInfoIcon={true} InfoIconSize={12}/>
                   <a href={`${$page.url.origin}/a/${buildEventPointer(
                       undefined,
                       [], 
@@ -102,9 +113,10 @@
                       eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd')
                       )}`
                     } target="_blank" rel="noreferrer">
-                    <button class="switchButtons noBorder"><ExploreIcon size={16}/></button>
+                    <button class="switchButtons noBorder"><LinktOut size={16}/></button>
                   </a>
                   <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd'))}`)}><ShareIcon size={16} /></button>
+                </div>
                 </div>
               </div>
             {/if}
@@ -112,7 +124,7 @@
         
         <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
         </div>
-        <div class:hidden={eventList.length <= 1}>
+        <div class:hidden={eventList.length <= 1} class="indexDotButtonContainer">
             {#each eventList as event, index}
                 {#if index == currentIndex}
                   <button class="indexDotButton" on:click={() => currentIndex = index}></button>
@@ -134,8 +146,11 @@
             {#each findListTags(eventList[currentIndex].tags) as { url, text }}
               {#if url.startsWith('nostr:')}
               <a href={`https://nostr.com/${url.split(':')[url.split(':').length - 1]}`} target="_blank" rel="noreferrer">
-                <Button isBlock>{text}</Button>
+                <Button isBlock>{text}
+                  <button class="overlayButton commonPadding"><a href={url} rel="noreferrer"><OstrichIcon size={16}/></a></button>
+                </Button>
               </a>
+              
               {:else}
               <a href={url} target="_blank" rel="noreferrer">
                 <Button isBlock>{text}</Button>
@@ -183,6 +198,16 @@
 </div>
   
 <style>
+  .listLinkOutSection {
+    display: flex;
+    flex-direction: column;
+    /* gap: 0.5em; */
+  }
+  .overlayButton {
+    position: absolute;
+    right: 0.3em;
+    border: var(--common-border-style);
+  }
   button.switchButtons.commonPadding{
     margin-top: 0.3em;
   }
@@ -213,6 +238,10 @@
 .indexDotButton:hover {
   background-color: var(--hover-color);
 }
+.indexDotButtonContainer {
+	overflow: scroll;
+	max-width: 100%;
+}
 .inactive{
   opacity: 0.5;
 }
@@ -239,8 +268,13 @@
   align-items: center;
   border: var(--common-border-style);
   border-radius: var(--agnostic-radius);
-  padding: 0.1em;
   z-index: 9999;
+  background: var(--background-color);
+  gap: 0.5em;
+}
+.listLinkOutContainerContent {
+  display: flex;
+  gap: 0.5em;
 }
 .eventContainerButtons > div {
 	display: flex;

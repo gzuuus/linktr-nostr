@@ -92,6 +92,7 @@
 
     :global(hr) {
         color: var(--hover-b-color);
+        margin: 0.3em;
     }
     :global(.tag){
         background: var(--background-color) !important;
@@ -286,6 +287,7 @@
         justify-content: center;
         z-index: 9999;
         overflow: scroll;
+        line-height: 1.3em;
     }
     :global(.modal-content) {
         background-color: var(--background-color);
@@ -294,6 +296,10 @@
         border-radius: var(--agnostic-radius);
         border: var(--common-border-style);
         overflow: scroll;
+        word-break: break-word;
+    }
+    :global(.DocsContentContainer){
+        word-break: break-word;
     }
     :global(ul li){
         font-size: 1rem;
