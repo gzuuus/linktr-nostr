@@ -8,10 +8,10 @@
     import Login from '$lib/components/login.svelte';
 
 </script>
-<div class="commonContainerStyle ">
+<!-- <div class="commonContainerStyle ">
     <h3>⚠️ Important notice, please read this <a href="https://nostr.com/nevent1qqsy3pkv0usfmmk2neencwyyzpdf5xmatj5hsgxp3revpr054kqfprcpy9mhxue69uhhyetvv9ujucnfw33k76twvfshycm9d3hkucfw0puh5tczypqtnjzlll40c89dlrps5nju3pnqlahyjudqm3er6k4kwj67vx69zqcyqqqqqqgvtl9c8" target="_blank" rel="noopener noreferrer">note</a></h3>
     <h4>We are implementing a new format for lists, you can use this client to migrate your lists to the new format. <a href="https://0c1d224a.nostree.pages.dev/" target="_blank" rel="noopener noreferrer">Client</a></h4>
-</div>
+</div> -->
 <div class="homeParentContainer commonContainerStyle">
     
     <div class="homeContainer ">
