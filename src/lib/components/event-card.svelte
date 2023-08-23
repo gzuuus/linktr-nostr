@@ -124,7 +124,7 @@
         
         <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
         </div>
-        <div class:hidden={eventList.length <= 1} class="indexDotButtonContainer" style="{eventList.length <= 10 ? 'overflow: hidden' : 'overflow: scroll'};">
+        <div class:hidden={eventList.length <= 1} class="indexDotButtonContainer" style="{eventList.length <= 12 ? 'overflow: hidden' : 'overflow: scroll'};">
             {#each eventList as event, index}
                 {#if index == currentIndex}
                   <button class="indexDotButton" on:click={() => currentIndex = index}></button>
@@ -201,6 +201,7 @@
   .listLinkOutSection {
     display: flex;
     flex-direction: column;
+    align-items: center;
     /* gap: 0.5em; */
   }
   .overlayButton {
@@ -239,8 +240,12 @@
   background-color: var(--hover-color);
 }
 .indexDotButtonContainer {
-
 	max-width: 100%;
+}
+@media screen and (max-width: 350px) {
+  .indexDotButtonContainer {
+      overflow: scroll !important;
+  }
 }
 .inactive{
   opacity: 0.5;
@@ -275,8 +280,6 @@
 .listLinkOutContainerContent {
   display: flex;
   gap: 0.5em;
-  align-items: center;
-  justify-items: center;
 }
 .eventContainerButtons > div {
 	display: flex;

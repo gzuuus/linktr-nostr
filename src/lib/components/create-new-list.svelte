@@ -15,6 +15,7 @@
   import { kindLinks } from '$lib/utils/constants';
   import { generateNanoId } from '$lib/utils/helpers';
   import InfoDialog from '$lib/components/info-dialog.svelte';
+    import SlugIcon from '$lib/elements/icons/slug-icon.svelte';
 
   export let eventToEdit: NDKEvent | null = null;
   let showSpinner = false;
@@ -169,7 +170,7 @@
           <h3 class="inputWithIcon">Slug <InfoDialog whatInfo="list-slug"/></h3>
           
           <div class="inputWithIcon">
-            <label for={`slug`}><LinkIcon size={18} /></label>
+            <label for={`slug`}><SlugIcon size={18} /></label>
             <input type="text" id={`link-${index}`} placeholder="short-slug" bind:value={linkLabel.label}/>
           </div>
 
