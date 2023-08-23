@@ -1,14 +1,14 @@
 <script lang="ts">
     export let mode: string;
     export let doGoto: boolean = true;
-    import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
+    import { NDKNip07Signer, type NDKUserProfile } from "@nostr-dev-kit/ndk";
     import ndk from '$lib/stores/provider';
     import { ndkUser } from "$lib/stores/user";
     import { goto } from "$app/navigation";
     import { Button } from "agnostic-svelte";
     import { page } from '$app/stores';
     import CloseIcon from "$lib/elements/icons/close-icon.svelte";
-  
+    import { isNip05Valid } from "$lib/utils/helpers";
     let isModalVisible:boolean = false;
     async function login() {
       try {
@@ -20,10 +20,11 @@
         let user = $ndk.getUser({
             npub: ndkCurrentUser.npub,
         });
-        user.fetchProfile();
+        user.fetchProfile().then(() => {
+          user.profile as NDKUserProfile}).then(() => {
+          isNip05Valid(user.profile?.nip05);
+        });
         ndkUser.set(user);
-        console.log($ndkUser);
-  
         if (doGoto) {
             goto(`/${$ndkUser?.npub}`);
         }
@@ -65,28 +66,3 @@
   </div>
   </div>
 {/if}
-
-<style>
-    .modal {
-      position: fixed;
-      background-color: var(--background-color);
-      border: var(--common-border-style);
-      border-radius: var(--agnostic-radius);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      z-index: 9999;
-    }
-    .modal-content {
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        padding: 3rem;
-        gap: 0.3em;
-        line-height: 2em;
-    }
-    .closeModal {
-        position: absolute;
-        top: 0;
-        right: 0.6em;
-        display: inline-flex;
-    }
-  </style>

@@ -11,19 +11,31 @@
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
   import ShareIcon from '$lib/elements/icons/share-icon.svelte';
   import AtIcon from '$lib/elements/icons/at-icon.svelte';
+  import { isNip05Valid } from '$lib/utils/helpers';
+  import { goto } from '$app/navigation';
+  import { isNip05Valid as isNip05ValidStore } from '$lib/stores/user';
+    import LinktOut from '$lib/elements/icons/linkt-out.svelte';
+    import OstrichIcon from '$lib/elements/icons/ostrich-icon.svelte';
     
   let userProfile: NDKUserProfile;
   let qrImageUrl: string = '';
   let showQR: boolean = false;
   let showAbout: boolean = false;
-  let fetchProfilePromise: Promise<void>;
     
   let user = $ndk.getUser({
     npub: userPub,
-  })
-
+  });
   user.fetchProfile().then(() => {
   userProfile = user.profile as NDKUserProfile;}).then(() => {
+    isNip05Valid(user.profile?.nip05).then(() => {
+      if ($isNip05ValidStore.isNip05Valid && $page.url.pathname.split('/').length <= 2) {
+        goto(`/${userProfile.nip05}`);
+      } else if ($isNip05ValidStore.isNip05Valid && $page.url.pathname.split('/').length >= 2){
+        if ($page.url.pathname.split('/')[1].startsWith('npub')){
+          goto(`/${userProfile.nip05}/${$page.url.pathname.split('/')[2]}`);
+        }
+      }
+    });
     if (userProfile.image == undefined) {
       generateQRCode($page.url.href);
     }
@@ -49,18 +61,38 @@
     <button on:click={() =>generateQRCode($page.url.href)}><QrIcon size={18} /></button>
     <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
     <button class:hidden={!isSharePossible} on:click={() =>sharePage($page.url.href)}><ShareIcon size={16} /></button>
-    <h2>{userProfile.name ? userProfile.name : userProfile.displayName}</h2>
-    {#if userProfile.nip05}
+    <h2><a class="text-color" href={$page.url.origin}/{userProfile.nip05}>{userProfile.name ? userProfile.name : userProfile.displayName}</a></h2>
+
+    {#if userProfile.nip05 && $isNip05ValidStore.isNip05Valid}
       <div class="userInfoString">
         <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userProfile.nip05}`)}><AtIcon size={16} />
-          <code >{userProfile.nip05} </code>
+          <code>{userProfile.nip05} </code>
+        </button>
+      </div>
+    {:else}
+      <div class="userInfoString">
+        <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userPub}`)}><AtIcon size={16} />
+          <code>{truncateString(userPub)}</code>
         </button>
       </div>
     {/if}
-    <button  on:click={() =>handleMoreInfo()}><InfoIcon size={16} /></button>
+
+    <button on:click={() =>handleMoreInfo()}><InfoIcon size={16} /></button>
     {#if showAbout}
       <div><button class="userInfoString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
         <p>{userProfile.about}</p>
+        {#if userProfile.nip05 && $isNip05ValidStore.isNip05Valid}
+        <div class="userInfoString">
+            <a href="nostr:{userPub}"><button><OstrichIcon size={18} /></button></a>
+            <a href="{$page.url.origin}/{userProfile.nip05}" target="_blank" rel="noreferrer"><button><LinktOut size={18} /></button></a>
+        </div>
+      {:else}
+        <div class="userInfoString">
+          <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userPub}`)}><AtIcon size={16} />
+            <code>{truncateString(userPub)}</code>
+          </button>
+        </div>
+      {/if}
     {/if}
   </div>
 </div>

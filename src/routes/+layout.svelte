@@ -3,7 +3,7 @@
     import 'agnostic-svelte/css/common.min.css';
     import { onMount } from "svelte";
     import ndk from "$lib/stores/provider";
-    import { ogImageUrl } from "$lib/utils/helpers";
+    import { ogImageUrl } from "$lib/utils/constants";
     
     onMount(async () => {
         try {
@@ -54,6 +54,9 @@
         --hover-color: #ff9900;
         --accent-color: #916dbb;
     }
+    :global(.no-line-height){
+        line-height: 0;
+    }
     :global(body) {
         background: var(--background-color);
         color: var(--text-color);
@@ -83,9 +86,13 @@
     :global(p){
         font-size: 18px;
     }
+    :global(.text-color){
+        color: var(--text-color);
+    }
 
     :global(hr) {
         color: var(--hover-b-color);
+        margin: 0.3em;
     }
     :global(.tag){
         background: var(--background-color) !important;
@@ -203,12 +210,25 @@
         border: var(--common-border-style);
         color: var(--accent-color);
         background-color: var(--background-color);
+        display: inline-flex;
     }
     :global(.secondary-button){
         padding: 0.3em 0.5em;
         border: var(--common-border-style);
         color: var(--accent-color);
         background-color: var(--background-color);
+    }
+    :global(.noBorder){
+        border: none;
+    }
+    :global(.noPadding){
+        padding: 0;
+    }
+    :global(.noMargin){
+        margin: 0;
+    }
+    :global(.commonPadding){
+        padding: 0.2em 0.3em !important;
     }
     :global(.secondary-button:hover){
         color: var(--text-color);
@@ -244,4 +264,65 @@
         color: var(--accent-color);
         font-size: medium;
     }
+    :global(.full-width){
+        width: 100%;
+    }
+    :global(.space-between){
+        justify-content: space-between;
+    }
+    :global(.inputWithIcon){
+        display: flex;
+        align-items: center;
+        gap: 0.3em;
+    }
+    :global(.modal) {
+        position: fixed;
+        top: 0.2em;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: start;
+        justify-content: center;
+        z-index: 9999;
+        overflow: scroll;
+        line-height: 1.3em;
+    }
+    :global(.modal-content) {
+        background-color: var(--background-color);
+        color: var(--text-color);
+        padding: 1em;
+        border-radius: var(--agnostic-radius);
+        border: var(--common-border-style);
+        overflow: scroll;
+        word-break: break-word;
+    }
+    :global(.DocsContentContainer){
+        word-break: break-word;
+    }
+    :global(ul li){
+        font-size: 1rem;
+    }
+    :global(strong){
+        text-decoration: underline;
+    }
+    :global(.noButton) {
+    margin: 0;
+    display: inline-flex;
+    background: transparent;
+    cursor: pointer;
+    color: var(--accent-color);
+    padding: 0.2em;
+  }
+    :global(.inline-span) {
+	display: inline-flex;
+	padding: 0 0.2em;
+    }
+    /* :global(.closeModal) {
+        position: absolute;
+        top: 0;
+        right: 0.6em;
+        display: inline-flex;
+    } */
 </style>

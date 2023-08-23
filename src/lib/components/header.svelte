@@ -19,7 +19,7 @@
     {#if $ndkUser}
     <div class="userMenu">
         <button class="secondary-button" on:click={handleGotoNewList}>Manage lists</button>
-        <button class="secondary-button" on:click={handleGotoProfile}><ProfileIcon size={20} /></button>
+        <button class="secondary-button" on:click={handleGotoProfile}><ProfileIcon size={20} /></button>        
         <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
     </div>
     {:else}
@@ -49,4 +49,8 @@
         left: 0;
         padding: 0 1em;
     }
+    /* img {
+        max-width: 50px;
+        border-radius: var(--agnostic-radius);
+    } */
 </style>

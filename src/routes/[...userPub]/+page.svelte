@@ -5,12 +5,10 @@
   import { lengthStore } from '$lib/stores/eventListsLengths';
   import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import { goto } from '$app/navigation';
-
+  import { kindLinks, kindNotes, kindArticles } from '$lib/utils/constants';
+  import { isNip05Valid } from "$lib/stores/user";
    $: user = $page.data.npub;
-
-   let kindLinks = 30303;
-   let kindNotes = 1;
-   let kindArticles = 30023;
+   $: segments = $page.data.segments;
    $: visibleComponent = lengths[kindLinks] == 0 ? kindNotes : kindLinks;
    let lengths: { [key: number]: number } = {};
 
@@ -24,7 +22,9 @@
 
 </script>
 <div class="commonContainerStyle">
+
 {#key user}
+
 <ProfileCard userPub={user} />
 <div>
   {#if lengths[kindNotes] != 0 || lengths[kindArticles] != 0}
@@ -38,8 +38,9 @@
   {/if}
 </div>
 
+{#key $page.url.pathname.split('/').length > 2}
 <div class={visibleComponent === kindLinks ? "visible" : "hidden"}>
-  <EventCard userPub={user} eventKind={kindLinks} />
+  <EventCard userPub={user} eventKind={kindLinks} listLabel={segments[0]} />
   {#if lengths[kindLinks] == 0}
   <button class="noEventsButton" on:click={() => goto(`/new`)}>
     <div class="noEvents">
@@ -51,6 +52,8 @@
   </button>
   {/if}
 </div>
+{/key}
+
 
 <div class={visibleComponent === kindNotes ? "visible" : "hidden"}>
   <EventCard userPub={user} eventKind={kindNotes} />

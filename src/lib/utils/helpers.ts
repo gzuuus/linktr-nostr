@@ -1,9 +1,11 @@
-import { nip19 } from 'nostr-tools';
-import type { NDKEvent, NDKTag } from '@nostr-dev-kit/ndk';
+import { Kind, nip19 } from 'nostr-tools';
+import { NDKUser, type NDKEvent, type NDKTag } from '@nostr-dev-kit/ndk';
 import { ndkUser } from '$lib/stores/user';
 import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from '$app/navigation';
 import type { LinkData } from "$lib/classes/list";
+import { nanoid } from 'nanoid';
+import { isNip05Valid as isNip05ValidStore } from '$lib/stores/user';
 
 export function unixTimeNow() {
     return Math.floor(new Date().getTime() / 1000);
@@ -17,14 +19,28 @@ export function isNip05(input: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(input);
 }
+export async function isNip05Valid(input: string | undefined = ''): Promise<boolean> {
+  try {
+    let nip05promise = await NDKUser.fromNip05(input);
 
+    if (nip05promise === undefined) {
+      isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined });
+      return false;
+    }
+    isNip05ValidStore.set({isNip05Valid: true, Nip05address: input });
+    return true;
+  } catch (error) {
+    isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined });
+    return false;
+  }
+}
   export function unixToDate(unixTimestamp: number | undefined) {
     if (unixTimestamp === undefined) { return ''; }
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(unixTimestamp * 1000).toLocaleString('en-US', options);
   }
   
-  export function buildEventPointer(id: string, relays?: string[], author?: string, kind?: number, tags:NDKTag[] = []) {
+  export function buildEventPointer(id: string | undefined = '', relays: string[] | undefined=[], author: string, kind?: number, identifier:string | undefined = '') {
     let objPointer: any;
     let encodedPointer: string ="";
     if (kind === 1) {
@@ -33,32 +49,45 @@ export function isNip05(input: string): boolean {
         relays: relays,
         author: author
       };
-      encodedPointer = nip19.neventEncode(objPointer);
-    } else if (kind === 30023) {
+      return encodedPointer = nip19.neventEncode(objPointer);
+    } else if (kind === 30023 || kind === 30001) {
       objPointer = {
-        identifier: getTagValue(tags, 'd'),
+        identifier: identifier,
         pubkey: author,
         kind: kind,
         relays: relays
       };
-      encodedPointer = nip19.naddrEncode(objPointer);
+      return encodedPointer = nip19.naddrEncode(objPointer);
     }
 
-    return encodedPointer;
+    // return encodedPointer;
   }
   
+  export function decodeEventPointer(encodedPointer: string) {
+    const objPointer = nip19.decode(encodedPointer);
+    return objPointer
+  }
   export function getTagValue(tags:NDKTag[], key:string) {
     const titleTag = tags.find(tag => tag[0] === key);
     return titleTag ? titleTag[1] : '';
   }
 
-export function findListTags(tags: NDKTag[]) {
-  const matchingTags = tags.filter(tag => tag[0] === 'r');
-  return matchingTags.map(tag => {
-    const [url, text] = tag.slice(1);
-    return { url, text };
-  });
-  };
+  export function findListTags(tags: NDKTag[]) {
+    const matchingTags = tags.filter(tag => tag[0] === 'r');
+  
+    return matchingTags.map(tag => {
+        const [url, text] = tag.slice(1);
+        return { url, text } as { url: string; text: string };
+    });
+  }
+  export function findOtherTags(tags: NDKTag[], tagName: string) {
+    const matchingTags = tags.filter(tag => tag[0] === tagName);
+  
+    return matchingTags.map(tag => {
+      const [tagValue] = tag.slice(1);
+      return tagValue as string;
+    });
+  }
 export function parseNostrUrls(rawContent: string): string {
   const nostrPattern = /nostr:(nprofile|nevent|naddr|npub1)(\w+)/g;
   
@@ -78,7 +107,6 @@ export function parseNostrUrls(rawContent: string): string {
   });
 }
 
-  
   export function truncateString(str?: string): string {
     if (str === undefined) { return '';} 
     else {return str.substring(0, 12) + '...' + str.substring(str.length - 6);}
@@ -121,7 +149,8 @@ export function sortEventList(eventList: NDKEvent[]) {
   eventList.sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
-export const ogImageUrl = 'https://cdn.nostr.build/i/d050cb88a4c0c315c38bd9909831b65ae1914a530320b1d4a3683e8c8a38baae.jpg'
-
-
-
+export function generateNanoId(seed:string | undefined = unixTimeNow().toString()){
+  const userID = seed.slice(-2); 
+  const id = nanoid(8);
+  return userID + id;
+}

@@ -7,11 +7,15 @@
   import LinkIcon from '$lib/elements/icons/link-icon.svelte';
   import TextIcon from '$lib/elements/icons/text-icon.svelte';
   import BinIcon from '$lib/elements/icons/bin-icon.svelte';
-  import { findListTags, getTagValue } from '$lib/utils/helpers';
+  import { findListTags, findOtherTags, getTagValue } from '$lib/utils/helpers';
   import { v4 as uuidv4 } from 'uuid';
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
   import { goto } from '$app/navigation';
   import { ndkUser } from '$lib/stores/user';
+  import { kindLinks } from '$lib/utils/constants';
+  import { generateNanoId } from '$lib/utils/helpers';
+  import InfoDialog from '$lib/components/info-dialog.svelte';
+    import SlugIcon from '$lib/elements/icons/slug-icon.svelte';
 
   export let eventToEdit: NDKEvent | null = null;
   let showSpinner = false;
@@ -23,15 +27,18 @@
   let formData = {
     title: '',
     links: [{ link: '', description: '' }],
+    labels: [{ label: '' }],
   };
 
   if (eventToEdit) {
     let title = getTagValue(eventToEdit.tags, "title");
     const rTags = findListTags(eventToEdit.tags);
     const links = rTags.map(tag => ({ link: tag.url, description: tag.text }));
+    const labels = findOtherTags(eventToEdit.tags, 'l').map(tag => ({ label: tag }));
     formData = {
       title: title,
       links: links,
+      labels: labels
     };
     validateAllURLs();
     validateAllURLNames()
@@ -60,25 +67,24 @@
   linkNameValidationStatus = formData.links.map(linkData => linkData.description.trim() !== "");
 }
 
-
-  // function handleInputURL() {
-  //     validateAllURLs();
-  //   };
-  // function handleInputURLNames() {
-  //     validateAllURLNames();
-  //   };
-
   $: areAllLinksValid = linkValidationStatus.length > 0 && linkValidationStatus.every(status => status) && linkNameValidationStatus.length > 0 && linkNameValidationStatus.every(status => status);
 
   function handleSubmit() {
     showSpinner = true;
     const ndkEvent = new NDKEvent($ndk);
-    ndkEvent.kind = 30303;
-    
+    ndkEvent.kind = kindLinks;
     if (eventToEdit) {
-      ndkEvent.tags = [['title', formData.title], ['d', getTagValue(eventToEdit.tags, "d")]];
+    ndkEvent.tags = [['title', formData.title], ['d', getTagValue(eventToEdit.tags, "d")]];
+      for (const labelData of formData.labels) {
+        const { label } = labelData;
+        ndkEvent.tags.push(['l', encodeURIComponent(label.trim())]);
+      }
     } else {
-      ndkEvent.tags = [['title', formData.title], ['d', newDTag]];
+      
+      ndkEvent.tags = [['title', formData.title], 
+      ['d', newDTag], 
+      ['l', 'nostree'],
+      ['l', formData.labels[0].label ? formData.labels[0].label : generateNanoId($ndkUser?.npub)]];
     }
     for (const linkData of formData.links) {
       const { link, description } = linkData;
@@ -112,6 +118,7 @@
     formData = {
       title: '',
       links: [{ link: '', description: '' }],
+      labels: [{ label: '' }]
     };
     linkValidationStatus = [];
     linkNameValidationStatus = [];
@@ -128,11 +135,12 @@
 </div>
 {/if}
 <main>
-  <h2>{titleText}</h2>
+  <h2>{titleText}<span class="inline-span"><InfoDialog whatInfo="new-list"/></span></h2>
+  
 
   <form on:submit|preventDefault={handleSubmit}>
     <div class="formFieldsContainer">
-      <label for="title">Title</label>
+      <h3><label for="title">Title</label></h3>
       <input type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
 
       {#each formData.links as linkData, index}
@@ -155,8 +163,29 @@
           {/if}
         </div>
       {/each}
-    </div>
 
+      {#each formData.labels as linkLabel, index}
+      {#if linkLabel.label.trim() != 'nostree'}
+        <div class="linkField">
+          <h3 class="inputWithIcon">Slug <InfoDialog whatInfo="list-slug"/></h3>
+          
+          <div class="inputWithIcon">
+            <label for={`slug`}><SlugIcon size={18} /></label>
+            <input type="text" id={`link-${index}`} placeholder="short-slug" bind:value={linkLabel.label}/>
+          </div>
+
+          {#if !linkValidationStatus[index] && linkLabel.label.trim()}
+           <span class:hidden={linkLabel.label.trim() && linkValidationStatus[index]}><Tag><InfoIcon size={18}/> Prefix needed</Tag></span>
+          {/if}
+
+          {#if formData.links.length > 1}
+            <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
+          {/if}
+        </div>
+        {/if}
+      {/each}
+    </div>
+    
     <div class="formButtons">
       {#if areAllLinksValid && formData.title.trim() != ''}
         <Button type="button" isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
@@ -207,12 +236,6 @@
     flex-direction: column;
     gap: 0.3em;
     align-items: center;
-  }
-
-  .inputWithIcon {
-    display: flex;
-    align-items: center;
-    gap: 0.3em;
   }
 
   .inputWithIcon label {

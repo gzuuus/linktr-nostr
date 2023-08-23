@@ -6,15 +6,13 @@ import { Button, Tag } from "agnostic-svelte";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
     import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
+    import { kindLinks } from "$lib/utils/constants";
 
-  const linkListEventKind = 30303 as Kind
   let eventList: NDKEvent[] = [];
-  const sub = $ndk.subscribe({ kinds: [linkListEventKind], limit: 50}, { closeOnEose: true, groupable: true});
+  const sub = $ndk.subscribe({ kinds: [kindLinks], limit: 50, '#l': ['nostree']}, { closeOnEose: true, groupable: true});
       sub.on("event", (event: NDKEvent) => {
-        if (getTagValue(event.tags, 'title') !== '') {
             eventList = [...eventList, event];
             sortEventList(eventList);
-        }
       });
       sub.on("eose", () => {
         console.log("eose");
