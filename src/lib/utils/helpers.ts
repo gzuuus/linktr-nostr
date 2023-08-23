@@ -150,7 +150,7 @@ export function sortEventList(eventList: NDKEvent[]) {
 }
 
 export function generateNanoId(seed:string | undefined = unixTimeNow().toString()){
-  const userID = seed.slice(-2); 
-  const id = nanoid(8);
+  const userID = seed.slice(-3); 
+  const id = nanoid(6);
   return userID + id;
 }

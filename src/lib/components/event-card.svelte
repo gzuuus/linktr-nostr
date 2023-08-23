@@ -169,7 +169,7 @@
         {/if}
       </div>
       {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
-      {#if label !== 'nostree'}
+      {#if label !== 'nostree' && !label.startsWith(userPub.slice(-2))}
       <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${userIdentifier}/${label}`)}><code>{label}</code></button>
       {/if}
       {/each}
