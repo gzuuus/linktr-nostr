@@ -124,7 +124,7 @@
         
         <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
         </div>
-        <div class:hidden={eventList.length <= 1} class="indexDotButtonContainer">
+        <div class:hidden={eventList.length <= 1} class="indexDotButtonContainer" style="{eventList.length <= 10 ? 'overflow: hidden' : 'overflow: scroll'};">
             {#each eventList as event, index}
                 {#if index == currentIndex}
                   <button class="indexDotButton" on:click={() => currentIndex = index}></button>
@@ -239,7 +239,7 @@
   background-color: var(--hover-color);
 }
 .indexDotButtonContainer {
-	overflow: scroll;
+
 	max-width: 100%;
 }
 .inactive{
@@ -275,6 +275,8 @@
 .listLinkOutContainerContent {
   display: flex;
   gap: 0.5em;
+  align-items: center;
+  justify-items: center;
 }
 .eventContainerButtons > div {
 	display: flex;
