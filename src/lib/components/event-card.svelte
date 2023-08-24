@@ -53,12 +53,6 @@
     });
   }
 
-  // let fetchedEventFromId: NDKEvent | null
-  // function fetchEventFromId(id:string){
-  //   $ndk.fetchEvent(id).then((fetchedEvent) => {
-  //     fetchedEventFromId = fetchedEvent
-  //   })
-  // }
   $: currentIndex = 0;
   function clampIndex(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
@@ -88,7 +82,7 @@
           <h3>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
           {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
             {#if label !== 'nostree'}
-              <div class="listLinkOutContainer" style="{showDialog ? 'top: 0' : 'bottom: 0'}; padding: {showDialog ? '2em 1em' : '0.1em'};">
+              <div class="listLinkOutContainer" style="{showDialog ? 'top: 0' : 'bottom: 0'}; padding: {showDialog ? '2em 1em' : '0.1em'}; opacity: {showDialog ? '1' : '0.6'}; ">
                 <button class="switchButtons noBorder" on:click={() => showDialog = !showDialog}>
                   {#if !showDialog}
                   <OpenDrawerIcon size={16} flip={false}/>
@@ -169,7 +163,7 @@
         {/if}
       </div>
       {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
-      {#if label !== 'nostree' && !label.startsWith(userPub.slice(-2))}
+      {#if label !== 'nostree' && !label.startsWith(userPub.slice(-3))}
       <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${userIdentifier}/${label}`)}><code>{label}</code></button>
       {/if}
       {/each}
@@ -276,6 +270,9 @@
   z-index: 9999;
   background: var(--background-color);
   gap: 0.5em;
+}
+.listLinkOutContainer:hover {
+  opacity: 1 !important;
 }
 .listLinkOutContainerContent {
   display: flex;

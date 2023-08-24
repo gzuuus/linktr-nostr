@@ -20,7 +20,19 @@
   export let eventToEdit: NDKEvent | null = null;
   let showSpinner = false;
   const newDTag = `nostree-${uuidv4()}`;
-  const validPrefixes: string[] = ['http://', 'https://', 'ftp://', 'nostr:'];
+  const validPrefixes: string[] = [
+    'http://',
+    'https://',
+    'ftp://',
+    'nostr:',
+    'mailto:',
+    'tel:',
+    'file://',
+    'data:',
+    'ssh://',
+    'irc://',
+  ];
+
   let linkValidationStatus: boolean[] = [];
   let linkNameValidationStatus: boolean[] = [];
 

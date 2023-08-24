@@ -51,31 +51,34 @@
     showAbout = !showAbout;
   }
   let isSharePossible:boolean= typeof navigator !== 'undefined' && 'share' in navigator && typeof navigator.share === 'function';
+  
+  let userIdentifier: string | undefined = userPub
+  $:{
+    if ($isNip05ValidStore.isNip05Valid){
+    userIdentifier=$isNip05ValidStore.Nip05address
+  } else {
+    userIdentifier=userPub
+  }
+  }
 </script>
 
 {#if userProfile}
 <div class="profileContainer">
+  <a class="text-color" href={$page.url.origin}/{userIdentifier}>
       <img class=" {showQR ? 'hidden' : ''}" src={userProfile.image} alt="avatar" />
       <img class="qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
+  </a>
   <div class="profileInfoBox">
     <button on:click={() =>generateQRCode($page.url.href)}><QrIcon size={18} /></button>
     <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
     <button class:hidden={!isSharePossible} on:click={() =>sharePage($page.url.href)}><ShareIcon size={16} /></button>
-    <h2><a class="text-color" href={$page.url.origin}/{userProfile.nip05}>{userProfile.name ? userProfile.name : userProfile.displayName}</a></h2>
+    <h2><a class="text-color" href={$page.url.origin}/{userIdentifier}>{userProfile.name ? userProfile.name : userProfile.displayName}</a></h2>
 
-    {#if userProfile.nip05 && $isNip05ValidStore.isNip05Valid}
-      <div class="userInfoString">
-        <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userProfile.nip05}`)}><AtIcon size={16} />
-          <code>{userProfile.nip05} </code>
-        </button>
-      </div>
-    {:else}
-      <div class="userInfoString">
-        <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userPub}`)}><AtIcon size={16} />
-          <code>{truncateString(userPub)}</code>
-        </button>
-      </div>
-    {/if}
+    <div class="userInfoString">
+      <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userIdentifier}`)}><AtIcon size={16} />
+        <code>{$isNip05ValidStore.isNip05Valid ? userProfile.nip05 : truncateString(userPub)}</code>
+      </button>
+    </div>
 
     <button on:click={() =>handleMoreInfo()}><InfoIcon size={16} /></button>
     {#if showAbout}
