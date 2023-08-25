@@ -27,7 +27,7 @@
   });
   user.fetchProfile().then(() => {
   userProfile = user.profile as NDKUserProfile;}).then(() => {
-    isNip05Valid(user.profile?.nip05).then(() => {
+    isNip05Valid(user.profile?.nip05, user.npub).then(() => {
       if ($isNip05ValidStore.isNip05Valid && $page.url.pathname.split('/').length <= 2) {
         goto(`/${userProfile.nip05}`);
       } else if ($isNip05ValidStore.isNip05Valid && $page.url.pathname.split('/').length >= 2){

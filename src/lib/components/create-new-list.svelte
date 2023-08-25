@@ -9,7 +9,7 @@
   import LinkIcon from '$lib/elements/icons/link-icon.svelte';
   import TextIcon from '$lib/elements/icons/text-icon.svelte';
   import BinIcon from '$lib/elements/icons/bin-icon.svelte';
-  import { findListTags, findOtherTags, getTagValue } from '$lib/utils/helpers';
+  import { buildATags, findListTags, findOtherTags, getTagValue } from '$lib/utils/helpers';
   import { v4 as uuidv4 } from 'uuid';
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
   import { goto } from '$app/navigation';
@@ -18,6 +18,7 @@
   import { generateNanoId } from '$lib/utils/helpers';
   import InfoDialog from '$lib/components/info-dialog.svelte';
   import SlugIcon from '$lib/elements/icons/slug-icon.svelte';
+  import { nip19 } from 'nostr-tools';
 
   export let eventToEdit: NDKEvent | null = null;
   let showSpinner = false;
@@ -42,6 +43,7 @@
     title: '',
     links: [{ link: '', description: '' }],
     labels: [{ label: '' }],
+    forkData: {forkPubKey: '', forkEventoPointer: ''},
   };
 
   if (eventToEdit) {
@@ -49,10 +51,13 @@
     const rTags = findListTags(eventToEdit.tags);
     const links = rTags.map(tag => ({ link: tag.url, description: tag.text }));
     const labels = findOtherTags(eventToEdit.tags, 'l').map(tag => ({ label: tag }));
+    const forkedFrom = getTagValue(eventToEdit.tags, 'p');
+    const ForkData = {forkedPubkey: forkedFrom, forkedEventoPointer: buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, getTagValue(eventToEdit.tags, "d"))![0]};
     formData = {
       title: title,
       links: links,
-      labels: labels
+      labels: labels,
+      forkData: {forkPubKey: ForkData.forkedPubkey, forkEventoPointer: ForkData.forkedEventoPointer},
     };
     validateAllURLs();
     validateAllURLNames()
@@ -92,6 +97,14 @@
       for (const labelData of formData.labels) {
         const { label } = labelData;
         ndkEvent.tags.push(['l', encodeURIComponent(label.trim())]);
+      }
+      if (formData.forkData && eventToEdit.author.npub == $ndkUser?.npub) {
+        ndkEvent.tags.push(['p', getTagValue(eventToEdit.tags, "p")]);
+        ndkEvent.tags.push(['a', getTagValue(eventToEdit.tags, "a")]);
+      }
+      if (formData.forkData && eventToEdit.author.npub != $ndkUser?.npub) {
+        ndkEvent.tags.push(['p', nip19.decode(eventToEdit.author.npub).data.toString()]);
+        ndkEvent.tags.push(['a', buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, getTagValue(eventToEdit.tags, "d"))![0]]);
       }
     } else {
       
@@ -136,7 +149,8 @@
     formData = {
       title: '',
       links: [{ link: '', description: '' }],
-      labels: [{ label: '' }]
+      labels: [{ label: '' }],
+      forkData: {forkPubKey: '', forkEventoPointer: ''},
     };
     linkValidationStatus = [];
     linkNameValidationStatus = [];
@@ -186,19 +200,10 @@
       {#if linkLabel.label.trim() != 'nostree'}
         <div class="linkField">
           <h3 class="inputWithIcon">Slug <InfoDialog whatInfo="list-slug"/></h3>
-          
           <div class="inputWithIcon">
             <label for={`slug`}><SlugIcon size={18} /></label>
             <input type="text" id={`link-${index}`} placeholder="short-slug" bind:value={linkLabel.label}/>
           </div>
-
-          {#if !linkValidationStatus[index] && linkLabel.label.trim()}
-           <span class:hidden={linkLabel.label.trim() && linkValidationStatus[index]}><Tag><InfoIcon size={18}/> Prefix needed</Tag></span>
-          {/if}
-
-          {#if formData.links.length > 1}
-            <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
-          {/if}
         </div>
         {/if}
       {/each}

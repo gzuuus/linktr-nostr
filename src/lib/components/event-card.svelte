@@ -8,7 +8,7 @@
   
   import { nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
-  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags, sharePage } from "$lib/utils/helpers";
+  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags, sharePage, truncateString, naddrEncodeATags } from "$lib/utils/helpers";
   import { Button, Tag } from "agnostic-svelte";
   import ParsedContent from './parse-content.svelte';
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
@@ -26,7 +26,8 @@
   import LinktOut from "$lib/elements/icons/linkt-out.svelte"; 
   import CreateNewList from "./create-new-list.svelte";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
-    import CloseIcon from "$lib/elements/icons/close-icon.svelte";
+  import CloseIcon from "$lib/elements/icons/close-icon.svelte";
+  import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
 
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
@@ -105,15 +106,20 @@
                 <div class:hidden={!showDialog} class="no-line-height listLinkOutContainerContent">
                   {#if $ndkUser}
                     <div class="listLinkOutSection">
+                      {#if eventList[currentIndex].author.npub != $ndkUser?.npub}
+                      <code>Fork</code>
+                      <button class="iconButton" on:click={() => isEditMode = !isEditMode}><ForkIcon size={16}/></button>
+                      {:else}
                       <code>Edit</code>
                       <button class="iconButton" on:click={() => isEditMode = !isEditMode}><EditIcon size={16} /></button>
+                      {/if}
                     </div>
                   {/if}
                   <hr>
                   <div class="listLinkOutSection">
                     <InfoDialog whatInfo="list-slug-share" buttonText="slug" showInfoIcon={true} InfoIconSize={12}/>
                     <a href={`${$page.url.origin}/${userIdentifier}/${label}`} target="_blank" rel="noreferrer"><button class="switchButtons noBorder"><LinktOut size={16}/></button></a>
-                    <button class="noButton" class:hidden={isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}><ShareIcon size={16} /></button>
+                    <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}><ShareIcon size={16} /></button>
                   </div>
                   <hr>
                   <div class="listLinkOutSection">
@@ -127,7 +133,7 @@
                     } target="_blank" rel="noreferrer">
                     <button class="switchButtons noBorder"><LinktOut size={16}/></button>
                     </a>
-                    <button class="noButton" class:hidden={isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd'))}`)}><ShareIcon size={16} /></button>
+                    <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd'))}`)}><ShareIcon size={16} /></button>
                   </div>
                 </div>
               </div>
@@ -184,12 +190,17 @@
         <CreateNewList bind:isFormSent={isFormSent} eventToEdit={eventList[currentIndex]} doGoto={false}/>
         {/if}
       </div>
-      {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
-      {#if label !== 'nostree' && !label.startsWith(userPub.slice(-3))}
-      <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${userIdentifier}/${label}`)}><code>{label}</code></button>
-      {/if}
-      {/each}
-    </div>
+      <div class="inline-span">
+        {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
+          {#if label !== 'nostree' && !label.startsWith(userPub.slice(-3))}
+            <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${userIdentifier}/${label}`)}><code>{label}</code></button>
+          {/if}
+        {/each}
+        {#each findOtherTags(eventList[currentIndex].tags, 'a') as label}
+          <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}><ForkIcon size={20} /></button>
+        {/each}
+      </div>
+      </div>
   {:else}
     {#each eventList as event}
       <div class="eventContainer" >

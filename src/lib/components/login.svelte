@@ -22,7 +22,7 @@
         });
         user.fetchProfile().then(() => {
           user.profile as NDKUserProfile}).then(() => {
-          isNip05Valid(user.profile?.nip05);
+          isNip05Valid(user.profile?.nip05, user.npub);
         });
         ndkUser.set(user);
         if (doGoto) {

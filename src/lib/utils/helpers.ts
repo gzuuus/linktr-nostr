@@ -19,18 +19,18 @@ export function isNip05(input: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(input);
 }
-export async function isNip05Valid(input: string | undefined = ''): Promise<boolean> {
+export async function isNip05Valid(nip05: string | undefined = '', npub: string | undefined = '' ): Promise<boolean> {
   try {
-    let nip05promise = await NDKUser.fromNip05(input);
+    let nip05promise = await NDKUser.fromNip05(nip05);
 
     if (nip05promise === undefined) {
-      isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined });
+      isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined, UserNpub: npub });
       return false;
     }
-    isNip05ValidStore.set({isNip05Valid: true, Nip05address: input });
+    isNip05ValidStore.set({isNip05Valid: true, Nip05address: nip05, UserNpub:nip05promise.npub });
     return true;
   } catch (error) {
-    isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined });
+    isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined, UserNpub: npub });
     return false;
   }
 }
@@ -59,9 +59,30 @@ export async function isNip05Valid(input: string | undefined = ''): Promise<bool
       };
       return encodedPointer = nip19.naddrEncode(objPointer);
     }
-
-    // return encodedPointer;
   }
+  export function buildATags(id: string | undefined = '', relays: string[] | undefined=[], author: string, kind?: number, identifier:string | undefined = '') {
+    let objPointer: any;
+    let encodedPointer: string[] =[""];
+    if (kind === 30023 || kind === 30001) {
+      objPointer = {
+        identifier: identifier,
+        pubkey: author,
+        kind: kind,
+        relays: relays
+      };
+      return encodedPointer = [`${objPointer.kind}:${objPointer.pubkey}:${objPointer.identifier}`, nip19.naddrEncode(objPointer) ];
+    }
+  }
+
+  export function naddrEncodeATags(EventPointer: string) {
+    let objPointer = EventPointer.split(':');
+    let eventKind:number = parseInt(objPointer[0]);
+    let eventAuthor:string = objPointer[1];
+    let eventIdentifier:string = objPointer[2];
+
+    return buildEventPointer(undefined, [], eventAuthor, eventKind, eventIdentifier);
+  }
+  
   
   export function decodeEventPointer(encodedPointer: string) {
     const objPointer = nip19.decode(encodedPointer);
