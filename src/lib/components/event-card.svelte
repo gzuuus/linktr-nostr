@@ -4,6 +4,8 @@
   export let listLabel: string = 'nostree';
   export let dValue: string = '';
   export let showSummary: boolean = false;
+  export let isEditHappens: boolean = false;
+  
   import { nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
   import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags, sharePage } from "$lib/utils/helpers";
@@ -14,7 +16,7 @@
   import { pannable, handlePanStart, handlePanMove, initializeCoords,coords } from '$lib/utils/pannable';
   import { kindLinks } from '$lib/utils/constants';
   import { page } from "$app/stores";
-  import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
+  import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
   import { goto } from "$app/navigation";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import InfoDialog from "./info-dialog.svelte";
@@ -22,12 +24,17 @@
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";
   import LinktOut from "$lib/elements/icons/linkt-out.svelte"; 
+  import CreateNewList from "./create-new-list.svelte";
+  import EditIcon from "$lib/elements/icons/edit-icon.svelte";
+    import CloseIcon from "$lib/elements/icons/close-icon.svelte";
 
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   let showDialog: boolean = false;
   let userIdentifier: string | undefined = userPub
   let isSharePossible:boolean= typeof navigator !== 'undefined' && 'share' in navigator && typeof navigator.share === 'function';
+  let isEditMode: boolean = false
+  let isFormSent: boolean = false
   $:{
     if ($isNip05ValidStore.isNip05Valid){
     userIdentifier=$isNip05ValidStore.Nip05address
@@ -71,18 +78,23 @@
       actionExecuted = false;
     }
   }
+  $:{
+    if (isFormSent) {
+      isEditMode = false
+      isEditHappens = !isEditHappens
+    }
+  }
 </script>
-
 <div class="sectionContainer">
   {#if eventKind == kindLinks && eventList.length > 0}
     <div class="eventContentContainer">
       <div class="eventContainerButtons">
         <div class:full-width={eventList.length > 1} class:space-between={eventList.length > 1}> 
-          <button class="switchButtons" class:disabled={currentIndex == 0} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1)}><ChevronIcon size={20} /></button>
-          <h3>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
+          <button class="switchButtons" class:disabled={currentIndex == 0} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1)}><ChevronIcon size={20} /></button>
+          <h3 class:hidden={isEditMode}>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
           {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
             {#if label !== 'nostree'}
-              <div class="listLinkOutContainer" style="{showDialog ? 'top: 0' : 'bottom: 0'}; padding: {showDialog ? '2em 1em' : '0.1em'}; opacity: {showDialog ? '1' : '0.6'}; ">
+              <div class="listLinkOutContainer" class:hidden={isEditMode} style="{showDialog ? 'top: 0' : 'bottom: 0'}; padding: {showDialog ? '0.5em 1.5em;' : '0.1em'}; opacity: {showDialog ? '1' : '0.6'}; ">
                 <button class="switchButtons noBorder" on:click={() => showDialog = !showDialog}>
                   {#if !showDialog}
                   <OpenDrawerIcon size={16} flip={false}/>
@@ -91,16 +103,22 @@
                   {/if}
                 </button>
                 <div class:hidden={!showDialog} class="no-line-height listLinkOutContainerContent">
+                  {#if $ndkUser}
+                    <div class="listLinkOutSection">
+                      <code>Edit</code>
+                      <button class="iconButton" on:click={() => isEditMode = !isEditMode}><EditIcon size={16} /></button>
+                    </div>
+                  {/if}
                   <hr>
                   <div class="listLinkOutSection">
                     <InfoDialog whatInfo="list-slug-share" buttonText="slug" showInfoIcon={true} InfoIconSize={12}/>
                     <a href={`${$page.url.origin}/${userIdentifier}/${label}`} target="_blank" rel="noreferrer"><button class="switchButtons noBorder"><LinktOut size={16}/></button></a>
-                    <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}><ShareIcon size={16} /></button>
+                    <button class="noButton" class:hidden={isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}><ShareIcon size={16} /></button>
                   </div>
                   <hr>
                   <div class="listLinkOutSection">
                     <InfoDialog whatInfo="list-naddr-share" buttonText="naddr" showInfoIcon={true} InfoIconSize={12}/>
-                  <a href={`${$page.url.origin}/a/${buildEventPointer(
+                      <a href={`${$page.url.origin}/a/${buildEventPointer(
                       undefined,
                       [], 
                       userPubDecoded, 
@@ -108,17 +126,16 @@
                       )}`
                     } target="_blank" rel="noreferrer">
                     <button class="switchButtons noBorder"><LinktOut size={16}/></button>
-                  </a>
-                  <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd'))}`)}><ShareIcon size={16} /></button>
-                </div>
+                    </a>
+                    <button class="noButton" class:hidden={isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd'))}`)}><ShareIcon size={16} /></button>
+                  </div>
                 </div>
               </div>
             {/if}
           {/each}
-        
-        <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
+        <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
         </div>
-        <div class:hidden={eventList.length <= 1} class="indexDotButtonContainer" style="{eventList.length <= 12 ? 'overflow: hidden' : 'overflow: scroll'};">
+        <div class:hidden={eventList.length <= 1 || isEditMode} class="indexDotButtonContainer" style="{eventList.length <= 12 ? 'overflow: hidden' : 'overflow: scroll'};">
             {#each eventList as event, index}
                 {#if index == currentIndex}
                   <button class="indexDotButton" on:click={() => currentIndex = index}></button>
@@ -129,6 +146,7 @@
         </div>
       </div>
       <div>
+        {#if !isEditMode}
         {#if eventList.length > 1}
           <div
             use:pannable
@@ -160,6 +178,10 @@
               </a>
             {/each}
           </div>
+        {/if}
+        {:else}
+        <button on:click={() => isEditMode = false}>Editing <CloseIcon size={16} /></button>
+        <CreateNewList bind:isFormSent={isFormSent} eventToEdit={eventList[currentIndex]} doGoto={false}/>
         {/if}
       </div>
       {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
@@ -196,7 +218,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* gap: 0.5em; */
+    gap: 0.2em;
   }
   .overlayButton {
     position: absolute;
@@ -270,6 +292,7 @@
   z-index: 9999;
   background: var(--background-color);
   gap: 0.5em;
+  height: fit-content;
 }
 .listLinkOutContainer:hover {
   opacity: 1 !important;
@@ -277,13 +300,13 @@
 .listLinkOutContainerContent {
   display: flex;
   gap: 0.5em;
+  align-items: baseline;
 }
 .eventContainerButtons > div {
 	display: flex;
 	gap: 0.5em;
 	align-items: center;
 }
-
 .infoBox {
   display: flex;
   justify-content: center;
@@ -292,5 +315,4 @@
   padding-top: 0.1em;
   gap: 0.5em;
 }
-
 </style>

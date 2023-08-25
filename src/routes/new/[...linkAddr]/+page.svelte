@@ -131,9 +131,9 @@
             <Disclose isBackground title="All lists">
             {#each events as event, i}
                 <div class="eventContainer">
-                    <button on:click={() => pickEventToEdit(event)}><EditIcon size={20}/></button>
-                    <button class:firstEvent={i == 0} on:click={() => {handleSubmit(event); showSpinner = true;}}><PinIcon size={20}/></button>
-                    <button on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
+                    <button class="iconButton" on:click={() => pickEventToEdit(event)}><EditIcon size={20}/></button>
+                    <button class="iconButton" class:firstEvent={i == 0} on:click={() => {handleSubmit(event); showSpinner = true;}}><PinIcon size={20}/></button>
+                    <button class="iconButton" on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
                     <h3>{getTagValue(event.tags, "title")}</h3>
                     {#each findListTags(event.tags) as { url, text }}
                         <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
@@ -154,8 +154,8 @@
                     <div class="alertContainer">
                         <h3>🔺 List in the old format <span class="inline-span"><InfoDialog whatInfo="list-old-format-migrate"/></span></h3>
                         <div class="eventContainer">
-                            <button on:click={() => {handleSubmit(event); showSpinner = true;}}><RepublishIcon size={20}/></button>
-                            <button on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
+                            <button class="iconButton"  on:click={() => {handleSubmit(event); showSpinner = true;}}><RepublishIcon size={20}/></button>
+                            <button class="iconButton"  on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
                             <h3>{getTagValue(event.tags, "title")}</h3>
                             {#each findListTags(event.tags) as { url, text }}
                                 <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
@@ -177,13 +177,6 @@
 </div>
 
 <style>
-    button {
-        display: inline-flex;
-        line-height: normal;
-        background: var(--hover-b-color);
-        color: var(--accent-color);
-        padding: 0.4em;
-    }
     button:hover {
         color: var(--hover-color);
     }

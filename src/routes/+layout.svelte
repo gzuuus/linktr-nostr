@@ -325,4 +325,11 @@
         right: 0.6em;
         display: inline-flex;
     } */
+    :global(.iconButton) {
+        display: inline-flex;
+        line-height: normal;
+        background: var(--hover-b-color);
+        color: var(--accent-color);
+        padding: 0.4em;
+    }
 </style>

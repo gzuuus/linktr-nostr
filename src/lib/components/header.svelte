@@ -6,9 +6,14 @@
     import { goto } from '$app/navigation';
     import { logout } from '$lib/utils/helpers';
     import Login from './login.svelte';
+    import { isNip05Valid } from '$lib/stores/user';
 
     function handleGotoProfile() {
-        goto(`/${$ndkUser?.npub}`);
+        if ($isNip05Valid.isNip05Valid){
+            goto(`/${$ndkUser?.profile?.nip05}`);
+        } else{
+            goto(`/${$ndkUser?.npub}`);
+        } 
     }
     function handleGotoNewList(){
         goto('/new');

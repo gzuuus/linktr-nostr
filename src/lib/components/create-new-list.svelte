@@ -1,4 +1,6 @@
 <script lang="ts">
+  export let isFormSent: boolean = false;
+  export let doGoto: boolean = true;
   import { NDKEvent } from '@nostr-dev-kit/ndk';
   import ndk from '$lib/stores/provider';
   import { Button, Spinner, Tag } from 'agnostic-svelte';
@@ -15,7 +17,7 @@
   import { kindLinks } from '$lib/utils/constants';
   import { generateNanoId } from '$lib/utils/helpers';
   import InfoDialog from '$lib/components/info-dialog.svelte';
-    import SlugIcon from '$lib/elements/icons/slug-icon.svelte';
+  import SlugIcon from '$lib/elements/icons/slug-icon.svelte';
 
   export let eventToEdit: NDKEvent | null = null;
   let showSpinner = false;
@@ -104,7 +106,11 @@
     }
     ndkEvent.publish().then(() =>{
       showSpinner = false;
-      goto(`/${$ndkUser?.npub}`)
+      isFormSent = true;
+      if (doGoto) {
+        goto(`/${$ndkUser?.npub}`)
+      }
+      
 
     }).catch((error) => {
             console.log("Error:", error);
