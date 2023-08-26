@@ -319,6 +319,7 @@
     :global(.inline-span) {
 	display: inline-flex;
 	padding: 0 0.2em;
+    align-items: center;
     }
     /* :global(.closeModal) {
         position: absolute;
@@ -333,8 +334,8 @@
         color: var(--accent-color);
         padding: 0.4em;
     }
-    :global(.text-align-left) {
-        text-align: left;
+    :global(.text-align-start) {
+        text-align: start;
     }
     :global(.commonBorderStyle) {
         border: var(--common-border-style);

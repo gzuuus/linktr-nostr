@@ -23,23 +23,27 @@
   import InfoDialog from "./info-dialog.svelte";
   import OpenDrawerIcon from "$lib/elements/icons/open-drawer-icon.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
-  import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";
+  import ChevronIconHorizontal from "$lib/elements/icons/chevron-icon-horizontal.svelte";
   import LinktOut from "$lib/elements/icons/linkt-out.svelte"; 
   import CreateNewList from "./create-new-list.svelte";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
   import ListItemsIcon from "$lib/elements/icons/list-items-icon.svelte";
+  import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
 
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   let showDialog: boolean = false;
   let showListsIndex: boolean = false;
+  let showListsIndexSwitchTabs: boolean = false;
+  let showForkInfo: boolean = false;
   let userIdentifier: string | undefined = userPub
   let isSharePossible:boolean= typeof navigator !== 'undefined' && 'share' in navigator && typeof navigator.share === 'function';
   let isEditMode: boolean = false
   let isFormSent: boolean = false
   let eventTitles:string[] = [];
+  let eventSlugs:string[] = [];
   $:{
     if ($isNip05ValidStore.isNip05Valid){
     userIdentifier=$isNip05ValidStore.Nip05address
@@ -58,6 +62,8 @@
         event.tags.forEach(tag => {
           if (tag[0] == 'title')
           eventTitles.push(tag[1])
+          if (tag[0] == 'l' && tag[1] != 'nostree')
+          eventSlugs.push(tag[1])
         });
       });
     });
@@ -95,14 +101,13 @@
       isEditHappens = !isEditHappens
     }
   }
- 
 </script>
 <div class="sectionContainer">
   {#if eventKind == kindLinks && eventList.length > 0}
     <div class="eventContentContainer">
       <div class="eventContainerButtons">
         <div class:full-width={eventList.length > 1} class:space-between={eventList.length > 1}> 
-          <button class="switchButtons" class:disabled={currentIndex == 0} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1)}><ChevronIcon size={20} flipHorizontal={true} /></button>
+          <button class="switchButtons" class:disabled={currentIndex == 0} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1)}><ChevronIconHorizontal size={20} flipHorizontal={true} /></button>
           <h3 class:hidden={isEditMode}>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
           {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
             {#if label !== 'nostree'}
@@ -157,7 +162,7 @@
             </button>
           </div>
           {/if}
-        <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} /></button>
+        <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIconHorizontal size={20} /></button>
         </div>
         <div class:hidden={eventList.length <= 1 || isEditMode} class="indexDotButtonContainer" style="{eventList.length <= 12 ? 'overflow: hidden' : 'overflow: scroll'};">
             {#each eventList as event, index}
@@ -168,9 +173,16 @@
                 {/if}
             {/each}
         </div>
-        {#if eventList.length > 1}
+        {#if eventList.length > 1 && showListsIndex}
+        <div>
+          <button class="commonPadding" class:switchButtons={showListsIndexSwitchTabs} on:click={() => showListsIndexSwitchTabs = !showListsIndexSwitchTabs}>Lists</button>
+          <button class="commonPadding" class:switchButtons={!showListsIndexSwitchTabs} on:click={() => showListsIndexSwitchTabs = !showListsIndexSwitchTabs}>Slugs</button>
+        </div>
         {#each eventTitles as title, index}
-        <button class:hidden={!showListsIndex} class="noButton inline-span" on:click={() => {currentIndex = index; showListsIndex = !showListsIndex}}>{index +1}.{title}</button>
+        <button class="noButton inline-span" class:hidden={showListsIndexSwitchTabs} on:click={() => {currentIndex = index; showListsIndex = !showListsIndex}}>{index +1}.{title}</button>
+        {/each}
+        {#each eventSlugs as slug}
+          <button class="noButton inline-span" class:hidden={!showListsIndexSwitchTabs} on:click={() => {goto(`${$page.url.origin}/${userIdentifier}/${slug}`)}}>{slug}</button>
         {/each}
         {/if}
       </div>
@@ -209,20 +221,37 @@
           </div>
         {/if}
         {:else}
-        <button on:click={() => isEditMode = false}>Editing <CloseIcon size={16} /></button>
+        <button on:click={() => {isEditMode = false; showDialog = false} }>Editing <CloseIcon size={16} /></button>
         <CreateNewList bind:isFormSent={isFormSent} eventToEdit={eventList[currentIndex]} doGoto={isFork ? true : false}/>
         {/if}
       </div>
       <div class="inline-span">
         {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
           {#if label !== 'nostree' && !label.startsWith(userPub.slice(-3))}
-            <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${userIdentifier}/${label}`)}><code>{label}</code></button>
+              <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${userIdentifier}/${label}`)}><code>{label}</code></button>
           {/if}
         {/each}
         {#each findOtherTags(eventList[currentIndex].tags, 'a') as label}
-          <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}><ForkIcon size={20} /></button>
+            <button class="switchButtons commonPadding" on:click={() => showForkInfo = !showForkInfo}>
+              {#if !showForkInfo}
+              <ForkIcon size={20} />
+              {:else}
+              <CloseIcon size={20} />
+              {/if}
+            </button>  
         {/each}
       </div>
+      <div class:hidden={!showForkInfo} class="commonPadding" >
+      {#each findOtherTags(eventList[currentIndex].tags, 'a') as label}
+         
+        <button class="switchButtons commonPadding inline-span" on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}><span>Go to forked list</span> <ForkIcon size={18} /></button>
+        <h3 class="text-align-start">Fork info:</h3>
+        <h4 class="text-align-start">Fordek from:</h4>
+        <ProfileCardCompact userPub={nip19.npubEncode(label.split(':')[1])} />
+        <h4 class="text-align-start">Label:</h4>
+        <code class="text-align-start">{label}</code>
+      {/each}
+    </div>
       </div>
   {:else}
     {#each eventList as event}

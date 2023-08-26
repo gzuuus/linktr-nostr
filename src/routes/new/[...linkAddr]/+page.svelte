@@ -16,7 +16,7 @@
     import { generateNanoId } from '$lib/utils/helpers';
     import RepublishIcon from '$lib/elements/icons/republish-icon.svelte';
     import InfoDialog from '$lib/components/info-dialog.svelte';
-    import ChevronIcon from '$lib/elements/icons/chevron-icon.svelte';
+    import ChevronIconVertical from '$lib/elements/icons/chevron-icon-vertical.svelte';
 
     let events: NDKEvent[] = [];
     let oldEvents: NDKEvent[] = [];
@@ -139,7 +139,7 @@
                     <h3>{getTagValue(event.tags, "title")}</h3>
                 </div>
                 <details class="showLinksDetails">
-                    <summary><ChevronIcon size={20} flipVertical={true}/></summary>
+                    <summary><ChevronIconVertical size={20} flipVertical={true}/></summary>
                     {#each findListTags(event.tags) as { url, text }}
                         <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
                     {/each}
