@@ -21,9 +21,10 @@
     let events: NDKEvent[] = [];
     let oldEvents: NDKEvent[] = [];
     let eventToEdit: any;
-    let showSpinner = false;
-    let fetchedOldEvents = false
-    let fetchedMigratedEvents = false
+    let showSpinner:boolean = false;
+    let fetchedOldEvents:boolean = false
+    let fetchedMigratedEvents:boolean = false
+    let showCreateNewList:boolean = false
 
     $: {
         if ($ndkUser) {
@@ -115,12 +116,19 @@
 <div class="listContainer commonContainerStyle">
     <div>
         {#if $ndkUser}
+        <div class:hidden={showCreateNewList}>
+            <h2>Manage your lists</h2>
+            <button class="isBlock" on:click={() => showCreateNewList = !showCreateNewList} >Create new list </button>
+        </div>
+        
         {#key eventToEdit}
+        <div class:hidden={!showCreateNewList}>
             {#if !eventToEdit}
             <CreateNewList eventToEdit={undefined}/>
             {:else}
             <CreateNewList eventToEdit={eventToEdit}/>
             {/if}
+        </div>
         {/key}
         {:else}
         <Login mode="primary" doGoto={false}/>
@@ -129,11 +137,11 @@
         {#if events.length > 0}
         <div class="allListsContainer">
             {#key fetchedMigratedEvents}
-            <Disclose isBackground title="All lists">
+            <Disclose isBackground title="All your lists">
             {#each events as event, i}
             <div class="commonBorderStyle commonPadding">
                 <div class="eventContainer noBorder">
-                    <button class="iconButton" on:click={() => pickEventToEdit(event)}><EditIcon size={20}/></button>
+                    <button class="iconButton" on:click={() => {pickEventToEdit(event); showCreateNewList = true}}><EditIcon size={20}/></button>
                     <button class="iconButton" class:firstEvent={i == 0} on:click={() => {handleSubmit(event); showSpinner = true;}}><PinIcon size={20}/></button>
                     <button class="iconButton" on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
                     <h3>{getTagValue(event.tags, "title")}</h3>

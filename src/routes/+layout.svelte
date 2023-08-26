@@ -341,5 +341,9 @@
         border: var(--common-border-style);
         border-radius: var(--agnostic-radius);
     }
+    :global(.isBlock) {
+        display: block;
+        width: 100%;
+    }
 
 </style>

@@ -200,7 +200,7 @@
 
           <div class="inputWithIcon">
             <label for={`link-${index}`}><LinkIcon size={18} /></label>
-            <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkData.link} on:input={validateAllURLs}/>
+            <input type="text" id={`link-${index}`} placeholder="URL: https://..." bind:value={linkData.link} on:input={validateAllURLs}/>
           </div>
 
           {#if !linkValidationStatus[index] && linkData.link.trim()}
@@ -293,7 +293,7 @@
   #title {
     text-align: center;
   }
-  .inputLinkDescription {
+  .inputLinkDescription:focus {
     background-color: var(--text-color);
     color: var(--background-color);
   }
