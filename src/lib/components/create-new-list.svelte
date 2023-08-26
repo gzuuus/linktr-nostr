@@ -19,6 +19,8 @@
   import InfoDialog from '$lib/components/info-dialog.svelte';
   import SlugIcon from '$lib/elements/icons/slug-icon.svelte';
   import { nip19 } from 'nostr-tools';
+  import InsertIcon from '$lib/elements/icons/insert-icon.svelte';
+  import ChevronIconVertical from '$lib/elements/icons/chevron-icon-vertical.svelte';
 
   export let eventToEdit: NDKEvent | null = null;
   let showSpinner = false;
@@ -64,12 +66,12 @@
   }
 
   let isTitleEmpty = true;
-  let titleText = 'New List';
+  let titleText = 'List Title';
 
   $: {
     isTitleEmpty = formData.title.trim() === '';
     if (formData.title.trim() === '') {
-      titleText = 'New List';
+      titleText = 'List Title';
     } else {
       titleText = formData.title;
     }
@@ -132,8 +134,13 @@
     });
   }
 
-  function addLinkField() {
-    formData.links = [...formData.links, { link: '', description: '' }];
+  function addLinkField(insertFirstPosition: boolean = true) {
+    if (insertFirstPosition) {
+      formData.links = [{ link: '', description: '' },...formData.links];
+    } else {
+      formData.links = [...formData.links, { link: '', description: '' }];
+    }
+    
     linkValidationStatus.push(false);
     linkNameValidationStatus.push(false);
     validateAllURLs();
@@ -161,6 +168,14 @@
   function handleRemoveLink(index: number) {
     removeLinkField(index);
   }
+  function handleMoveLink(index: number, direction:string) {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex >= 0 && newIndex < formData.links.length) {
+      const temp = formData.links[index];
+      formData.links[index] = formData.links[newIndex];
+      formData.links[newIndex] = temp;
+    }
+  }
 </script>
 {#if showSpinner}
 <div class="spinnerContainer">
@@ -179,21 +194,27 @@
       {#each formData.links as linkData, index}
         <div class="linkField">
           <div class="inputWithIcon">
-            <label for={`link-${index}`}><LinkIcon size={18} /></label>
-            <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkData.link} on:input={validateAllURLs} />
+            <label for={`description-${index}`}><TextIcon size={18} /></label>
+            <input class="inputLinkDescription" type="text" id={`description-${index}`} placeholder="Link name" bind:value={linkData.description} on:input={validateAllURLNames}/>
           </div>
 
           <div class="inputWithIcon">
-            <label for={`description-${index}`}><TextIcon size={18} /></label>
-            <input type="text" id={`description-${index}`} placeholder="Link name" bind:value={linkData.description} on:input={validateAllURLNames}/>
+            <label for={`link-${index}`}><LinkIcon size={18} /></label>
+            <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkData.link} on:input={validateAllURLs}/>
           </div>
+
           {#if !linkValidationStatus[index] && linkData.link.trim()}
            <span class:hidden={linkData.link.trim() && linkValidationStatus[index]}><Tag><InfoIcon size={18}/> Prefix needed</Tag></span>
           {/if}
 
           {#if formData.links.length > 1}
-            <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
+          <div>
+            <button type="button" on:click={() => handleMoveLink(index, 'up')}><ChevronIconVertical size={18} flipVertical={false}/></button>
+            <button type="button" on:click={() => handleMoveLink(index, 'down')}><ChevronIconVertical size={18} flipVertical={true}/></button>
+            <button type="button" class="secondary-button" on:click={() => {handleRemoveLink(index); validateAllURLs(); validateAllURLNames()}}><BinIcon size={18} /></button>
+          </div>
           {/if}
+
         </div>
       {/each}
 
@@ -212,10 +233,12 @@
     
     <div class="formButtons">
       {#if areAllLinksValid && formData.title.trim() != ''}
-        <Button type="button" isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
+        <Button type="button" isRounded on:click={() => addLinkField(true)}><InsertIcon size={18} /></Button>
+        <Button type="button" isRounded on:click={() => addLinkField(false)}><div class="FormButtonsAdd"><InsertIcon size={18} flipVertical={true} /></Button>
         <Button isBlock type="submit">Publish</Button>
       {:else}
-        <Button type="button" disabled isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
+        <Button type="button" disabled isRounded on:click={() => addLinkField(true)}><div class="FormButtonsAdd"><InsertIcon size={18} /></Button>
+        <Button type="button" isRounded disabled on:click={() => addLinkField(false)}><div class="FormButtonsAdd"><InsertIcon size={18} flipVertical={true} /></Button>
         <Button isBlock type="submit" disabled>Publish</Button>
       {/if}
       <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
@@ -269,5 +292,9 @@
 
   #title {
     text-align: center;
+  }
+  .inputLinkDescription {
+    background-color: var(--text-color);
+    color: var(--background-color);
   }
 </style>
