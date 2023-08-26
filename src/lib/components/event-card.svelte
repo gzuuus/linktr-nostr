@@ -5,6 +5,7 @@
   export let dValue: string = '';
   export let showSummary: boolean = false;
   export let isEditHappens: boolean = false;
+  export let isFork: boolean = false;
   
   import { nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
@@ -28,14 +29,17 @@
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
+  import ListItemsIcon from "$lib/elements/icons/list-items-icon.svelte";
 
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   let showDialog: boolean = false;
+  let showListsIndex: boolean = false;
   let userIdentifier: string | undefined = userPub
   let isSharePossible:boolean= typeof navigator !== 'undefined' && 'share' in navigator && typeof navigator.share === 'function';
   let isEditMode: boolean = false
   let isFormSent: boolean = false
+  let eventTitles:string[] = [];
   $:{
     if ($isNip05ValidStore.isNip05Valid){
     userIdentifier=$isNip05ValidStore.Nip05address
@@ -50,6 +54,12 @@
       eventList = Array.from(fetchedEvent);
       updateLength(kindLinks, eventList.length);
       sortEventList(eventList);
+      eventList.forEach(event => {
+        event.tags.forEach(tag => {
+          if (tag[0] == 'title')
+          eventTitles.push(tag[1])
+        });
+      });
     });
   } else {
     const ndkFilter: NDKFilter = dValue ? { kinds: [eventKind], authors: [userPubDecoded], '#d': [`${dValue}`], limit:5} : { kinds: [eventKind], authors: [userPubDecoded], limit:5}
@@ -85,13 +95,14 @@
       isEditHappens = !isEditHappens
     }
   }
+ 
 </script>
 <div class="sectionContainer">
   {#if eventKind == kindLinks && eventList.length > 0}
     <div class="eventContentContainer">
       <div class="eventContainerButtons">
         <div class:full-width={eventList.length > 1} class:space-between={eventList.length > 1}> 
-          <button class="switchButtons" class:disabled={currentIndex == 0} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1)}><ChevronIcon size={20} /></button>
+          <button class="switchButtons" class:disabled={currentIndex == 0} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1)}><ChevronIcon size={20} flipHorizontal={true} /></button>
           <h3 class:hidden={isEditMode}>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
           {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
             {#if label !== 'nostree'}
@@ -108,10 +119,10 @@
                     <div class="listLinkOutSection">
                       {#if eventList[currentIndex].author.npub != $ndkUser?.npub}
                       <code>Fork</code>
-                      <button class="iconButton" on:click={() => isEditMode = !isEditMode}><ForkIcon size={16}/></button>
+                      <button class="iconButton" on:click={() => {isEditMode = !isEditMode; isFork = true}}><ForkIcon size={16}/></button>
                       {:else}
                       <code>Edit</code>
-                      <button class="iconButton" on:click={() => isEditMode = !isEditMode}><EditIcon size={16} /></button>
+                      <button class="iconButton" on:click={() => {isEditMode = !isEditMode; isFork = false}}><EditIcon size={16} /></button>
                       {/if}
                     </div>
                   {/if}
@@ -139,7 +150,14 @@
               </div>
             {/if}
           {/each}
-        <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
+          {#if eventList.length > 1}
+          <div class="listLinkOutContainer left" style="opacity: {!showListsIndex ? '0.6' : '1'};" >
+            <button class="switchButtons noBorder" on:click={() => showListsIndex = !showListsIndex}>
+              <ListItemsIcon size={16}/>
+            </button>
+          </div>
+          {/if}
+        <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} /></button>
         </div>
         <div class:hidden={eventList.length <= 1 || isEditMode} class="indexDotButtonContainer" style="{eventList.length <= 12 ? 'overflow: hidden' : 'overflow: scroll'};">
             {#each eventList as event, index}
@@ -150,6 +168,11 @@
                 {/if}
             {/each}
         </div>
+        {#if eventList.length > 1}
+        {#each eventTitles as title, index}
+        <button class:hidden={!showListsIndex} class="noButton inline-span" on:click={() => {currentIndex = index; showListsIndex = !showListsIndex}}>{index +1}.{title}</button>
+        {/each}
+        {/if}
       </div>
       <div>
         {#if !isEditMode}
@@ -187,7 +210,7 @@
         {/if}
         {:else}
         <button on:click={() => isEditMode = false}>Editing <CloseIcon size={16} /></button>
-        <CreateNewList bind:isFormSent={isFormSent} eventToEdit={eventList[currentIndex]} doGoto={false}/>
+        <CreateNewList bind:isFormSent={isFormSent} eventToEdit={eventList[currentIndex]} doGoto={isFork ? true : false}/>
         {/if}
       </div>
       <div class="inline-span">
@@ -304,6 +327,10 @@
   background: var(--background-color);
   gap: 0.5em;
   height: fit-content;
+}
+.listLinkOutContainer.left {
+  left: 0;
+  width: fit-content;
 }
 .listLinkOutContainer:hover {
   opacity: 1 !important;

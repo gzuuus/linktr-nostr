@@ -16,6 +16,7 @@
     import { generateNanoId } from '$lib/utils/helpers';
     import RepublishIcon from '$lib/elements/icons/republish-icon.svelte';
     import InfoDialog from '$lib/components/info-dialog.svelte';
+    import ChevronIcon from '$lib/elements/icons/chevron-icon.svelte';
 
     let events: NDKEvent[] = [];
     let oldEvents: NDKEvent[] = [];
@@ -130,15 +131,20 @@
             {#key fetchedMigratedEvents}
             <Disclose isBackground title="All lists">
             {#each events as event, i}
-                <div class="eventContainer">
+            <div class="commonBorderStyle commonPadding">
+                <div class="eventContainer noBorder">
                     <button class="iconButton" on:click={() => pickEventToEdit(event)}><EditIcon size={20}/></button>
                     <button class="iconButton" class:firstEvent={i == 0} on:click={() => {handleSubmit(event); showSpinner = true;}}><PinIcon size={20}/></button>
                     <button class="iconButton" on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
                     <h3>{getTagValue(event.tags, "title")}</h3>
+                </div>
+                <details class="showLinksDetails">
+                    <summary><ChevronIcon size={20} flipVertical={true}/></summary>
                     {#each findListTags(event.tags) as { url, text }}
                         <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
                     {/each}
-                </div>
+                </details>
+            </div>
             {/each}
             </Disclose>
             {/key}
@@ -162,9 +168,6 @@
                             {/each}
                         </div>
                     </div>
-                    <!-- {:else}
-                     <h3>{getTagValue(event.tags, "title")}</h3>
-                     <p>Already published</p> -->
                     {/if}
                     {/if}
                 
@@ -197,6 +200,17 @@
     }
     .alertContainer:hover{
         opacity: 1;
+    }
+    .eventContainer.noBorder{
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        gap: 0.5em;
+        padding: 0;
+        margin: 0 0.5em;
+    }
+    .showLinksDetails{
+        padding: 0.5em;
     }
 
 </style>

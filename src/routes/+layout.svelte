@@ -314,6 +314,7 @@
     cursor: pointer;
     color: var(--accent-color);
     padding: 0.2em;
+    line-height: normal;
   }
     :global(.inline-span) {
 	display: inline-flex;
@@ -332,4 +333,12 @@
         color: var(--accent-color);
         padding: 0.4em;
     }
+    :global(.text-align-left) {
+        text-align: left;
+    }
+    :global(.commonBorderStyle) {
+        border: var(--common-border-style);
+        border-radius: var(--agnostic-radius);
+    }
+
 </style>

@@ -99,20 +99,21 @@
         ndkEvent.tags.push(['l', encodeURIComponent(label.trim())]);
       }
       if (formData.forkData && eventToEdit.author.npub == $ndkUser?.npub) {
-        ndkEvent.tags.push(['p', getTagValue(eventToEdit.tags, "p")]);
-        ndkEvent.tags.push(['a', getTagValue(eventToEdit.tags, "a")]);
+        if (getTagValue(eventToEdit.tags, "p") != "" && getTagValue(eventToEdit.tags, "a") != "") {
+          ndkEvent.tags.push(['p', getTagValue(eventToEdit.tags, "p")]);
+          ndkEvent.tags.push(['a', getTagValue(eventToEdit.tags, "a")]);
+        }
+        }
+        if (formData.forkData && eventToEdit.author.npub != $ndkUser?.npub) {
+          ndkEvent.tags.push(['p', nip19.decode(eventToEdit.author.npub).data.toString()]);
+          ndkEvent.tags.push(['a', buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, getTagValue(eventToEdit.tags, "d"))![0]]);
+        }
+      } else {
+        ndkEvent.tags = [['title', formData.title], 
+        ['d', newDTag], 
+        ['l', 'nostree'],
+        ['l', formData.labels[0].label ? formData.labels[0].label : generateNanoId($ndkUser?.npub)]];
       }
-      if (formData.forkData && eventToEdit.author.npub != $ndkUser?.npub) {
-        ndkEvent.tags.push(['p', nip19.decode(eventToEdit.author.npub).data.toString()]);
-        ndkEvent.tags.push(['a', buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, getTagValue(eventToEdit.tags, "d"))![0]]);
-      }
-    } else {
-      
-      ndkEvent.tags = [['title', formData.title], 
-      ['d', newDTag], 
-      ['l', 'nostree'],
-      ['l', formData.labels[0].label ? formData.labels[0].label : generateNanoId($ndkUser?.npub)]];
-    }
     for (const linkData of formData.links) {
       const { link, description } = linkData;
       ndkEvent.tags.push(['r', link, description]);

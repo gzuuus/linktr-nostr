@@ -75,7 +75,10 @@
     <h2><a class="text-color" href={$page.url.origin}/{userIdentifier}>{userProfile.name ? userProfile.name : userProfile.displayName}</a></h2>
 
     <div class="userInfoString">
-      <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userIdentifier}`)}><AtIcon size={16} />
+      <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userIdentifier}`)}>
+        {#if !$isNip05ValidStore.isNip05Valid}
+        <AtIcon size={16} />
+        {/if}
         <code>{$isNip05ValidStore.isNip05Valid ? userProfile.nip05 : truncateString(userPub)}</code>
       </button>
     </div>
