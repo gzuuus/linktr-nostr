@@ -5,7 +5,6 @@
   import ndk from '$lib/stores/provider';
   import { Button, Spinner, Tag } from 'agnostic-svelte';
   import ResetIcon from '$lib/elements/icons/reset-icon.svelte';
-  import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import LinkIcon from '$lib/elements/icons/link-icon.svelte';
   import TextIcon from '$lib/elements/icons/text-icon.svelte';
   import BinIcon from '$lib/elements/icons/bin-icon.svelte';
@@ -176,6 +175,14 @@
       formData.links[newIndex] = temp;
     }
   }
+
+  let focusedIndex = -1;
+  function handleFocus(index: number) {
+    focusedIndex = index;
+  }
+  function handleBlur() {
+    focusedIndex = -1;
+  }
 </script>
 {#if showSpinner}
 <div class="spinnerContainer">
@@ -192,15 +199,24 @@
       <input type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
 
       {#each formData.links as linkData, index}
-        <div class="linkField">
+        <div class="linkField" class:commonBorderStyle={focusedIndex === index}>
           <div class="inputWithIcon">
             <label for={`description-${index}`}><TextIcon size={18} /></label>
-            <input class="inputLinkDescription" type="text" id={`description-${index}`} placeholder="Link name" bind:value={linkData.description} on:input={validateAllURLNames}/>
+            <input class="inputLinkDescription" type="text" id={`description-${index}`} 
+            placeholder="Link name" 
+            bind:value={linkData.description} 
+            on:input={validateAllURLNames} 
+            />
           </div>
 
           <div class="inputWithIcon">
             <label for={`link-${index}`}><LinkIcon size={18} /></label>
-            <input type="text" id={`link-${index}`} placeholder="URL: https://..." bind:value={linkData.link} on:input={validateAllURLs}/>
+            <input type="text" id={`link-${index}`} 
+            placeholder="URL: https://..." 
+            bind:value={linkData.link} 
+            on:input={validateAllURLs}
+            />
+            
           </div>
 
           {#if !linkValidationStatus[index] && linkData.link.trim()}
@@ -209,8 +225,8 @@
 
           {#if formData.links.length > 1}
           <div>
-            <button type="button" on:click={() => handleMoveLink(index, 'up')}><ChevronIconVertical size={18} flipVertical={false}/></button>
-            <button type="button" on:click={() => handleMoveLink(index, 'down')}><ChevronIconVertical size={18} flipVertical={true}/></button>
+            <button type="button" on:click={() => handleMoveLink(index, 'up')} on:focus={() => handleFocus(index -1)} on:blur={handleBlur} ><ChevronIconVertical size={18} flipVertical={false}/></button>
+            <button type="button" on:click={() => handleMoveLink(index, 'down')} on:focus={() => handleFocus(index +1)} on:blur={handleBlur}><ChevronIconVertical size={18} flipVertical={true}/></button>
             <button type="button" class="secondary-button" on:click={() => {handleRemoveLink(index); validateAllURLs(); validateAllURLNames()}}><BinIcon size={18} /></button>
           </div>
           {/if}
@@ -283,6 +299,7 @@
     flex-direction: column;
     gap: 0.3em;
     align-items: center;
+    padding-top: 0.2em;
   }
 
   .inputWithIcon label {

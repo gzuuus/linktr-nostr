@@ -21,16 +21,17 @@
   let qrImageUrl: string = '';
   let showQR: boolean = false;
   let showAbout: boolean = false;
-    
+  $: userNip05Check = $isNip05ValidStore.isNip05Valid || $isNip05ValidStore.Nip05address != "" && $isNip05ValidStore.UserNpub?.startsWith('npub')
+
   let user = $ndk.getUser({
     npub: userPub,
   });
   user.fetchProfile().then(() => {
   userProfile = user.profile as NDKUserProfile;}).then(() => {
     isNip05Valid(user.profile?.nip05, user.npub).then(() => {
-      if ($isNip05ValidStore.isNip05Valid && $page.url.pathname.split('/').length <= 2) {
+      if (userNip05Check && $page.url.pathname.split('/').length <= 2) {
         goto(`/${userProfile.nip05}`);
-      } else if ($isNip05ValidStore.isNip05Valid && $page.url.pathname.split('/').length >= 2){
+      } else if (userNip05Check && $page.url.pathname.split('/').length >= 2){
         if ($page.url.pathname.split('/')[1].startsWith('npub')){
           goto(`/${userProfile.nip05}/${$page.url.pathname.split('/')[2]}`);
         }
@@ -54,7 +55,7 @@
   
   let userIdentifier: string | undefined = userPub
   $:{
-    if ($isNip05ValidStore.isNip05Valid){
+    if (userNip05Check){
     userIdentifier=$isNip05ValidStore.Nip05address
   } else {
     userIdentifier=userPub
@@ -76,10 +77,10 @@
 
     <div class="userInfoString">
       <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userIdentifier}`)}>
-        {#if !$isNip05ValidStore.isNip05Valid}
+        {#if !userNip05Check}
         <AtIcon size={16} />
         {/if}
-        <code>{$isNip05ValidStore.isNip05Valid ? userProfile.nip05 : truncateString(userPub)}</code>
+        <code>{userNip05Check ? userProfile.nip05 : truncateString(userPub)}</code>
       </button>
     </div>
 
@@ -87,7 +88,7 @@
     {#if showAbout}
       <div><button class="userInfoString" on:click={() =>copyToClipboard(userPub)}>{truncateString(userPub)}<CopyIcon size={14} /></button></div>
         <p>{userProfile.about}</p>
-        {#if userProfile.nip05 && $isNip05ValidStore.isNip05Valid}
+        {#if userProfile.nip05 && userNip05Check}
         <div class="userInfoString">
             <a href="nostr:{userPub}"><button><OstrichIcon size={18} /></button></a>
             <a href="{$page.url.origin}/{userProfile.nip05}" target="_blank" rel="noreferrer"><button><LinktOut size={18} /></button></a>

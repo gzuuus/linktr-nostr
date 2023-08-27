@@ -37,6 +37,7 @@
         --common-transition:all 0.2s ease-in-out;
         --common-border-style:1px solid var(--accent-color);
         --common-border-style-hover:1px solid var(--hover-color);
+        --common-padding: 0.2em 0.3em;
         --agnostic-header-background-color: transparent;
         --agnostic-focus-ring-outline-width: 2px;
         --agnostic-btn-primary:white;

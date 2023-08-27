@@ -45,7 +45,7 @@
   let eventTitles:string[] = [];
   let eventSlugs:string[] = [];
   $:{
-    if ($isNip05ValidStore.isNip05Valid){
+    if ($isNip05ValidStore.isNip05Valid || $isNip05ValidStore.Nip05address != "" && $isNip05ValidStore.UserNpub?.startsWith('npub')){
     userIdentifier=$isNip05ValidStore.Nip05address
   } else {
     userIdentifier=userPub
@@ -175,15 +175,17 @@
         </div>
         {#if eventList.length > 1 && showListsIndex}
         <div>
-          <button class="commonPadding" class:switchButtons={showListsIndexSwitchTabs} on:click={() => showListsIndexSwitchTabs = !showListsIndexSwitchTabs}>Lists</button>
-          <button class="commonPadding" class:switchButtons={!showListsIndexSwitchTabs} on:click={() => showListsIndexSwitchTabs = !showListsIndexSwitchTabs}>Slugs</button>
+          <button class="commonPadding switchButtons" class:selected={!showListsIndexSwitchTabs} on:click={() => showListsIndexSwitchTabs = !showListsIndexSwitchTabs}>Lists</button>
+          <button class="commonPadding switchButtons" class:selected={showListsIndexSwitchTabs} on:click={() => showListsIndexSwitchTabs = !showListsIndexSwitchTabs}>Slugs</button>
         </div>
+        <div class="listsIndexSection">
         {#each eventTitles as title, index}
-        <button class="noButton inline-span" class:hidden={showListsIndexSwitchTabs} on:click={() => {currentIndex = index; showListsIndex = !showListsIndex}}>{index +1}.{title}</button>
+        <button class="noButton inline-span" class:hidden={showListsIndexSwitchTabs} style={currentIndex == index ? 'color: var(--text-color);' : ''} on:click={() => {currentIndex = index; showListsIndex = !showListsIndex}}>{index +1}.{title}</button>
         {/each}
         {#each eventSlugs as slug}
           <button class="noButton inline-span" class:hidden={!showListsIndexSwitchTabs} on:click={() => {goto(`${$page.url.origin}/${userIdentifier}/${slug}`)}}>{slug}</button>
         {/each}
+      </div>
         {/if}
       </div>
       <div>
@@ -221,7 +223,7 @@
           </div>
         {/if}
         {:else}
-        <button on:click={() => {isEditMode = false; showDialog = false} }>Editing <CloseIcon size={16} /></button>
+        <button on:click={() => {isEditMode = false; showDialog = false} }>{isFork ? 'Forking' : 'Editing'} <CloseIcon size={16} /></button>
         <CreateNewList bind:isFormSent={isFormSent} eventToEdit={eventList[currentIndex]} doGoto={isFork ? true : false}/>
         {/if}
       </div>
@@ -243,10 +245,10 @@
       </div>
       <div class:hidden={!showForkInfo} class="commonPadding" >
       {#each findOtherTags(eventList[currentIndex].tags, 'a') as label}
-         
+      <button class="switchButtons commonPadding inline-span"><a href={$page.url.origin}/a/{naddrEncodeATags(label)}><span>Go to forked list</span> <ForkIcon size={18} /></a></button>
         <button class="switchButtons commonPadding inline-span" on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}><span>Go to forked list</span> <ForkIcon size={18} /></button>
         <h3 class="text-align-start">Fork info:</h3>
-        <h4 class="text-align-start">Fordek from:</h4>
+        <h4 class="text-align-start">Forked from:</h4>
         <ProfileCardCompact userPub={nip19.npubEncode(label.split(':')[1])} />
         <h4 class="text-align-start">Label:</h4>
         <code class="text-align-start">{label}</code>
@@ -381,5 +383,10 @@
   border-top: 1px solid var(--accent-color);
   padding-top: 0.1em;
   gap: 0.5em;
+}
+.listsIndexSection{
+  flex-direction: column;
+  margin-top: 0.5em;
+  gap: 0 !important;
 }
 </style>

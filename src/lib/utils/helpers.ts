@@ -19,21 +19,27 @@ export function isNip05(input: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(input);
 }
+
 export async function isNip05Valid(nip05: string | undefined = '', npub: string | undefined = '' ): Promise<boolean> {
   try {
-    let nip05promise = await NDKUser.fromNip05(nip05);
-
-    if (nip05promise === undefined) {
-      isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined, UserNpub: npub });
+    const nip05Promise = await NDKUser.fromNip05(nip05?.toLocaleLowerCase() || '');
+    const isNip05Valid = nip05Promise !== undefined;
+    const Nip05address = isNip05Valid ? nip05 : undefined;
+    const UserNpub = isNip05Valid ? nip05Promise.npub : npub;
+    
+    if (nip05Promise === undefined && UserNpub.startsWith('npub')) {
+      isNip05ValidStore.set({isNip05Valid: false, Nip05address: nip05, UserNpub: npub });
       return false;
     }
-    isNip05ValidStore.set({isNip05Valid: true, Nip05address: nip05, UserNpub:nip05promise.npub });
-    return true;
+    isNip05ValidStore.set({ isNip05Valid, Nip05address, UserNpub });
+    
+    return isNip05Valid;
   } catch (error) {
-    isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined, UserNpub: npub });
+    isNip05ValidStore.set({ isNip05Valid: false, Nip05address: undefined, UserNpub: npub });
     return false;
   }
 }
+
   export function unixToDate(unixTimestamp: number | undefined) {
     if (unixTimestamp === undefined) { return ''; }
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };

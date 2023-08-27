@@ -25,6 +25,7 @@
     let fetchedOldEvents:boolean = false
     let fetchedMigratedEvents:boolean = false
     let showCreateNewList:boolean = false
+    let deletedEventsIds:string[] = []
 
     $: {
         if ($ndkUser) {
@@ -89,6 +90,10 @@
             fetchedOldEvents = false;
             fetchedMigratedEvents = false;
             showSpinner = false;
+            if (toDelete) {
+            deletedEventsIds.push(getTagValue(eventToPublish.tags, "d"))
+            console.log(deletedEventsIds)
+            }
             setTimeout(() => {
                 showEvents()
             }, 1100);
@@ -139,6 +144,7 @@
             {#key fetchedMigratedEvents}
             <Disclose isBackground title="All your lists">
             {#each events as event, i}
+            {#if !deletedEventsIds.includes(getTagValue(event.tags, "d"))}
             <div class="commonBorderStyle commonPadding">
                 <div class="eventContainer noBorder">
                     <button class="iconButton" on:click={() => {pickEventToEdit(event); showCreateNewList = true}}><EditIcon size={20}/></button>
@@ -153,6 +159,7 @@
                     {/each}
                 </details>
             </div>
+            {/if}
             {/each}
             </Disclose>
             {/key}
@@ -169,7 +176,7 @@
                         <h3>🔺 List in the old format <span class="inline-span"><InfoDialog whatInfo="list-old-format-migrate"/></span></h3>
                         <div class="eventContainer">
                             <button class="iconButton"  on:click={() => {handleSubmit(event); showSpinner = true;}}><RepublishIcon size={20}/></button>
-                            <button class="iconButton"  on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
+                            <button class="iconButton"  on:click={() => {handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
                             <h3>{getTagValue(event.tags, "title")}</h3>
                             {#each findListTags(event.tags) as { url, text }}
                                 <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
