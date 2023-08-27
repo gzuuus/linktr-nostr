@@ -16,13 +16,16 @@
     import { generateNanoId } from '$lib/utils/helpers';
     import RepublishIcon from '$lib/elements/icons/republish-icon.svelte';
     import InfoDialog from '$lib/components/info-dialog.svelte';
+    import ChevronIconVertical from '$lib/elements/icons/chevron-icon-vertical.svelte';
 
     let events: NDKEvent[] = [];
     let oldEvents: NDKEvent[] = [];
     let eventToEdit: any;
-    let showSpinner = false;
-    let fetchedOldEvents = false
-    let fetchedMigratedEvents = false
+    let showSpinner:boolean = false;
+    let fetchedOldEvents:boolean = false
+    let fetchedMigratedEvents:boolean = false
+    let showCreateNewList:boolean = false
+    let deletedEventsIds:string[] = []
 
     $: {
         if ($ndkUser) {
@@ -87,6 +90,10 @@
             fetchedOldEvents = false;
             fetchedMigratedEvents = false;
             showSpinner = false;
+            if (toDelete) {
+            deletedEventsIds.push(getTagValue(eventToPublish.tags, "d"))
+            console.log(deletedEventsIds)
+            }
             setTimeout(() => {
                 showEvents()
             }, 1100);
@@ -114,12 +121,19 @@
 <div class="listContainer commonContainerStyle">
     <div>
         {#if $ndkUser}
+        <div class:hidden={showCreateNewList}>
+            <h2>Manage your lists</h2>
+            <button class="isBlock" on:click={() => showCreateNewList = !showCreateNewList} >Create new list </button>
+        </div>
+        
         {#key eventToEdit}
+        <div class:hidden={!showCreateNewList}>
             {#if !eventToEdit}
             <CreateNewList eventToEdit={undefined}/>
             {:else}
             <CreateNewList eventToEdit={eventToEdit}/>
             {/if}
+        </div>
         {/key}
         {:else}
         <Login mode="primary" doGoto={false}/>
@@ -128,17 +142,24 @@
         {#if events.length > 0}
         <div class="allListsContainer">
             {#key fetchedMigratedEvents}
-            <Disclose isBackground title="All lists">
+            <Disclose isBackground title="All your lists">
             {#each events as event, i}
-                <div class="eventContainer">
-                    <button on:click={() => pickEventToEdit(event)}><EditIcon size={20}/></button>
-                    <button class:firstEvent={i == 0} on:click={() => {handleSubmit(event); showSpinner = true;}}><PinIcon size={20}/></button>
-                    <button on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
+            {#if !deletedEventsIds.includes(getTagValue(event.tags, "d"))}
+            <div class="commonBorderStyle commonPadding">
+                <div class="eventContainer noBorder">
+                    <button class="iconButton" on:click={() => {pickEventToEdit(event); showCreateNewList = true}}><EditIcon size={20}/></button>
+                    <button class="iconButton" class:firstEvent={i == 0} on:click={() => {handleSubmit(event); showSpinner = true;}}><PinIcon size={20}/></button>
+                    <button class="iconButton" on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
                     <h3>{getTagValue(event.tags, "title")}</h3>
+                </div>
+                <details class="showLinksDetails">
+                    <summary><ChevronIconVertical size={20} flipVertical={true}/></summary>
                     {#each findListTags(event.tags) as { url, text }}
                         <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
                     {/each}
-                </div>
+                </details>
+            </div>
+            {/if}
             {/each}
             </Disclose>
             {/key}
@@ -154,17 +175,14 @@
                     <div class="alertContainer">
                         <h3>🔺 List in the old format <span class="inline-span"><InfoDialog whatInfo="list-old-format-migrate"/></span></h3>
                         <div class="eventContainer">
-                            <button on:click={() => {handleSubmit(event); showSpinner = true;}}><RepublishIcon size={20}/></button>
-                            <button on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
+                            <button class="iconButton"  on:click={() => {handleSubmit(event); showSpinner = true;}}><RepublishIcon size={20}/></button>
+                            <button class="iconButton"  on:click={() => {handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
                             <h3>{getTagValue(event.tags, "title")}</h3>
                             {#each findListTags(event.tags) as { url, text }}
                                 <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
                             {/each}
                         </div>
                     </div>
-                    <!-- {:else}
-                     <h3>{getTagValue(event.tags, "title")}</h3>
-                     <p>Already published</p> -->
                     {/if}
                     {/if}
                 
@@ -177,13 +195,6 @@
 </div>
 
 <style>
-    button {
-        display: inline-flex;
-        line-height: normal;
-        background: var(--hover-b-color);
-        color: var(--accent-color);
-        padding: 0.4em;
-    }
     button:hover {
         color: var(--hover-color);
     }
@@ -204,6 +215,17 @@
     }
     .alertContainer:hover{
         opacity: 1;
+    }
+    .eventContainer.noBorder{
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        gap: 0.5em;
+        padding: 0;
+        margin: 0 0.5em;
+    }
+    .showLinksDetails{
+        padding: 0.5em;
     }
 
 </style>

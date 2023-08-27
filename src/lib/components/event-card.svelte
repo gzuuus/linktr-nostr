@@ -4,9 +4,12 @@
   export let listLabel: string = 'nostree';
   export let dValue: string = '';
   export let showSummary: boolean = false;
+  export let isEditHappens: boolean = false;
+  export let isFork: boolean = false;
+  
   import { nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
-  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags, sharePage } from "$lib/utils/helpers";
+  import { unixToDate, buildEventPointer, getTagValue, findListTags, sortEventList, findOtherTags, sharePage, truncateString, naddrEncodeATags } from "$lib/utils/helpers";
   import { Button, Tag } from "agnostic-svelte";
   import ParsedContent from './parse-content.svelte';
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
@@ -14,22 +17,35 @@
   import { pannable, handlePanStart, handlePanMove, initializeCoords,coords } from '$lib/utils/pannable';
   import { kindLinks } from '$lib/utils/constants';
   import { page } from "$app/stores";
-  import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
+  import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
   import { goto } from "$app/navigation";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import InfoDialog from "./info-dialog.svelte";
   import OpenDrawerIcon from "$lib/elements/icons/open-drawer-icon.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
-  import ChevronIcon from "$lib/elements/icons/chevron-icon.svelte";
+  import ChevronIconHorizontal from "$lib/elements/icons/chevron-icon-horizontal.svelte";
   import LinktOut from "$lib/elements/icons/linkt-out.svelte"; 
+  import CreateNewList from "./create-new-list.svelte";
+  import EditIcon from "$lib/elements/icons/edit-icon.svelte";
+  import CloseIcon from "$lib/elements/icons/close-icon.svelte";
+  import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
+  import ListItemsIcon from "$lib/elements/icons/list-items-icon.svelte";
+  import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
 
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   let showDialog: boolean = false;
+  let showListsIndex: boolean = false;
+  let showListsIndexSwitchTabs: boolean = false;
+  let showForkInfo: boolean = false;
   let userIdentifier: string | undefined = userPub
   let isSharePossible:boolean= typeof navigator !== 'undefined' && 'share' in navigator && typeof navigator.share === 'function';
+  let isEditMode: boolean = false
+  let isFormSent: boolean = false
+  let eventTitles:string[] = [];
+  let eventSlugs:string[] = [];
   $:{
-    if ($isNip05ValidStore.isNip05Valid){
+    if ($isNip05ValidStore.isNip05Valid || $isNip05ValidStore.Nip05address != "" && $isNip05ValidStore.UserNpub?.startsWith('npub')){
     userIdentifier=$isNip05ValidStore.Nip05address
   } else {
     userIdentifier=userPub
@@ -42,6 +58,14 @@
       eventList = Array.from(fetchedEvent);
       updateLength(kindLinks, eventList.length);
       sortEventList(eventList);
+      eventList.forEach(event => {
+        event.tags.forEach(tag => {
+          if (tag[0] == 'title')
+          eventTitles.push(tag[1])
+          if (tag[0] == 'l' && tag[1] != 'nostree')
+          eventSlugs.push(tag[1])
+        });
+      });
     });
   } else {
     const ndkFilter: NDKFilter = dValue ? { kinds: [eventKind], authors: [userPubDecoded], '#d': [`${dValue}`], limit:5} : { kinds: [eventKind], authors: [userPubDecoded], limit:5}
@@ -71,18 +95,23 @@
       actionExecuted = false;
     }
   }
+  $:{
+    if (isFormSent) {
+      isEditMode = false
+      isEditHappens = !isEditHappens
+    }
+  }
 </script>
-
 <div class="sectionContainer">
   {#if eventKind == kindLinks && eventList.length > 0}
     <div class="eventContentContainer">
       <div class="eventContainerButtons">
         <div class:full-width={eventList.length > 1} class:space-between={eventList.length > 1}> 
-          <button class="switchButtons" class:disabled={currentIndex == 0} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1)}><ChevronIcon size={20} /></button>
-          <h3>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
+          <button class="switchButtons" class:disabled={currentIndex == 0} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1)}><ChevronIconHorizontal size={20} flipHorizontal={true} /></button>
+          <h3 class:hidden={isEditMode}>{getTagValue(eventList[currentIndex].tags, "title")}</h3>
           {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
             {#if label !== 'nostree'}
-              <div class="listLinkOutContainer" style="{showDialog ? 'top: 0' : 'bottom: 0'}; padding: {showDialog ? '2em 1em' : '0.1em'}; opacity: {showDialog ? '1' : '0.6'}; ">
+              <div class="listLinkOutContainer" class:hidden={isEditMode} style="{showDialog ? 'top: 0' : 'bottom: 0'}; padding: {showDialog ? '0.5em 1.5em;' : '0.1em'}; opacity: {showDialog ? '1' : '0.6'}; ">
                 <button class="switchButtons noBorder" on:click={() => showDialog = !showDialog}>
                   {#if !showDialog}
                   <OpenDrawerIcon size={16} flip={false}/>
@@ -91,6 +120,17 @@
                   {/if}
                 </button>
                 <div class:hidden={!showDialog} class="no-line-height listLinkOutContainerContent">
+                  {#if $ndkUser}
+                    <div class="listLinkOutSection">
+                      {#if eventList[currentIndex].author.npub != $ndkUser?.npub}
+                      <code>Fork</code>
+                      <button class="iconButton" on:click={() => {isEditMode = !isEditMode; isFork = true}}><ForkIcon size={16}/></button>
+                      {:else}
+                      <code>Edit</code>
+                      <button class="iconButton" on:click={() => {isEditMode = !isEditMode; isFork = false}}><EditIcon size={16} /></button>
+                      {/if}
+                    </div>
+                  {/if}
                   <hr>
                   <div class="listLinkOutSection">
                     <InfoDialog whatInfo="list-slug-share" buttonText="slug" showInfoIcon={true} InfoIconSize={12}/>
@@ -100,7 +140,7 @@
                   <hr>
                   <div class="listLinkOutSection">
                     <InfoDialog whatInfo="list-naddr-share" buttonText="naddr" showInfoIcon={true} InfoIconSize={12}/>
-                  <a href={`${$page.url.origin}/a/${buildEventPointer(
+                      <a href={`${$page.url.origin}/a/${buildEventPointer(
                       undefined,
                       [], 
                       userPubDecoded, 
@@ -108,17 +148,23 @@
                       )}`
                     } target="_blank" rel="noreferrer">
                     <button class="switchButtons noBorder"><LinktOut size={16}/></button>
-                  </a>
-                  <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd'))}`)}><ShareIcon size={16} /></button>
-                </div>
+                    </a>
+                    <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,getTagValue(eventList[currentIndex].tags, 'd'))}`)}><ShareIcon size={16} /></button>
+                  </div>
                 </div>
               </div>
             {/if}
           {/each}
-        
-        <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIcon size={20} flip={false}/></button>
+          {#if eventList.length > 1}
+          <div class="listLinkOutContainer left" style="opacity: {!showListsIndex ? '0.6' : '1'};" >
+            <button class="switchButtons noBorder" on:click={() => showListsIndex = !showListsIndex}>
+              <ListItemsIcon size={16}/>
+            </button>
+          </div>
+          {/if}
+        <button class="switchButtons" class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1 || isEditMode} on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}><ChevronIconHorizontal size={20} /></button>
         </div>
-        <div class:hidden={eventList.length <= 1} class="indexDotButtonContainer" style="{eventList.length <= 12 ? 'overflow: hidden' : 'overflow: scroll'};">
+        <div class:hidden={eventList.length <= 1 || isEditMode} class="indexDotButtonContainer" style="{eventList.length <= 12 ? 'overflow: hidden' : 'overflow: scroll'};">
             {#each eventList as event, index}
                 {#if index == currentIndex}
                   <button class="indexDotButton" on:click={() => currentIndex = index}></button>
@@ -127,8 +173,23 @@
                 {/if}
             {/each}
         </div>
+        {#if eventList.length > 1 && showListsIndex}
+        <div>
+          <button class="commonPadding switchButtons" class:selected={!showListsIndexSwitchTabs} on:click={() => showListsIndexSwitchTabs = !showListsIndexSwitchTabs}>Lists</button>
+          <button class="commonPadding switchButtons" class:selected={showListsIndexSwitchTabs} on:click={() => showListsIndexSwitchTabs = !showListsIndexSwitchTabs}>Slugs</button>
+        </div>
+        <div class="listsIndexSection">
+        {#each eventTitles as title, index}
+        <button class="noButton inline-span" class:hidden={showListsIndexSwitchTabs} style={currentIndex == index ? 'color: var(--text-color);' : ''} on:click={() => {currentIndex = index; showListsIndex = !showListsIndex}}>{index +1}.{title}</button>
+        {/each}
+        {#each eventSlugs as slug}
+          <button class="noButton inline-span" class:hidden={!showListsIndexSwitchTabs} on:click={() => {goto(`${$page.url.origin}/${userIdentifier}/${slug}`)}}>{slug}</button>
+        {/each}
+      </div>
+        {/if}
       </div>
       <div>
+        {#if !isEditMode}
         {#if eventList.length > 1}
           <div
             use:pannable
@@ -161,13 +222,38 @@
             {/each}
           </div>
         {/if}
+        {:else}
+        <button on:click={() => {isEditMode = false; showDialog = false} }>{isFork ? 'Forking' : 'Editing'} <CloseIcon size={16} /></button>
+        <CreateNewList bind:isFormSent={isFormSent} eventToEdit={eventList[currentIndex]} doGoto={isFork ? true : false}/>
+        {/if}
       </div>
-      {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
-      {#if label !== 'nostree' && !label.startsWith(userPub.slice(-3))}
-      <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${userIdentifier}/${label}`)}><code>{label}</code></button>
-      {/if}
+      <div class="inline-span">
+        {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
+          {#if label !== 'nostree' && !label.startsWith(userPub.slice(-3))}
+              <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${userIdentifier}/${label}`)}><code>{label}</code></button>
+          {/if}
+        {/each}
+        {#each findOtherTags(eventList[currentIndex].tags, 'a') as label}
+            <button class="switchButtons commonPadding" on:click={() => showForkInfo = !showForkInfo}>
+              {#if !showForkInfo}
+              <ForkIcon size={20} />
+              {:else}
+              <CloseIcon size={20} />
+              {/if}
+            </button>  
+        {/each}
+      </div>
+      <div class:hidden={!showForkInfo} class="commonPadding" >
+      {#each findOtherTags(eventList[currentIndex].tags, 'a') as label}
+        <button class="switchButtons commonPadding inline-span" on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}><span>Go to forked list</span> <ForkIcon size={18} /></button>
+        <h3 class="text-align-start">Fork info:</h3>
+        <h4 class="text-align-start">Forked from:</h4>
+        <ProfileCardCompact userPub={nip19.npubEncode(label.split(':')[1])} />
+        <h4 class="text-align-start">Label:</h4>
+        <code class="text-align-start">{label}</code>
       {/each}
     </div>
+      </div>
   {:else}
     {#each eventList as event}
       <div class="eventContainer" >
@@ -196,7 +282,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* gap: 0.5em; */
+    gap: 0.2em;
   }
   .overlayButton {
     position: absolute;
@@ -270,6 +356,11 @@
   z-index: 9999;
   background: var(--background-color);
   gap: 0.5em;
+  height: fit-content;
+}
+.listLinkOutContainer.left {
+  left: 0;
+  width: fit-content;
 }
 .listLinkOutContainer:hover {
   opacity: 1 !important;
@@ -277,13 +368,13 @@
 .listLinkOutContainerContent {
   display: flex;
   gap: 0.5em;
+  align-items: baseline;
 }
 .eventContainerButtons > div {
 	display: flex;
 	gap: 0.5em;
 	align-items: center;
 }
-
 .infoBox {
   display: flex;
   justify-content: center;
@@ -292,5 +383,9 @@
   padding-top: 0.1em;
   gap: 0.5em;
 }
-
+.listsIndexSection{
+  flex-direction: column;
+  margin-top: 0.5em;
+  gap: 0 !important;
+}
 </style>

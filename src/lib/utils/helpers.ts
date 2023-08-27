@@ -19,21 +19,27 @@ export function isNip05(input: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(input);
 }
-export async function isNip05Valid(input: string | undefined = ''): Promise<boolean> {
-  try {
-    let nip05promise = await NDKUser.fromNip05(input);
 
-    if (nip05promise === undefined) {
-      isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined });
+export async function isNip05Valid(nip05: string | undefined = '', npub: string | undefined = '' ): Promise<boolean> {
+  try {
+    const nip05Promise = await NDKUser.fromNip05(nip05?.toLocaleLowerCase() || '');
+    const isNip05Valid = nip05Promise !== undefined;
+    const Nip05address = isNip05Valid ? nip05 : undefined;
+    const UserNpub = isNip05Valid ? nip05Promise.npub : npub;
+    
+    if (nip05Promise === undefined && UserNpub.startsWith('npub')) {
+      isNip05ValidStore.set({isNip05Valid: false, Nip05address: nip05, UserNpub: npub });
       return false;
     }
-    isNip05ValidStore.set({isNip05Valid: true, Nip05address: input });
-    return true;
+    isNip05ValidStore.set({ isNip05Valid, Nip05address, UserNpub });
+    
+    return isNip05Valid;
   } catch (error) {
-    isNip05ValidStore.set({isNip05Valid: false, Nip05address: undefined });
+    isNip05ValidStore.set({ isNip05Valid: false, Nip05address: undefined, UserNpub: npub });
     return false;
   }
 }
+
   export function unixToDate(unixTimestamp: number | undefined) {
     if (unixTimestamp === undefined) { return ''; }
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -59,9 +65,30 @@ export async function isNip05Valid(input: string | undefined = ''): Promise<bool
       };
       return encodedPointer = nip19.naddrEncode(objPointer);
     }
-
-    // return encodedPointer;
   }
+  export function buildATags(id: string | undefined = '', relays: string[] | undefined=[], author: string, kind?: number, identifier:string | undefined = '') {
+    let objPointer: any;
+    let encodedPointer: string[] =[""];
+    if (kind === 30023 || kind === 30001) {
+      objPointer = {
+        identifier: identifier,
+        pubkey: author,
+        kind: kind,
+        relays: relays
+      };
+      return encodedPointer = [`${objPointer.kind}:${objPointer.pubkey}:${objPointer.identifier}`, nip19.naddrEncode(objPointer) ];
+    }
+  }
+
+  export function naddrEncodeATags(EventPointer: string) {
+    let objPointer = EventPointer.split(':');
+    let eventKind:number = parseInt(objPointer[0]);
+    let eventAuthor:string = objPointer[1];
+    let eventIdentifier:string = objPointer[2];
+
+    return buildEventPointer(undefined, [], eventAuthor, eventKind, eventIdentifier);
+  }
+  
   
   export function decodeEventPointer(encodedPointer: string) {
     const objPointer = nip19.decode(encodedPointer);

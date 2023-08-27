@@ -37,6 +37,7 @@
         --common-transition:all 0.2s ease-in-out;
         --common-border-style:1px solid var(--accent-color);
         --common-border-style-hover:1px solid var(--hover-color);
+        --common-padding: 0.2em 0.3em;
         --agnostic-header-background-color: transparent;
         --agnostic-focus-ring-outline-width: 2px;
         --agnostic-btn-primary:white;
@@ -314,10 +315,12 @@
     cursor: pointer;
     color: var(--accent-color);
     padding: 0.2em;
+    line-height: normal;
   }
     :global(.inline-span) {
 	display: inline-flex;
 	padding: 0 0.2em;
+    align-items: center;
     }
     /* :global(.closeModal) {
         position: absolute;
@@ -325,4 +328,23 @@
         right: 0.6em;
         display: inline-flex;
     } */
+    :global(.iconButton) {
+        display: inline-flex;
+        line-height: normal;
+        background: var(--hover-b-color);
+        color: var(--accent-color);
+        padding: 0.4em;
+    }
+    :global(.text-align-start) {
+        text-align: start;
+    }
+    :global(.commonBorderStyle) {
+        border: var(--common-border-style);
+        border-radius: var(--agnostic-radius);
+    }
+    :global(.isBlock) {
+        display: block;
+        width: 100%;
+    }
+
 </style>

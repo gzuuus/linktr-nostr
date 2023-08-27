@@ -1,12 +1,17 @@
 <script lang="ts">
-import type { Kind } from "nostr-tools";
 import ndk from "$lib/stores/provider";
-import { unixToDate, getTagValue, findListTags, sortEventList } from "$lib/utils/helpers";
+import { unixToDate, getTagValue, findListTags, sortEventList, findOtherTags, naddrEncodeATags } from "$lib/utils/helpers";
 import { Button, Tag } from "agnostic-svelte";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
-    import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-    import { kindLinks } from "$lib/utils/constants";
+import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
+import { kindLinks } from "$lib/utils/constants";
+import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
+import CloseIcon from "$lib/elements/icons/close-icon.svelte";
+import { nip19 } from "nostr-tools";
+import { goto } from "$app/navigation";
+import { page } from "$app/stores";
+let showForkInfo: boolean = false;
 
   let eventList: NDKEvent[] = [];
   const sub = $ndk.subscribe({ kinds: [kindLinks], limit: 50, '#l': ['nostree']}, { closeOnEose: true, groupable: true});
@@ -32,6 +37,26 @@ import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
             <h3>{getTagValue(event.tags, "title")}</h3>
             {#each findListTags(event.tags) as { url, text }}
             <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
+            {/each}
+            {#each findOtherTags(event.tags, 'a') as label}
+            <button class="switchButtons commonPadding" on:click={() => showForkInfo = !showForkInfo}>
+              {#if !showForkInfo}
+              <ForkIcon size={20} />
+              {:else}
+              <CloseIcon size={20} />
+              {/if}
+            </button>  
+            <div class:hidden={!showForkInfo} class="commonPadding" >
+              {#each findOtherTags(event.tags, 'a') as label}
+              <button class="switchButtons commonPadding inline-span"><span>Go to forked list</span> <ForkIcon size={18} /></button>
+                <button class="switchButtons commonPadding inline-span" on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}><span>Go to forked list</span> <ForkIcon size={18} /></button>
+                <h3 class="text-align-start">Fork info:</h3>
+                <h4 class="text-align-start">Forked from:</h4>
+                <ProfileCardCompact userPub={nip19.npubEncode(label.split(':')[1])} />
+                <h4 class="text-align-start">Label:</h4>
+                <code class="text-align-start">{label}</code>
+              {/each}
+            </div>
             {/each}
         </div>
         <div class="infoBox">

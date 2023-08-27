@@ -1,13 +1,14 @@
 <script lang="ts">
+  export let isFormSent: boolean = false;
+  export let doGoto: boolean = true;
   import { NDKEvent } from '@nostr-dev-kit/ndk';
   import ndk from '$lib/stores/provider';
   import { Button, Spinner, Tag } from 'agnostic-svelte';
   import ResetIcon from '$lib/elements/icons/reset-icon.svelte';
-  import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import LinkIcon from '$lib/elements/icons/link-icon.svelte';
   import TextIcon from '$lib/elements/icons/text-icon.svelte';
   import BinIcon from '$lib/elements/icons/bin-icon.svelte';
-  import { findListTags, findOtherTags, getTagValue } from '$lib/utils/helpers';
+  import { buildATags, findListTags, findOtherTags, getTagValue } from '$lib/utils/helpers';
   import { v4 as uuidv4 } from 'uuid';
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
   import { goto } from '$app/navigation';
@@ -15,7 +16,10 @@
   import { kindLinks } from '$lib/utils/constants';
   import { generateNanoId } from '$lib/utils/helpers';
   import InfoDialog from '$lib/components/info-dialog.svelte';
-    import SlugIcon from '$lib/elements/icons/slug-icon.svelte';
+  import SlugIcon from '$lib/elements/icons/slug-icon.svelte';
+  import { nip19 } from 'nostr-tools';
+  import InsertIcon from '$lib/elements/icons/insert-icon.svelte';
+  import ChevronIconVertical from '$lib/elements/icons/chevron-icon-vertical.svelte';
 
   export let eventToEdit: NDKEvent | null = null;
   let showSpinner = false;
@@ -40,6 +44,7 @@
     title: '',
     links: [{ link: '', description: '' }],
     labels: [{ label: '' }],
+    forkData: {forkPubKey: '', forkEventoPointer: ''},
   };
 
   if (eventToEdit) {
@@ -47,22 +52,25 @@
     const rTags = findListTags(eventToEdit.tags);
     const links = rTags.map(tag => ({ link: tag.url, description: tag.text }));
     const labels = findOtherTags(eventToEdit.tags, 'l').map(tag => ({ label: tag }));
+    const forkedFrom = getTagValue(eventToEdit.tags, 'p');
+    const ForkData = {forkedPubkey: forkedFrom, forkedEventoPointer: buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, getTagValue(eventToEdit.tags, "d"))![0]};
     formData = {
       title: title,
       links: links,
-      labels: labels
+      labels: labels,
+      forkData: {forkPubKey: ForkData.forkedPubkey, forkEventoPointer: ForkData.forkedEventoPointer},
     };
     validateAllURLs();
     validateAllURLNames()
   }
 
   let isTitleEmpty = true;
-  let titleText = 'New List';
+  let titleText = 'List Title';
 
   $: {
     isTitleEmpty = formData.title.trim() === '';
     if (formData.title.trim() === '') {
-      titleText = 'New List';
+      titleText = 'List Title';
     } else {
       titleText = formData.title;
     }
@@ -91,20 +99,33 @@
         const { label } = labelData;
         ndkEvent.tags.push(['l', encodeURIComponent(label.trim())]);
       }
-    } else {
-      
-      ndkEvent.tags = [['title', formData.title], 
-      ['d', newDTag], 
-      ['l', 'nostree'],
-      ['l', formData.labels[0].label ? formData.labels[0].label : generateNanoId($ndkUser?.npub)]];
-    }
+      if (formData.forkData && eventToEdit.author.npub == $ndkUser?.npub) {
+        if (getTagValue(eventToEdit.tags, "p") != "" && getTagValue(eventToEdit.tags, "a") != "") {
+          ndkEvent.tags.push(['p', getTagValue(eventToEdit.tags, "p")]);
+          ndkEvent.tags.push(['a', getTagValue(eventToEdit.tags, "a")]);
+        }
+        }
+        if (formData.forkData && eventToEdit.author.npub != $ndkUser?.npub) {
+          ndkEvent.tags.push(['p', nip19.decode(eventToEdit.author.npub).data.toString()]);
+          ndkEvent.tags.push(['a', buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, getTagValue(eventToEdit.tags, "d"))![0]]);
+        }
+      } else {
+        ndkEvent.tags = [['title', formData.title], 
+        ['d', newDTag], 
+        ['l', 'nostree'],
+        ['l', formData.labels[0].label ? formData.labels[0].label : generateNanoId($ndkUser?.npub)]];
+      }
     for (const linkData of formData.links) {
       const { link, description } = linkData;
       ndkEvent.tags.push(['r', link, description]);
     }
     ndkEvent.publish().then(() =>{
       showSpinner = false;
-      goto(`/${$ndkUser?.npub}`)
+      isFormSent = true;
+      if (doGoto) {
+        goto(`/${$ndkUser?.npub}`)
+      }
+      
 
     }).catch((error) => {
             console.log("Error:", error);
@@ -112,8 +133,13 @@
     });
   }
 
-  function addLinkField() {
-    formData.links = [...formData.links, { link: '', description: '' }];
+  function addLinkField(insertFirstPosition: boolean = true) {
+    if (insertFirstPosition) {
+      formData.links = [{ link: '', description: '' },...formData.links];
+    } else {
+      formData.links = [...formData.links, { link: '', description: '' }];
+    }
+    
     linkValidationStatus.push(false);
     linkNameValidationStatus.push(false);
     validateAllURLs();
@@ -130,7 +156,8 @@
     formData = {
       title: '',
       links: [{ link: '', description: '' }],
-      labels: [{ label: '' }]
+      labels: [{ label: '' }],
+      forkData: {forkPubKey: '', forkEventoPointer: ''},
     };
     linkValidationStatus = [];
     linkNameValidationStatus = [];
@@ -139,6 +166,22 @@
 
   function handleRemoveLink(index: number) {
     removeLinkField(index);
+  }
+  function handleMoveLink(index: number, direction:string) {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex >= 0 && newIndex < formData.links.length) {
+      const temp = formData.links[index];
+      formData.links[index] = formData.links[newIndex];
+      formData.links[newIndex] = temp;
+    }
+  }
+
+  let focusedIndex = -1;
+  function handleFocus(index: number) {
+    focusedIndex = index;
+  }
+  function handleBlur() {
+    focusedIndex = -1;
   }
 </script>
 {#if showSpinner}
@@ -156,23 +199,38 @@
       <input type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
 
       {#each formData.links as linkData, index}
-        <div class="linkField">
+        <div class="linkField" class:commonBorderStyle={focusedIndex === index}>
           <div class="inputWithIcon">
-            <label for={`link-${index}`}><LinkIcon size={18} /></label>
-            <input type="text" id={`link-${index}`} placeholder="https://..." bind:value={linkData.link} on:input={validateAllURLs} />
+            <label for={`description-${index}`}><TextIcon size={18} /></label>
+            <input class="inputLinkDescription" type="text" id={`description-${index}`} 
+            placeholder="Link name" 
+            bind:value={linkData.description} 
+            on:input={validateAllURLNames} 
+            />
           </div>
 
           <div class="inputWithIcon">
-            <label for={`description-${index}`}><TextIcon size={18} /></label>
-            <input type="text" id={`description-${index}`} placeholder="Link name" bind:value={linkData.description} on:input={validateAllURLNames}/>
+            <label for={`link-${index}`}><LinkIcon size={18} /></label>
+            <input type="text" id={`link-${index}`} 
+            placeholder="URL: https://..." 
+            bind:value={linkData.link} 
+            on:input={validateAllURLs}
+            />
+            
           </div>
+
           {#if !linkValidationStatus[index] && linkData.link.trim()}
            <span class:hidden={linkData.link.trim() && linkValidationStatus[index]}><Tag><InfoIcon size={18}/> Prefix needed</Tag></span>
           {/if}
 
           {#if formData.links.length > 1}
-            <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
+          <div>
+            <button type="button" on:click={() => handleMoveLink(index, 'up')} on:focus={() => handleFocus(index -1)} on:blur={handleBlur} ><ChevronIconVertical size={18} flipVertical={false}/></button>
+            <button type="button" on:click={() => handleMoveLink(index, 'down')} on:focus={() => handleFocus(index +1)} on:blur={handleBlur}><ChevronIconVertical size={18} flipVertical={true}/></button>
+            <button type="button" class="secondary-button" on:click={() => {handleRemoveLink(index); validateAllURLs(); validateAllURLNames()}}><BinIcon size={18} /></button>
+          </div>
           {/if}
+
         </div>
       {/each}
 
@@ -180,19 +238,10 @@
       {#if linkLabel.label.trim() != 'nostree'}
         <div class="linkField">
           <h3 class="inputWithIcon">Slug <InfoDialog whatInfo="list-slug"/></h3>
-          
           <div class="inputWithIcon">
             <label for={`slug`}><SlugIcon size={18} /></label>
             <input type="text" id={`link-${index}`} placeholder="short-slug" bind:value={linkLabel.label}/>
           </div>
-
-          {#if !linkValidationStatus[index] && linkLabel.label.trim()}
-           <span class:hidden={linkLabel.label.trim() && linkValidationStatus[index]}><Tag><InfoIcon size={18}/> Prefix needed</Tag></span>
-          {/if}
-
-          {#if formData.links.length > 1}
-            <button type="button" on:click={() => handleRemoveLink(index)}><BinIcon size={18} /></button>
-          {/if}
         </div>
         {/if}
       {/each}
@@ -200,10 +249,12 @@
     
     <div class="formButtons">
       {#if areAllLinksValid && formData.title.trim() != ''}
-        <Button type="button" isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
+        <Button type="button" isRounded on:click={() => addLinkField(true)}><InsertIcon size={18} /></Button>
+        <Button type="button" isRounded on:click={() => addLinkField(false)}><div class="FormButtonsAdd"><InsertIcon size={18} flipVertical={true} /></Button>
         <Button isBlock type="submit">Publish</Button>
       {:else}
-        <Button type="button" disabled isRounded on:click={addLinkField}><PlusSmall size={18} /></Button>
+        <Button type="button" disabled isRounded on:click={() => addLinkField(true)}><div class="FormButtonsAdd"><InsertIcon size={18} /></Button>
+        <Button type="button" isRounded disabled on:click={() => addLinkField(false)}><div class="FormButtonsAdd"><InsertIcon size={18} flipVertical={true} /></Button>
         <Button isBlock type="submit" disabled>Publish</Button>
       {/if}
       <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
@@ -248,6 +299,7 @@
     flex-direction: column;
     gap: 0.3em;
     align-items: center;
+    padding-top: 0.2em;
   }
 
   .inputWithIcon label {
@@ -257,5 +309,9 @@
 
   #title {
     text-align: center;
+  }
+  .inputLinkDescription:focus {
+    background-color: var(--text-color);
+    color: var(--background-color);
   }
 </style>

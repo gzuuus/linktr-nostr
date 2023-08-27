@@ -7,6 +7,7 @@
   import { goto } from '$app/navigation';
   import { kindLinks, kindNotes, kindArticles } from '$lib/utils/constants';
   import { isNip05Valid } from "$lib/stores/user";
+   let isEditHappens:boolean
    $: user = $page.data.npub;
    $: segments = $page.data.segments;
    $: visibleComponent = lengths[kindLinks] == 0 ? kindNotes : kindLinks;
@@ -22,7 +23,6 @@
 
 </script>
 <div class="commonContainerStyle">
-
 {#key user}
 
 <ProfileCard userPub={user} />
@@ -38,9 +38,9 @@
   {/if}
 </div>
 
-{#key $page.url.pathname.split('/').length > 2}
+{#key $page.url.pathname.split('/').length > 2 || isEditHappens}
 <div class={visibleComponent === kindLinks ? "visible" : "hidden"}>
-  <EventCard userPub={user} eventKind={kindLinks} listLabel={segments[0]} />
+  <EventCard bind:isEditHappens={isEditHappens} userPub={user} eventKind={kindLinks} listLabel={segments[0]} />
   {#if lengths[kindLinks] == 0}
   <button class="noEventsButton" on:click={() => goto(`/new`)}>
     <div class="noEvents">
