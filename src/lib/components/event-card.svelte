@@ -245,7 +245,6 @@
       </div>
       <div class:hidden={!showForkInfo} class="commonPadding" >
       {#each findOtherTags(eventList[currentIndex].tags, 'a') as label}
-      <button class="switchButtons commonPadding inline-span"><a href={$page.url.origin}/a/{naddrEncodeATags(label)}><span>Go to forked list</span> <ForkIcon size={18} /></a></button>
         <button class="switchButtons commonPadding inline-span" on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}><span>Go to forked list</span> <ForkIcon size={18} /></button>
         <h3 class="text-align-start">Fork info:</h3>
         <h4 class="text-align-start">Forked from:</h4>
