@@ -30,7 +30,7 @@
 
 <div transition:fade class="profileContainer">
 
-{#await user?.fetchProfile({closeOnEose: true, groupable: true, groupableDelay: 1000})}
+{#await user?.fetchProfile({closeOnEose: true, groupable: true, groupableDelay: 200})}
     <Logo size={50}/>
     <h3>Loading profile</h3>
 {:then value}

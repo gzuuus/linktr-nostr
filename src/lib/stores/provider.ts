@@ -1,6 +1,8 @@
 import { writable } from 'svelte/store';
 import NDK from '@nostr-dev-kit/ndk';
+import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 
+const dexieAdapter = new NDKCacheAdapterDexie({ dbName: 'noostry' });
 export const defaulRelaysUrls: string[] = [
     'wss://purplepag.es',
     'wss://relay.nostr.band',
@@ -12,7 +14,8 @@ export const defaulRelaysUrls: string[] = [
 ]
 
 const ndk = new NDK({
-    explicitRelayUrls: defaulRelaysUrls
+    explicitRelayUrls: defaulRelaysUrls,
+    cacheAdapter: dexieAdapter
 });
 
 const ndkStore = writable(ndk);
