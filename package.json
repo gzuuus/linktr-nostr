@@ -38,6 +38,7 @@
 		"@nostr-dev-kit/ndk": "^0.8.23",
 		"@nostr-dev-kit/ndk-cache-dexie": "0.8.21-1",
 		"agnostic-svelte": "^1.1.27",
+		"dexie": "^3.2.4",
 		"linkify-it": "^4.0.1",
 		"markdown-it": "^13.0.1",
 		"nanoid": "^4.0.2",
