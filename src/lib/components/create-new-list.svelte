@@ -8,7 +8,7 @@
   import LinkIcon from '$lib/elements/icons/link-icon.svelte';
   import TextIcon from '$lib/elements/icons/text-icon.svelte';
   import BinIcon from '$lib/elements/icons/bin-icon.svelte';
-  import { buildATags, findListTags, findOtherTags, getTagValue } from '$lib/utils/helpers';
+  import { buildATags, findListTags, findOtherTags} from '$lib/utils/helpers';
   import { v4 as uuidv4 } from 'uuid';
   import InfoIcon from '$lib/elements/icons/info-icon.svelte';
   import { goto } from '$app/navigation';
@@ -48,17 +48,17 @@
   };
 
   if (eventToEdit) {
-    let title = getTagValue(eventToEdit.tags, "title");
+    let title = eventToEdit.tagValue('title');
     const rTags = findListTags(eventToEdit.tags);
     const links = rTags.map(tag => ({ link: tag.url, description: tag.text }));
     const labels = findOtherTags(eventToEdit.tags, 'l').map(tag => ({ label: tag }));
-    const forkedFrom = getTagValue(eventToEdit.tags, 'p');
-    const ForkData = {forkedPubkey: forkedFrom, forkedEventoPointer: buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, getTagValue(eventToEdit.tags, "d"))![0]};
+    const forkedFrom = eventToEdit.tagValue('p');
+    const ForkData = {forkedPubkey: forkedFrom, forkedEventoPointer: buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, eventToEdit.tagValue('d'))![0]};
     formData = {
-      title: title,
+      title: title!,
       links: links,
       labels: labels,
-      forkData: {forkPubKey: ForkData.forkedPubkey, forkEventoPointer: ForkData.forkedEventoPointer},
+      forkData: {forkPubKey: ForkData.forkedPubkey!, forkEventoPointer: ForkData.forkedEventoPointer},
     };
     validateAllURLs();
     validateAllURLNames()
@@ -94,20 +94,20 @@
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
     if (eventToEdit) {
-    ndkEvent.tags = [['title', formData.title], ['d', getTagValue(eventToEdit.tags, "d")]];
+    ndkEvent.tags = [['title', formData.title], ['d', eventToEdit.tagValue('d')!]];
       for (const labelData of formData.labels) {
         const { label } = labelData;
         ndkEvent.tags.push(['l', encodeURIComponent(label.trim())]);
       }
       if (formData.forkData && eventToEdit.author.npub == $ndkUser?.npub) {
-        if (getTagValue(eventToEdit.tags, "p") != "" && getTagValue(eventToEdit.tags, "a") != "") {
-          ndkEvent.tags.push(['p', getTagValue(eventToEdit.tags, "p")]);
-          ndkEvent.tags.push(['a', getTagValue(eventToEdit.tags, "a")]);
+        if (eventToEdit.tagValue('p') != null && eventToEdit.tagValue('a') != null) {
+          ndkEvent.tags.push(['p', eventToEdit.tagValue('p')!]);
+          ndkEvent.tags.push(['a', eventToEdit.tagValue('a')!]);
         }
         }
         if (formData.forkData && eventToEdit.author.npub != $ndkUser?.npub) {
           ndkEvent.tags.push(['p', nip19.decode(eventToEdit.author.npub).data.toString()]);
-          ndkEvent.tags.push(['a', buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, getTagValue(eventToEdit.tags, "d"))![0]]);
+          ndkEvent.tags.push(['a', buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, eventToEdit.tagValue('d'))![0]]);
         }
       } else {
         ndkEvent.tags = [['title', formData.title], 

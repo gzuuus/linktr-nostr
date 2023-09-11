@@ -1,6 +1,6 @@
 <script lang="ts">
 import ndk from "$lib/stores/provider";
-import { unixToDate, getTagValue, findListTags, sortEventList, findOtherTags, naddrEncodeATags } from "$lib/utils/helpers";
+import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags } from "$lib/utils/helpers";
 import { Button, Tag } from "agnostic-svelte";
 import type { NDKEvent } from "@nostr-dev-kit/ndk";
 import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
@@ -34,7 +34,7 @@ let showForkInfo: boolean = false;
       <div class="eventContainer" >
             <ProfileCardCompact userPub={event.author.npub} />
         <div class="eventContentContainer">
-            <h3>{getTagValue(event.tags, "title")}</h3>
+            <h3>{event.tagValue('title')}</h3>
             {#each findListTags(event.tags) as { url, text }}
             <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
             {/each}

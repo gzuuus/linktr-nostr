@@ -15,24 +15,33 @@ export function dateTomorrow() {
     return new Date(Date.now() + 3600 * 1000 * 24);
 }
 
-export function isNip05(input: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(input);
+export function isNip05(input: string | undefined): boolean {
+  if (input === undefined) {
+      return false;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(input);
 }
 
-export async function isNip05Valid(nip05: string | undefined = '', npub: string | undefined = '' ): Promise<boolean> {
+export async function isNip05Valid(nip05: string | undefined = '', npub: string | undefined = ''): Promise<boolean> {
+
   try {
-    const nip05Promise = await NDKUser.fromNip05(nip05?.toLocaleLowerCase() || '');
-    const isNip05Valid = nip05Promise !== undefined;
-    const Nip05address = isNip05Valid ? nip05 : undefined;
-    const UserNpub = isNip05Valid ? nip05Promise.npub : npub;
-    
-    if (nip05Promise === undefined && UserNpub.startsWith('npub')) {
-      isNip05ValidStore.set({isNip05Valid: false, Nip05address: nip05, UserNpub: npub });
+    if (!isNip05(nip05)) {
+      isNip05ValidStore.set({ isNip05Valid: false, Nip05address: undefined, UserNpub: npub });
       return false;
     }
-    isNip05ValidStore.set({ isNip05Valid, Nip05address, UserNpub });
+    const nip05Promise = await NDKUser.fromNip05(nip05.toLowerCase());
+    const isNip05Valid = nip05Promise !== undefined;
+    const Nip05address = nip05;
+    const UserNpub = isNip05Valid ? nip05Promise.npub : npub;
+
+    if (nip05Promise === undefined && UserNpub.startsWith('npub')) {
+      isNip05ValidStore.set({ isNip05Valid: true, Nip05address: nip05, UserNpub: npub });
+      return isNip05Valid;
+    }
     
+    isNip05ValidStore.set({ isNip05Valid, Nip05address, UserNpub });
+
     return isNip05Valid;
   } catch (error) {
     isNip05ValidStore.set({ isNip05Valid: false, Nip05address: undefined, UserNpub: npub });
@@ -93,10 +102,6 @@ export async function isNip05Valid(nip05: string | undefined = '', npub: string 
   export function decodeEventPointer(encodedPointer: string) {
     const objPointer = nip19.decode(encodedPointer);
     return objPointer
-  }
-  export function getTagValue(tags:NDKTag[], key:string) {
-    const titleTag = tags.find(tag => tag[0] === key);
-    return titleTag ? titleTag[1] : '';
   }
 
   export function findListTags(tags: NDKTag[]) {

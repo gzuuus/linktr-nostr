@@ -5,7 +5,7 @@
     import { ndkUser } from '$lib/stores/user';
     import { Button } from 'agnostic-svelte';
     import { Kind, nip19} from "nostr-tools";
-    import { findListTags, findOtherTags, getTagValue, sortEventList } from '$lib/utils/helpers';
+    import { findListTags, findOtherTags, sortEventList } from '$lib/utils/helpers';
     import EditIcon from '$lib/elements/icons/edit-icon.svelte';
     import { Disclose } from "agnostic-svelte";
     import BinIcon from '$lib/elements/icons/bin-icon.svelte';
@@ -17,6 +17,7 @@
     import RepublishIcon from '$lib/elements/icons/republish-icon.svelte';
     import InfoDialog from '$lib/components/info-dialog.svelte';
     import ChevronIconVertical from '$lib/elements/icons/chevron-icon-vertical.svelte';
+    import CloseIcon from '$lib/elements/icons/close-icon.svelte';
 
     let events: NDKEvent[] = [];
     let oldEvents: NDKEvent[] = [];
@@ -26,6 +27,8 @@
     let fetchedMigratedEvents:boolean = false
     let showCreateNewList:boolean = false
     let deletedEventsIds:string[] = []
+    let isEditMode: boolean = false
+    let editIndex: number
 
     $: {
         if ($ndkUser) {
@@ -36,8 +39,8 @@
     function showEvents() {
         if ($ndkUser) {
             let userPubDecoded: string = nip19.decode($ndkUser.npub).data.toString();
-            $ndk.fetchEvents({ kinds: [30303 as Kind], authors: [userPubDecoded]}).then((fetchedEvent) => {
-                oldEvents = Array.from(fetchedEvent).filter(event => getTagValue(event.tags, 'title') !== '');
+            $ndk.fetchEvents({ kinds: [30303 as number], authors: [userPubDecoded]}).then((fetchedEvent) => {
+                oldEvents = Array.from(fetchedEvent).filter(event => event.tagValue('title') !== '');
                 fetchedOldEvents = true
                 sortEventList(events);
             })
@@ -49,21 +52,17 @@
         }
     }
 
-    function pickEventToEdit(event: NDKEvent) {
-        eventToEdit = event;
-    }
-
     function handleSubmit(eventToPublish: NDKEvent, toDelete:boolean = false) {
         const ndkEvent = new NDKEvent($ndk);
         ndkEvent.kind = kindLinks;
-        let title = getTagValue(eventToPublish.tags, "title")
-        ndkEvent.tags = [['title', title], ['d', getTagValue(eventToPublish.tags, "d")]];
+        let title = eventToPublish.tagValue('title');
+        ndkEvent.tags = [['title', title!], ['d', eventToPublish.tagValue('d')!]];
         let links
         let labels
         if (toDelete){
             ndkEvent.kind = eventToPublish.kind;
             title = ''
-            ndkEvent.tags = [['d', getTagValue(eventToPublish.tags, "d")]];
+            ndkEvent.tags = [['d', eventToPublish.tagValue('d')!]];
         }
         if (!toDelete){
              links = findListTags(eventToPublish.tags).map(tag => ({ link: tag.url, description: tag.text }));
@@ -74,7 +73,7 @@
              labels = findOtherTags(eventToPublish.tags, 'l').map(tag => ({ label: tag }));
              if (labels.length === 0 ){
                 ndkEvent.tags.push(['l', 'nostree'], ['l', generateNanoId($ndkUser?.npub)]);
-             } else if (labels.length === 1 && getTagValue(eventToPublish.tags, 'l') === 'nostree') {
+             } else if (labels.length === 1 && eventToPublish.tagValue('l') === 'nostree') {
                 ndkEvent.tags.push(['l', generateNanoId($ndkUser?.npub)]);
              } else {
                 for (const labelData of labels) {
@@ -91,7 +90,7 @@
             fetchedMigratedEvents = false;
             showSpinner = false;
             if (toDelete) {
-            deletedEventsIds.push(getTagValue(eventToPublish.tags, "d"))
+            deletedEventsIds.push(eventToPublish.tagValue('d')!);
             console.log(deletedEventsIds)
             }
             setTimeout(() => {
@@ -103,9 +102,9 @@
         });
         }
         function checkBetwList(event: NDKEvent): boolean {
-            let eventDtag = getTagValue(event.tags, "d");
+            let eventDtag = event.tagValue('d');
             for (const oldEvent of events) {
-                const oldEventDtag = getTagValue(oldEvent.tags, "d");
+                const oldEventDtag = oldEvent.tagValue('d');
                 if (eventDtag === oldEventDtag && oldEvent.kind != event.kind) {
                     return true;
                 }
@@ -144,14 +143,25 @@
             {#key fetchedMigratedEvents}
             <Disclose isBackground title="All your lists">
             {#each events as event, i}
-            {#if !deletedEventsIds.includes(getTagValue(event.tags, "d"))}
+
+            {#if !deletedEventsIds.includes(event.tagValue('d') ?? '')}
             <div class="commonBorderStyle commonPadding">
                 <div class="eventContainer noBorder">
-                    <button class="iconButton" on:click={() => {pickEventToEdit(event); showCreateNewList = true}}><EditIcon size={20}/></button>
+                   
+                    {#if !isEditMode}
+                        <button class="iconButton" on:click={() => {isEditMode = true; editIndex = i} }><EditIcon size={20}/></button>
+                    {:else if editIndex == i}
+                        <button class="iconButton" on:click={() => {isEditMode = false} }><CloseIcon size={20}/></button>
+                    {:else}
+                        <button class="iconButton" on:click={() => {isEditMode = true; editIndex = i} }><EditIcon size={20}/></button>
+                    {/if}
                     <button class="iconButton" class:firstEvent={i == 0} on:click={() => {handleSubmit(event); showSpinner = true;}}><PinIcon size={20}/></button>
                     <button class="iconButton" on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
-                    <h3>{getTagValue(event.tags, "title")}</h3>
+                    <h3>{event.tagValue('title')}</h3>
                 </div>
+                {#if isEditMode && editIndex == i}
+                <CreateNewList eventToEdit={event} doGoto={false}/>
+                {/if}
                 <details class="showLinksDetails">
                     <summary><ChevronIconVertical size={20} flipVertical={true}/></summary>
                     {#each findListTags(event.tags) as { url, text }}
@@ -177,7 +187,7 @@
                         <div class="eventContainer">
                             <button class="iconButton"  on:click={() => {handleSubmit(event); showSpinner = true;}}><RepublishIcon size={20}/></button>
                             <button class="iconButton"  on:click={() => {handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
-                            <h3>{getTagValue(event.tags, "title")}</h3>
+                            <h3>{event.tagValue('title')}</h3>
                             {#each findListTags(event.tags) as { url, text }}
                                 <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
                             {/each}

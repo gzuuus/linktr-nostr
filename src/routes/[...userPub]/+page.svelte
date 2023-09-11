@@ -38,7 +38,8 @@
   {/if}
 </div>
 
-{#key $page.url.pathname.split('/').length > 2 || isEditHappens}
+{#key $page.url.pathname.split('/').length > 2 }
+{#key isEditHappens }
 <div class={visibleComponent === kindLinks ? "visible" : "hidden"}>
   <EventCard bind:isEditHappens={isEditHappens} userPub={user} eventKind={kindLinks} listLabel={segments[0]} />
   {#if lengths[kindLinks] == 0}
@@ -52,6 +53,7 @@
   </button>
   {/if}
 </div>
+{/key}
 {/key}
 
 
