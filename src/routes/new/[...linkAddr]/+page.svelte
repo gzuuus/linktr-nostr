@@ -4,7 +4,7 @@
     import CreateNewList from '$lib/components/create-new-list.svelte';
     import { ndkUser } from '$lib/stores/user';
     import { Button } from 'agnostic-svelte';
-    import { Kind, nip19} from "nostr-tools";
+    import { nip19} from "nostr-tools";
     import { findListTags, findOtherTags, sortEventList } from '$lib/utils/helpers';
     import EditIcon from '$lib/elements/icons/edit-icon.svelte';
     import { Disclose } from "agnostic-svelte";
@@ -125,7 +125,7 @@
             <button class="isBlock" on:click={() => showCreateNewList = !showCreateNewList} >Create new list </button>
         </div>
         
-        {#key eventToEdit}
+        <!-- {#key eventToEdit}
         <div class:hidden={!showCreateNewList}>
             {#if !eventToEdit}
             <CreateNewList eventToEdit={undefined}/>
@@ -133,7 +133,7 @@
             <CreateNewList eventToEdit={eventToEdit}/>
             {/if}
         </div>
-        {/key}
+        {/key} -->
         {:else}
         <Login mode="primary" doGoto={false}/>
         {/if}
@@ -142,35 +142,33 @@
         <div class="allListsContainer">
             {#key fetchedMigratedEvents}
             <Disclose isBackground title="All your lists">
-            {#each events as event, i}
-
-            {#if !deletedEventsIds.includes(event.tagValue('d') ?? '')}
-            <div class="commonBorderStyle commonPadding">
-                <div class="eventContainer noBorder">
-                   
-                    {#if !isEditMode}
-                        <button class="iconButton" on:click={() => {isEditMode = true; editIndex = i} }><EditIcon size={20}/></button>
-                    {:else if editIndex == i}
-                        <button class="iconButton" on:click={() => {isEditMode = false} }><CloseIcon size={20}/></button>
-                    {:else}
-                        <button class="iconButton" on:click={() => {isEditMode = true; editIndex = i} }><EditIcon size={20}/></button>
+                {#each events as event, i}
+                {#if !deletedEventsIds.includes(event.tagValue('d') ?? '')}
+                <div class="commonBorderStyle commonPadding">
+                    <div class="eventContainer noBorder">
+                        {#if !isEditMode}
+                            <button class="iconButton" on:click={() => {isEditMode = true; editIndex = i} }><EditIcon size={20}/></button>
+                        {:else if editIndex == i}
+                            <button class="iconButton" on:click={() => {isEditMode = false} }><CloseIcon size={20}/></button>
+                        {:else}
+                            <button class="iconButton" on:click={() => {isEditMode = true; editIndex = i} }><EditIcon size={20}/></button>
+                        {/if}
+                        <button class="iconButton" class:firstEvent={i == 0} on:click={() => {handleSubmit(event); showSpinner = true;}}><PinIcon size={20}/></button>
+                        <button class="iconButton" on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
+                        <h3>{event.tagValue('title')}</h3>
+                    </div>
+                    {#if isEditMode && editIndex == i}
+                    <CreateNewList eventToEdit={event} doGoto={true}/>
                     {/if}
-                    <button class="iconButton" class:firstEvent={i == 0} on:click={() => {handleSubmit(event); showSpinner = true;}}><PinIcon size={20}/></button>
-                    <button class="iconButton" on:click={() => { handleSubmit(event, true); showSpinner = true; }}><BinIcon size={20}/></button>
-                    <h3>{event.tagValue('title')}</h3>
+                    <details class="showLinksDetails">
+                        <summary><ChevronIconVertical size={20} flipVertical={true}/></summary>
+                        {#each findListTags(event.tags) as { url, text }}
+                            <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
+                        {/each}
+                    </details>
                 </div>
-                {#if isEditMode && editIndex == i}
-                <CreateNewList eventToEdit={event} doGoto={false}/>
                 {/if}
-                <details class="showLinksDetails">
-                    <summary><ChevronIconVertical size={20} flipVertical={true}/></summary>
-                    {#each findListTags(event.tags) as { url, text }}
-                        <a href="{url}" target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
-                    {/each}
-                </details>
-            </div>
-            {/if}
-            {/each}
+                {/each}
             </Disclose>
             {/key}
         </div>

@@ -30,6 +30,7 @@
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import IdIcon from "$lib/elements/icons/id-icon.svelte";
+  import SeparatorIcon from "$lib/elements/icons/separator-icon.svelte";
 
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
@@ -117,23 +118,24 @@
           </button>
 
           <h3 class:hidden={isEditMode}>{eventList[currentIndex].tagValue('title')}</h3>
-        <button 
-          class="switchButtons" 
-          class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1 || isEditMode} 
-          on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}
-        >
-          <code class="inline-span" style="padding-left: 0.5em;">{(eventList.length+1)-(currentIndex+1)}</code>
-          <ChevronIconHorizontal size={20}/>
-        </button>
-        </div>
-        <div class:hidden={isEditMode} class="indexDotButtonContainer">
-            <button class="switchButtons noBorder" on:click={() => showListsIndex = !showListsIndex}>
-              {#if !showListsIndex}
-              <ChevronIconVertical size={22} flipVertical={true}/>
-              {:else}
-              <ChevronIconVertical size={22} flipVertical={false}/>
-              {/if}
-            </button>
+
+          <button 
+            class="switchButtons" 
+            class:disabled={currentIndex == eventList.length - 1} class:hidden={eventList.length == 1 || isEditMode} 
+            on:click={() => currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1)}
+          >
+            <code class="inline-span" style="padding-left: 0.5em;">{(eventList.length+1)-(currentIndex+1)}</code>
+            <ChevronIconHorizontal size={20}/>
+          </button>
+          </div>
+          <div class:hidden={isEditMode} class="indexDotButtonContainer">
+              <button class="switchButtons noBorder" on:click={() => showListsIndex = !showListsIndex}>
+                {#if !showListsIndex}
+                <ChevronIconVertical size={22} flipVertical={true}/>
+                {:else}
+                <ChevronIconVertical size={22} flipVertical={false}/>
+                {/if}
+          </button>
         </div>
         {#if showListsIndex && !isEditMode}
         {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
@@ -154,7 +156,9 @@
                 <a href={`${$page.url.origin}/${userIdentifier}/${label}`} target="_blank" rel="noreferrer">
                   <button class="iconButton"><LinktOut size={16}/></button>
                 </a>
-                <button class="iconButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}><ShareIcon size={16} /></button>
+                <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}>
+                  <ShareIcon size={14} />
+                </button>
               </div>
               
               <div class="listLinkOutSection">
@@ -168,12 +172,15 @@
                 } target="_blank" rel="noreferrer">
                 <button class="iconButton"><IdIcon size={16}/></button>
                 </a>
-                <button class="iconButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,eventList[currentIndex].tagValue('d'))}`)}><ShareIcon size={16} /></button>
+                <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,eventList[currentIndex].tagValue('d'))}`)}>
+                  <ShareIcon size={14} />
+                </button>
               </div>
             </div>
           </div>
         {/if}
       {/each}
+      <SeparatorIcon size={24}/>
         <div>
           <button class="commonPadding switchButtons" class:selected={!showListsIndexSwitchTabs} on:click={() => showListsIndexSwitchTabs = !showListsIndexSwitchTabs}>Lists</button>
           <button class="commonPadding switchButtons" class:selected={showListsIndexSwitchTabs} on:click={() => showListsIndexSwitchTabs = !showListsIndexSwitchTabs}>Slugs</button>
@@ -282,7 +289,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.2em;
+    /* gap: 0.2em; */
   }
   .overlayButton {
     position: absolute;

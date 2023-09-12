@@ -1,9 +1,8 @@
-import { Kind, nip19 } from 'nostr-tools';
+import { nip19 } from 'nostr-tools';
 import { NDKUser, type NDKEvent, type NDKTag } from '@nostr-dev-kit/ndk';
 import { ndkUser } from '$lib/stores/user';
 import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from '$app/navigation';
-import type { LinkData } from "$lib/classes/list";
 import { nanoid } from 'nanoid';
 import { isNip05Valid as isNip05ValidStore } from '$lib/stores/user';
 
