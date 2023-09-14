@@ -2,20 +2,17 @@
   import { page } from "$app/stores";
   import ProfileCard from '$lib/components/profile-card.svelte';
   import EventCard from '$lib/components/event-card.svelte';
-  import { lengthStore } from '$lib/stores/eventListsLengths';
+  // import { lengthStore } from '$lib/stores/eventListsLengths';
   import PlusSmall from '$lib/elements/icons/plus-small.svelte';
   import { goto } from '$app/navigation';
   import { kindLinks, kindNotes, kindArticles } from '$lib/utils/constants';
-  import { isNip05Valid } from "$lib/stores/user";
+
    let isEditHappens:boolean
+   let linkListLength:number
    $: user = $page.data.npub;
    $: segments = $page.data.segments;
    $: visibleComponent = lengths[kindLinks] == 0 ? kindNotes : kindLinks;
    let lengths: { [key: number]: number } = {};
-
-   lengthStore.subscribe((newLengths) => {
-   lengths = newLengths;
-   });
 
    function showComponent(kind: number) {
      visibleComponent = kind;
@@ -24,25 +21,15 @@
 </script>
 <div class="commonContainerStyle">
 {#key user}
-
-<ProfileCard userPub={user} />
+<ProfileCard userPub={user} vanityNip05={$page.data.vanityNip05Build} />
 <div>
-  {#if lengths[kindNotes] != 0 || lengths[kindArticles] != 0}
-    <button class="switchButtons" class:selected={visibleComponent == kindLinks} on:click={() => showComponent(kindLinks)}>Links</button>
-  {/if}
-  {#if lengths[kindNotes] >= 1}
-    <button class="switchButtons" class:selected={visibleComponent == kindNotes} on:click={() => showComponent(kindNotes)}>Notes</button>
-  {/if}
-  {#if lengths[kindArticles] >= 1}
-    <button class="switchButtons" class:selected={visibleComponent == kindArticles} on:click={() => showComponent(kindArticles)}>Articles</button>
-  {/if}
 </div>
 
 {#key $page.url.pathname.split('/').length > 2 }
 {#key isEditHappens }
-<div class={visibleComponent === kindLinks ? "visible" : "hidden"}>
-  <EventCard bind:isEditHappens={isEditHappens} userPub={user} eventKind={kindLinks} listLabel={segments[0]} />
-  {#if lengths[kindLinks] == 0}
+<div>
+  <EventCard bind:linkListLength={linkListLength} bind:isEditHappens={isEditHappens} userPub={user} eventKind={kindLinks} listLabel={segments[0]} />
+  {#if linkListLength == 0}
   <button class="noEventsButton" on:click={() => goto(`/new`)}>
     <div class="noEvents">
       <div class="borderedSection">
@@ -51,20 +38,12 @@
       <p>No links yet</p>
     </div>
   </button>
+  <p>See profile in nostr client</p>
+  <a href="https://nostr.com/{user}" target="_blank" rel="noopener noreferrer"><button class="iconButton">See outside</button></a>
   {/if}
 </div>
 {/key}
 {/key}
-
-
-<div class={visibleComponent === kindNotes ? "visible" : "hidden"}>
-  <EventCard userPub={user} eventKind={kindNotes} />
-</div>
-
-<div class={visibleComponent === kindArticles ? "visible" : "hidden"}>
-  <EventCard userPub={user} eventKind={kindArticles} />
-</div>
-
 {/key}
 </div>
 

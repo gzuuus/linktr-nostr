@@ -1,5 +1,6 @@
 <script lang="ts">
   export let userPub: string;
+  export let vanityNip05: string | undefined;
   import ndk from '$lib/stores/provider';
   import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
   import { truncateString, copyToClipboard, sharePage} from '$lib/utils/helpers';
@@ -27,14 +28,12 @@
   });
   user.fetchProfile().then(() => {
   userProfile = user.profile as NDKUserProfile;}).then(() => {
-    isNip05Valid(user.profile?.nip05, user.npub).then(() => {
-      if ($isNip05ValidStore.isNip05Valid && $page.url.pathname.split('/').length <= 2) {
-        goto(`/${userProfile.nip05}`);
-      } else if ($isNip05ValidStore.isNip05Valid && $page.url.pathname.split('/').length >= 2){
-        if ($page.url.pathname.split('/')[1].startsWith('npub')){
-          goto(`/${userProfile.nip05}/${$page.url.pathname.split('/')[2]}`);
-        }
-      }
+    isNip05Valid(vanityNip05 ? vanityNip05 : user.profile?.nip05, user.npub).then(() => {
+      if ($page.url.pathname.split('/').length <= 2) {
+          goto(`/${$isNip05ValidStore.UserIdentifier}`);
+      } else if ($page.url.pathname.split('/').length >= 2){
+          goto(`/${$isNip05ValidStore.UserIdentifier}/${$page.url.pathname.split('/')[2]}`);
+      } 
     });
     if (userProfile.image == undefined) {
       generateQRCode($page.url.href);
@@ -51,20 +50,12 @@
     showAbout = !showAbout;
   }
   let isSharePossible:boolean= typeof navigator !== 'undefined' && 'share' in navigator && typeof navigator.share === 'function';
-  
-  let userIdentifier: string | undefined = userPub
-  $:{
-  if ($isNip05ValidStore.isNip05Valid){
-    userIdentifier=$isNip05ValidStore.Nip05address
-  } else {
-    userIdentifier=userPub
-  }
-  }
+
 </script>
 
 {#if userProfile}
 <div class="profileContainer">
-  <a class="text-color" href={$page.url.origin}/{userIdentifier}>
+  <a class="text-color" href={$page.url.origin}/{$isNip05ValidStore.UserIdentifier}>
       <img class=" {showQR ? 'hidden' : ''}" src={userProfile.image} alt="avatar" />
       <img class="qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
   </a>
@@ -72,14 +63,14 @@
     <button on:click={() =>generateQRCode($page.url.href)}><QrIcon size={18} /></button>
     <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
     <button class:hidden={!isSharePossible} on:click={() =>sharePage($page.url.href)}><ShareIcon size={16} /></button>
-    <h2><a class="text-color" href={$page.url.origin}/{userIdentifier}>{userProfile.name ? userProfile.name : userProfile.displayName}</a></h2>
+    <h2><a class="text-color" href={$page.url.origin}/{$isNip05ValidStore.UserIdentifier}>{userProfile.name ? userProfile.name : userProfile.displayName}</a></h2>
 
     <div class="userInfoString">
-      <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${userIdentifier}`)}>
+      <button class="userPubButton" on:click={() =>copyToClipboard(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}>
         {#if !$isNip05ValidStore.isNip05Valid}
         <AtIcon size={16} />
         {/if}
-        <code>{$isNip05ValidStore.isNip05Valid ? userProfile.nip05 : truncateString(userPub)}</code>
+        <code>{$isNip05ValidStore.isNip05Valid ? userProfile.nip05 ? userProfile.nip05 : $isNip05ValidStore.Nip05address : truncateString(userPub)}</code>
       </button>
     </div>
 

@@ -6,6 +6,7 @@
   export let showSummary: boolean = false;
   export let isEditHappens: boolean = false;
   export let isFork: boolean = false;
+  export let linkListLength: number;
   
   import { nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
@@ -14,7 +15,6 @@
   import ParsedContent from './parse-content.svelte';
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import { updateLength } from "$lib/stores/eventListsLengths";
-  import { pannable, handlePanStart, handlePanMove, initializeCoords,coords } from '$lib/utils/pannable';
   import { kindLinks } from '$lib/utils/constants';
   import { page } from "$app/stores";
   import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
@@ -38,25 +38,17 @@
   let showListsIndex: boolean = false;
   let showListsIndexSwitchTabs: boolean = false;
   let showForkInfo: boolean = false;
-  let userIdentifier: string | undefined = userPub
   let isSharePossible:boolean= typeof navigator !== 'undefined' && 'share' in navigator && typeof navigator.share === 'function';
   let isEditMode: boolean = false
   let isFormSent: boolean = false
   let eventTitles:string[] = [];
   let eventSlugs:string[] = [];
-  $:{
-    if ($isNip05ValidStore.isNip05Valid || $isNip05ValidStore.Nip05address != "" && $isNip05ValidStore.UserNpub?.startsWith('npub')){
-    userIdentifier=$isNip05ValidStore.Nip05address
-  } else {
-    userIdentifier=userPub
-  }
-  }
 
   if (eventKind == kindLinks) {
     const ndkFilter: NDKFilter = dValue ? { kinds: [eventKind], authors: [userPubDecoded], '#d': [`${dValue}`]} : { kinds: [eventKind], authors: [userPubDecoded], '#l': [`${listLabel}`]}
     $ndk.fetchEvents(ndkFilter, { closeOnEose: true }).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent);
-      updateLength(kindLinks, eventList.length);
+      linkListLength = eventList.length
       sortEventList(eventList);
       eventList.forEach(event => {
         event.tags.forEach(tag => {
@@ -71,8 +63,6 @@
     const ndkFilter: NDKFilter = dValue ? { kinds: [eventKind], authors: [userPubDecoded], '#d': [`${dValue}`], limit:5} : { kinds: [eventKind], authors: [userPubDecoded], limit:5}
     $ndk.fetchEvents(ndkFilter, { closeOnEose: true, groupable: true }).then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent);
-
-      updateLength(eventKind, eventList.length);
       sortEventList(eventList);
     });
   }
@@ -84,17 +74,6 @@
   
   let actionExecuted = false; 
 
-  $: {
-    if ($coords.x >= 50 && !actionExecuted) {
-      currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1);
-      actionExecuted = true;
-    } else if ($coords.x <= -50 && !actionExecuted) {
-      currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1);
-      actionExecuted = true; 
-    } else if ($coords.x > -50 && $coords.x < 50) {
-      actionExecuted = false;
-    }
-  }
   $:{
     if (isFormSent) {
       isEditMode = false
@@ -137,6 +116,7 @@
                 {/if}
           </button>
         </div>
+        
         {#if showListsIndex && !isEditMode}
         {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
         {#if label !== 'nostree' }
@@ -153,15 +133,19 @@
               {/if}
               
               <div class="listLinkOutSection">
-                <a href={`${$page.url.origin}/${userIdentifier}/${label}`} target="_blank" rel="noreferrer">
+                {#if !isSharePossible}
+                <a href={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`} target="_blank" rel="noreferrer">
                   <button class="iconButton"><LinktOut size={16}/></button>
                 </a>
-                <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/${userIdentifier}/${label}`)}>
-                  <ShareIcon size={14} />
+                {:else}
+                <button class="iconButton" on:click={() =>sharePage(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}>
+                  <LinktOut size={16} />
                 </button>
+                {/if}
               </div>
               
               <div class="listLinkOutSection">
+                {#if !isSharePossible}
                   <a href={`${$page.url.origin}/a/${buildEventPointer(
                   undefined,
                   [], 
@@ -172,9 +156,11 @@
                 } target="_blank" rel="noreferrer">
                 <button class="iconButton"><IdIcon size={16}/></button>
                 </a>
-                <button class="noButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,eventList[currentIndex].tagValue('d'))}`)}>
-                  <ShareIcon size={14} />
+                {:else}
+                <button class="iconButton" class:hidden={!isSharePossible} on:click={() =>sharePage(`${$page.url.origin}/a/${buildEventPointer(undefined, [], userPubDecoded, eventList[currentIndex].kind,eventList[currentIndex].tagValue('d'))}`)}>
+                  <IdIcon size={16}/>
                 </button>
+                {/if}
               </div>
             </div>
           </div>
@@ -190,21 +176,16 @@
         <button class="noButton inline-span" class:hidden={showListsIndexSwitchTabs} style={currentIndex == index ? 'color: var(--text-color);' : ''} on:click={() => {currentIndex = index; showListsIndex = !showListsIndex}}>{index +1}.{title}</button>
         {/each}
         {#each eventSlugs as slug}
-          <button class="noButton inline-span" class:hidden={!showListsIndexSwitchTabs} on:click={() => {goto(`${$page.url.origin}/${userIdentifier}/${slug}`)}}>{slug}</button>
+          <button class="noButton inline-span" class:hidden={!showListsIndexSwitchTabs} on:click={() => {goto(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${slug}`)}}>{slug}</button>
         {/each}
+        <div><Tag>{unixToDate(eventList[currentIndex].created_at)}</Tag></div>
       </div>
         {/if}
       </div>
       <div>
         {#if !isEditMode}
         {#if eventList.length > 1}
-          <div
-            use:pannable
-            on:panstart={handlePanStart}
-            on:panmove={handlePanMove}
-            on:panend={() => initializeCoords()}
-            style="transform: translateX({$coords.x}px);"
-          >
+          <div style="position: relative;">
             {#each findListTags(eventList[currentIndex].tags) as { url, text }}
               {#if url.startsWith('nostr:')}
               <a href={`https://nostr.com/${url.split(':')[url.split(':').length - 1]}`} target="_blank" rel="noreferrer">
@@ -237,7 +218,7 @@
       <div class="inline-span">
         {#each findOtherTags(eventList[currentIndex].tags, 'l') as label}
           {#if label !== 'nostree' && !label.startsWith(userPub.slice(-3))}
-              <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${userIdentifier}/${label}`)}><code>{label}</code></button>
+              <button class="switchButtons commonPadding" on:click={() => goto(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}><code>{label}</code></button>
           {/if}
         {/each}
         {#each findOtherTags(eventList[currentIndex].tags, 'a') as label}
@@ -334,11 +315,9 @@
 .eventContainerButtons {
 	display: flex;
 	align-items: center;
-	justify-content: center;
   flex-direction: column;
   margin-bottom: 0.3em;
   width: 100%;
-  justify-content: space-between;
   position: relative;
 }
 .listLinkOutContainer {

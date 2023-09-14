@@ -26,24 +26,29 @@ export async function isNip05Valid(nip05: string | undefined = '', npub: string 
 
   try {
     if (!isNip05(nip05)) {
-      isNip05ValidStore.set({ isNip05Valid: false, Nip05address: undefined, UserNpub: npub });
+      isNip05ValidStore.set({ isNip05Valid: false, Nip05address: undefined, UserNpub: npub, Vanity: undefined, UserIdentifier: npub });
       return false;
     }
+
     const nip05Promise = await NDKUser.fromNip05(nip05.toLowerCase());
     const isNip05Valid = nip05Promise !== undefined;
     const Nip05address = nip05;
     const UserNpub = isNip05Valid ? nip05Promise.npub : npub;
+     if (isNip05(Nip05address) && Nip05address.split('@')[1] == 'nostree.me') {
+       isNip05ValidStore.set({ isNip05Valid, Nip05address, UserNpub, Vanity: Nip05address.split('@')[0], UserIdentifier: Nip05address.split('@')[0] });
+       return isNip05Valid;
+     }
 
     if (nip05Promise === undefined && UserNpub.startsWith('npub')) {
-      isNip05ValidStore.set({ isNip05Valid: true, Nip05address: nip05, UserNpub: npub });
+      isNip05ValidStore.set({ isNip05Valid: true, Nip05address, UserNpub, Vanity: undefined, UserIdentifier: Nip05address });
       return isNip05Valid;
     }
     
-    isNip05ValidStore.set({ isNip05Valid, Nip05address, UserNpub });
+    isNip05ValidStore.set({ isNip05Valid, Nip05address, UserNpub, Vanity: undefined, UserIdentifier: Nip05address });
 
     return isNip05Valid;
   } catch (error) {
-    isNip05ValidStore.set({ isNip05Valid: false, Nip05address: undefined, UserNpub: npub });
+    isNip05ValidStore.set({ isNip05Valid: false, Nip05address: undefined, UserNpub: npub, Vanity: undefined, UserIdentifier: npub });
     return false;
   }
 }
@@ -173,6 +178,13 @@ export async function sharePage(urlToShare: string) {
 export function logout() {
   ndkUser.set(null);
   lengthStore.set({});
+  isNip05ValidStore.set({ 
+    isNip05Valid: null,
+    Nip05address: undefined,
+    UserNpub: undefined,
+    Vanity: undefined,
+    UserIdentifier: undefined,
+  })
   goto('/');
 }
 

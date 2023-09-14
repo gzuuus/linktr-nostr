@@ -8,23 +8,13 @@
     import Login from './login.svelte';
     import { isNip05Valid } from '$lib/stores/user';
 
-    function handleGotoProfile() {
-        if ($isNip05Valid.isNip05Valid){
-            goto(`/${$ndkUser?.profile?.nip05}`);
-        } else{
-            goto(`/${$ndkUser?.npub}`);
-        } 
-    }
-    function handleGotoNewList(){
-        goto('/new');
-    }
 </script>
   <div class="headerContainer">
-          <div class="headerLogo"><a href="/"><Logo size={50}/></a></div>
+          <div class="headerLogo"><a href="/"><Logo size={40}/></a></div>
     {#if $ndkUser}
     <div class="userMenu">
-        <button class="secondary-button" on:click={handleGotoNewList}>Manage lists</button>
-        <button class="secondary-button" on:click={handleGotoProfile}><ProfileIcon size={20} /></button>        
+        <button class="secondary-button" on:click={() => goto('/new')}>Manage lists</button>
+        <button class="secondary-button" on:click={() => goto(`/${$isNip05Valid.UserIdentifier}`)}><ProfileIcon size={20} /></button>        
         <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
     </div>
     {:else}
@@ -52,10 +42,6 @@
         position: absolute;
         top: 0;
         left: 0;
-        padding: 0 1em;
+        padding: 0.5em;
     }
-    /* img {
-        max-width: 50px;
-        border-radius: var(--agnostic-radius);
-    } */
 </style>

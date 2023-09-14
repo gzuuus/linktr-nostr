@@ -3,6 +3,7 @@ node_modules
 /build
 /.svelte-kit
 /package
+src/lib/elements/icons/logo-old.svelte
 .env
 .env.*
 !.env.example

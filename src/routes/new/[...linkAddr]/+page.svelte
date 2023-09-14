@@ -21,7 +21,6 @@
 
     let events: NDKEvent[] = [];
     let oldEvents: NDKEvent[] = [];
-    let eventToEdit: any;
     let showSpinner:boolean = false;
     let fetchedOldEvents:boolean = false
     let fetchedMigratedEvents:boolean = false
@@ -40,7 +39,7 @@
         if ($ndkUser) {
             let userPubDecoded: string = nip19.decode($ndkUser.npub).data.toString();
             $ndk.fetchEvents({ kinds: [30303 as number], authors: [userPubDecoded]}).then((fetchedEvent) => {
-                oldEvents = Array.from(fetchedEvent).filter(event => event.tagValue('title') !== '');
+                oldEvents = Array.from(fetchedEvent).filter(event => event.tagValue('title'));
                 fetchedOldEvents = true
                 sortEventList(events);
             })
@@ -91,7 +90,6 @@
             showSpinner = false;
             if (toDelete) {
             deletedEventsIds.push(eventToPublish.tagValue('d')!);
-            console.log(deletedEventsIds)
             }
             setTimeout(() => {
                 showEvents()
@@ -124,16 +122,7 @@
             <h2>Manage your lists</h2>
             <button class="isBlock" on:click={() => showCreateNewList = !showCreateNewList} >Create new list </button>
         </div>
-        
-        <!-- {#key eventToEdit}
-        <div class:hidden={!showCreateNewList}>
-            {#if !eventToEdit}
-            <CreateNewList eventToEdit={undefined}/>
-            {:else}
-            <CreateNewList eventToEdit={eventToEdit}/>
-            {/if}
-        </div>
-        {/key} -->
+
         {:else}
         <Login mode="primary" doGoto={false}/>
         {/if}
