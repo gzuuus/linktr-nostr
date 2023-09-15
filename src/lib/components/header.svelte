@@ -7,29 +7,33 @@
     import { logout } from '$lib/utils/helpers';
     import Login from './login.svelte';
     import { isNip05Valid } from '$lib/stores/user';
-
 </script>
-  <div class="headerContainer">
-          <div class="headerLogo"><a href="/"><Logo size={40}/></a></div>
+
+<div class="headerContainer">
+    <div class="headerLogo"><a href="/"><Logo size={40} /></a></div>
     {#if $ndkUser}
-    <div class="userMenu">
-        <button class="secondary-button" on:click={() => goto('/new')}>Manage lists</button>
-        <button class="secondary-button" on:click={() => goto(`/${$isNip05Valid.UserIdentifier}`)}><ProfileIcon size={20} /></button>        
-        <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
-    </div>
+        <div class="userMenu">
+            <button class="secondary-button" on:click={() => goto('/new')}>Manage lists</button>
+            <button
+                class="secondary-button"
+                on:click={() => goto(`/${$isNip05Valid.UserIdentifier}`)}
+                ><ProfileIcon size={20} /></button
+            >
+            <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
+        </div>
     {:else}
-    <div class="userMenu">
-        <Login mode="secondary"/>
-    </div>
+        <div class="userMenu">
+            <Login mode="secondary" />
+        </div>
     {/if}
-  </div>
+</div>
 
 <style>
-    .headerContainer{
+    .headerContainer {
         position: absolute;
         width: 100%;
     }
-    .userMenu{
+    .userMenu {
         position: absolute;
         top: 0;
         right: 0;
@@ -38,7 +42,7 @@
         gap: 0.5em;
         line-height: 0;
     }
-    .headerLogo{
+    .headerLogo {
         position: absolute;
         top: 0;
         left: 0;

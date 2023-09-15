@@ -8,10 +8,10 @@ export const isNip05Valid = writable<{
     UserNpub: string | undefined;
     Vanity: string | undefined;
     UserIdentifier: string | undefined;
-  }>({
+}>({
     isNip05Valid: null,
     Nip05address: undefined,
     UserNpub: undefined,
     Vanity: undefined,
-    UserIdentifier: undefined,
-  });
+    UserIdentifier: undefined
+});
