@@ -1,6 +1,6 @@
 <script lang="ts">
   import ndk from "$lib/stores/provider";
-  import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags, unique } from "$lib/utils/helpers";
+  import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags } from "$lib/utils/helpers";
   import { Button, Tag } from "agnostic-svelte";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
@@ -12,31 +12,34 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-    import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-    import SeparatorIcon from "$lib/elements/icons/separator-icon.svelte";
+  import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
   let isSubscribe: boolean = false;
+  let eventsDTagList: string[] = [];
 
   $: {
     ndkFilter = $page.params.hashtagvalue
-    ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"] }
-    : { kinds: [kindLinks], "#l": ["nostree"] };
+    ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 50 }
+    : { kinds: [kindLinks], "#l": ["nostree"], limit: 50 };
   }
 
   let eventList: NDKEvent[] = [];
   function subscribe(filter:NDKFilter){
   eventList = [];
   eventHashtags= [];
+  eventsDTagList= [];
   isSubscribe = true;
   const sub = $ndk.subscribe(
     filter,
     { closeOnEose: true, groupable: true, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST }
   );
   sub.on("event", (event: NDKEvent) => {
-    eventList = [...eventList, event];
-
+    if (!eventsDTagList.includes(event.tagValue('d')!)){
+      eventList = [...eventList, event];
+    }
+    eventsDTagList.push(event.tagValue('d')!)
   });
   sub.on("eose", () => {
     console.log("eose");
