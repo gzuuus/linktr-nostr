@@ -1,76 +1,76 @@
-import { spring } from 'svelte/motion';
+import { spring } from "svelte/motion";
 
 interface Coords {
-    x: number;
+  x: number;
 }
 
 export function pannable(node: HTMLElement) {
-    let x: number;
+  let x: number;
 
-    function handleTouchStart(event: TouchEvent) {
-        if (event.touches.length === 1) {
-            x = event.touches[0].clientX;
+  function handleTouchStart(event: TouchEvent) {
+    if (event.touches.length === 1) {
+      x = event.touches[0].clientX;
 
-            node.dispatchEvent(
-                new CustomEvent('panstart', {
-                    detail: { x }
-                })
-            );
+      node.dispatchEvent(
+        new CustomEvent("panstart", {
+          detail: { x },
+        })
+      );
 
-            window.addEventListener('touchmove', handleTouchMove);
-            window.addEventListener('touchend', handleTouchEnd);
-        }
+      window.addEventListener("touchmove", handleTouchMove);
+      window.addEventListener("touchend", handleTouchEnd);
     }
+  }
 
-    function handleTouchMove(event: TouchEvent) {
-        if (event.touches.length === 1) {
-            const dx = event.touches[0].clientX - x;
-            x = event.touches[0].clientX;
+  function handleTouchMove(event: TouchEvent) {
+    if (event.touches.length === 1) {
+      const dx = event.touches[0].clientX - x;
+      x = event.touches[0].clientX;
 
-            node.dispatchEvent(
-                new CustomEvent('panmove', {
-                    detail: { dx }
-                })
-            );
-        }
+      node.dispatchEvent(
+        new CustomEvent("panmove", {
+          detail: { dx },
+        })
+      );
     }
+  }
 
-    function handleTouchEnd() {
-        x = 0;
+  function handleTouchEnd() {
+    x = 0;
 
-        node.dispatchEvent(new CustomEvent('panend'));
+    node.dispatchEvent(new CustomEvent("panend"));
 
-        window.removeEventListener('touchmove', handleTouchMove);
-        window.removeEventListener('touchend', handleTouchEnd);
-    }
+    window.removeEventListener("touchmove", handleTouchMove);
+    window.removeEventListener("touchend", handleTouchEnd);
+  }
 
-    node.addEventListener('touchstart', handleTouchStart);
+  node.addEventListener("touchstart", handleTouchStart);
 
-    return {
-        destroy() {
-            node.removeEventListener('touchstart', handleTouchStart);
-        }
-    };
+  return {
+    destroy() {
+      node.removeEventListener("touchstart", handleTouchStart);
+    },
+  };
 }
 
 export const coords = spring<Coords>(
-    { x: 0 },
-    {
-        stiffness: 0.1,
-        damping: 0.5
-    }
+  { x: 0 },
+  {
+    stiffness: 0.1,
+    damping: 0.5,
+  }
 );
 
 export function handlePanStart() {
-    coords.stiffness = coords.damping = 1;
+  coords.stiffness = coords.damping = 1;
 }
 
 export function handlePanMove(event: CustomEvent<{ dx: number }>) {
-    coords.update(($coords) => ({
-        x: $coords.x + event.detail.dx
-    }));
+  coords.update(($coords) => ({
+    x: $coords.x + event.detail.dx,
+  }));
 }
 
 export function initializeCoords() {
-    coords.set({ x: 0 });
+  coords.set({ x: 0 });
 }
