@@ -61,7 +61,7 @@
 {#await fetchUserProfile()}
   <div class="profileContainer">
     <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
-      <Logo size={80} />
+      <div class="loading-global"><Logo size={50}/></div>
     </a>
     <h2>Loading Profile...</h2>
   </div>
@@ -125,6 +125,7 @@
 {/await}
 
 <style>
+  @import '$lib/elements/animations/general-animations.css';
   .profileContainer {
     margin: 10px;
     border-radius: var(--agnostic-radius);

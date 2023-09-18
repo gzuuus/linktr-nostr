@@ -27,6 +27,7 @@
       <Button on:click={() => goto(`/${$ndkUser?.npub}`)} mode="primary" isBlock isRounded>Profile</Button>
       <Button on:click={() => goto("/new")} mode="primary" isBlock isRounded>Manage lists</Button>
     {/if}
+    <Button on:click={() => goto("/search")} mode="primary" isBlock isRounded>Search</Button>
     <Button on:click={() => goto("/explore")} mode="primary" isBlock isRounded>Explore</Button>
     <Button on:click={() => goto("/docs")} mode="primary" isBlock isRounded>Docs</Button>
   </div>

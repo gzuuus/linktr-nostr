@@ -13,11 +13,12 @@
   import { page } from "$app/stores";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+  import Logo from "$lib/elements/icons/logo.svelte";
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
   let isSubscribe: boolean = false;
-  let eventsDTagList: string[] = [];
+  let eventList: NDKEvent[] = [];
 
   $: {
     ndkFilter = $page.params.hashtagvalue
@@ -25,46 +26,35 @@
     : { kinds: [kindLinks], "#l": ["nostree"], limit: 50 };
   }
 
-  let eventList: NDKEvent[] = [];
-  function subscribe(filter:NDKFilter){
-  eventList = [];
-  eventHashtags= [];
-  eventsDTagList= [];
+async function fetchEvents(filter: NDKFilter) {
   isSubscribe = true;
-  const sub = $ndk.subscribe(
-    filter,
-    { closeOnEose: true, groupable: true, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST }
-  );
-  sub.on("event", (event: NDKEvent) => {
-    if (!eventsDTagList.includes(event.tagValue('d')!)){
-      eventList = [...eventList, event];
-    }
-    eventsDTagList.push(event.tagValue('d')!)
-  });
-  sub.on("eose", () => {
-    console.log("eose");
-    sortEventList(eventList);
-    eventList.forEach((event) => {
-  event.tags.forEach((tag) => {
-    if (tag[0] === "t" && !eventHashtags.includes(tag[1])) {
-      eventHashtags.push(tag[1]);
-    }
-  });
-});
-    console.log(eventHashtags)
-    isSubscribe = false;
-  });
+  eventHashtags= [];
+  await $ndk
+        .fetchEvents(ndkFilter, {
+          closeOnEose: false,
+          cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST,
+        })
+        .then((fetchedEvent) => {
+          eventList = Array.from(fetchedEvent);
 
-  sub.on("notice", (notice: string) => {
-    console.log(notice);
-  });
-      
+          sortEventList(eventList);
+          eventList.forEach((event) => {
+            event.tags.forEach((tag) => {
+              isSubscribe = false;
+              if (tag[0] == "t" ) eventHashtags.push(tag[1]); 
+            });
+          });
+        });
 }
 </script>
 
 {#key $page.url.href}
-{#await subscribe(ndkFilter)}
-  <h2>Loading...</h2>
+{#await fetchEvents(ndkFilter)}
+<div class="commonContainerStyle">
+  <div class="loading-global"><Logo size={50}/></div>
+  <h3>Loading...</h3>
+  <h2 class:hidden={!$page.params.hashtagvalue}> #{$page.params.hashtagvalue}</h2>
+</div>
 {:then value } 
 <div class="commonContainerStyle">
   <h1><button type="button" class="noButton" on:click={() => goto('/explore')}><ExploreIcon size={25} /></button>Explore (beta)</h1>
@@ -129,6 +119,7 @@
 {/key}
 
 <style>
+  @import '$lib/elements/animations/general-animations.css';
   .eventContentContainer {
     margin: 0.3em 0;
     word-wrap: break-word;

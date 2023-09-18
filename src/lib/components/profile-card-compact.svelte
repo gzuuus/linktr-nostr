@@ -29,8 +29,8 @@
 </script>
 
 <div transition:fade class="profileContainer">
-  {#await user?.fetchProfile( { closeOnEose: true, groupable: true, groupableDelay: 200, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST } )}
-    <Logo size={50} />
+  {#await user?.fetchProfile( { closeOnEose: true, groupable: true, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST } )}
+  <div class="loading-global"><Logo size={50}/></div>
     <h3>Loading profile</h3>
   {:then value}
     {#if !isImageBlocked}
@@ -72,25 +72,11 @@
 </div>
 
 <style>
+  @import '$lib/elements/animations/general-animations.css';
   .avatar {
     max-width: 75px;
     border-radius: var(--agnostic-radius);
   }
-
-  .avatar--loading {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-
   .profileContainer {
     margin: 10px;
     border-radius: var(--agnostic-radius);
