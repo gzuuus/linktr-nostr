@@ -6,18 +6,23 @@
   import { goto } from "$app/navigation";
   import { logout } from "$lib/utils/helpers";
   import Login from "./login.svelte";
+    import SearchIcon from "$lib/elements/icons/search-icon.svelte";
+    import SearchWidget from "./search-widget.svelte";
 </script>
 
 <div class="headerContainer">
   <div class="headerLogo"><a href="/"><Logo size={40} /></a></div>
+  
   {#if $ndkUser}
     <div class="userMenu">
+      <button type="button" class="secondary-button" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
       <button class="secondary-button" on:click={() => goto("/new")}>Manage lists</button>
       <button class="secondary-button" on:click={() => goto(`/${$ndkUser?.npub}`)}><ProfileIcon size={20} /></button>
       <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
     </div>
   {:else}
     <div class="userMenu">
+      <SearchWidget/>
       <Login mode="secondary" />
     </div>
   {/if}

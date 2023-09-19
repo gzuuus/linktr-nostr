@@ -11,14 +11,18 @@
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
   import Logo from "$lib/elements/icons/logo.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
+  import QrIcon from "$lib/elements/icons/qr-icon.svelte";
+
   let qrImageUrl: string = "";
   let isImageBlocked = false;
+  let showQR: boolean = false;
 
   $: user = $ndk.getUser({ npub: userPub });
   function generateQRCode(value: string) {
     let qr = QRcode(0, "L");
     qr.addData(value);
     qr.make();
+    showQR = !showQR;
     qrImageUrl = qr.createDataURL();
     return qrImageUrl;
   }
@@ -34,13 +38,8 @@
     <h3>Loading profile</h3>
   {:then value}
     {#if !isImageBlocked}
-      <img
-        src={user?.profile?.image ?? generateQRCode(`${$page.url.origin}/${userPub}`)}
-        alt="Avatar"
-        class="avatar avatar--image {$$props.class}"
-        style={$$props.style}
-        on:error={handleImageError}
-      />
+      <img class="avatar {showQR ? 'hidden' : ''}" src={user?.profile?.image} alt="avatar" />
+      <img class="avatar qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
     {:else}
       <img
         src={generateQRCode(`${$page.url.origin}/${userPub}`)}
@@ -64,6 +63,9 @@
         {#if user?.profile?.lud16}
           <a href="lightning:{user?.profile?.lud16}"><button><LnIcon size={18} /></button></a>
         {/if}
+        <button on:click={() => generateQRCode(`${$page.url.origin}/${userPub}`)}
+          ><QrIcon size={18} /></button
+        >
       </div>
     </div>
   {:catch error}
@@ -74,7 +76,7 @@
 <style>
   @import '$lib/elements/animations/general-animations.css';
   .avatar {
-    max-width: 75px;
+    max-width: 85px;
     border-radius: var(--agnostic-radius);
   }
   .profileContainer {

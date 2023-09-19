@@ -353,4 +353,7 @@
     display: block;
     width: 100%;
   }
+  :global(.searchInput){
+	  padding: 0.5em;
+  }
 </style>

@@ -1,23 +1,20 @@
 <script lang="ts">
-    export let searchQuery:string
-    import ndk from "$lib/stores/provider";
-  import { unixToDate } from "$lib/utils/helpers";
-  import { Tag } from "agnostic-svelte";
+  export let searchQuery:string
+  import ndk from "$lib/stores/provider";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
+  import Logo from "$lib/elements/icons/logo.svelte";
 
-    import Logo from "$lib/elements/icons/logo.svelte";
-
-    let eventList: NDKEvent[] = [];
-    let ndkFilter: NDKFilter
-    $: {
+  let eventList: NDKEvent[] = [];
+  let ndkFilter: NDKFilter
+  
+  $: {
     ndkFilter = { kinds: [0], search: searchQuery}
   }
 
   async function searchEvents(filter: NDKFilter) {
   eventList = [];
-  const lowerCaseSearchQuery = searchQuery.toLowerCase();
 
   await $ndk
     .fetchEvents(ndkFilter, {
@@ -28,11 +25,10 @@
     .then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent).filter((event) => {
         const contentString = JSON.stringify(event.content).toLowerCase();
-        return contentString.includes(lowerCaseSearchQuery);
+        return contentString.includes(searchQuery.toLowerCase().trim());
       });
     });
 }
-
 
 </script>
 {#await searchEvents(ndkFilter)}
@@ -48,12 +44,6 @@
   {#each eventList as event}
     <div class="eventContainer">
       <ProfileCardCompact userPub={event.author.npub} />
-      <!-- <div class="eventContentContainer">
-        <h3>{event.tagValue("title")}</h3>
-        <code>{event.author}</code>
-        <p>{event.content}</p>
-        <Tag>{unixToDate(event.created_at)}</Tag>
-      </div> -->
     </div>
   {/each}
   {/if}

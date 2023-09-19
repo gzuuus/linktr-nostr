@@ -13,7 +13,6 @@
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import AtIcon from "$lib/elements/icons/at-icon.svelte";
   import { isNip05Valid } from "$lib/utils/helpers";
-  import { goto } from "$app/navigation";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
   import LinktOut from "$lib/elements/icons/linkt-out.svelte";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
