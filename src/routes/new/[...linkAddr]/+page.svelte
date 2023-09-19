@@ -18,7 +18,6 @@
   import InfoDialog from "$lib/components/info-dialog.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
-    import { goto } from "$app/navigation";
     import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
 
   let events: NDKEvent[] = [];
@@ -69,6 +68,7 @@
     ];
     let links;
     let labels;
+    let hashtags;
     if (toDelete) {
       ndkEvent.kind = eventToPublish.kind;
       title = "";
@@ -79,9 +79,14 @@
         link: tag.url,
         description: tag.text,
       }));
+      hashtags = findOtherTags(eventToPublish.tags, "t").map((tag) => ({ hashtag: tag }));
       for (const linkData of links) {
         const { link, description } = linkData;
         ndkEvent.tags.push(["r", link, description]);
+      }
+      for (const hashtagData of hashtags) {
+        const { hashtag } = hashtagData;
+        ndkEvent.tags.push(["t", hashtag]);
       }
       labels = findOtherTags(eventToPublish.tags, "l").map((tag) => ({ label: tag }));
       if (labels.length === 0) {
@@ -126,7 +131,12 @@
     return false;
   }
 </script>
-
+<svelte:head>
+  <title>Manage lists</title>
+  <meta name="description" content="Manage your nostree lists" />
+  <meta property="og:title" content="Manage lists"/>
+  <meta property="og:description" content="Manage your nostree lists" />
+</svelte:head>
 {#if showSpinner}
   <div class="spinnerContainer">
     <Spinner size="xlarge" />

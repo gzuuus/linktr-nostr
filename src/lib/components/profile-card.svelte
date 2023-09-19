@@ -1,6 +1,6 @@
 <script lang="ts">
   export let userPub: string;
-  // export let vanityNip05: string | undefined;
+  export let userProfile: NDKUserProfile | null;
   import ndk from "$lib/stores/provider";
   import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
   import { truncateString, copyToClipboard, sharePage } from "$lib/utils/helpers";
@@ -18,8 +18,8 @@
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import Logo from "$lib/elements/icons/logo.svelte";
+    import { outNostrLinksUrl } from "$lib/utils/constants";
 
-  let userProfile: NDKUserProfile;
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
@@ -76,7 +76,10 @@
           ><QrIcon size={18} /></button
         >
         <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
-        <button class:hidden={!isSharePossible} on:click={() => sharePage($page.url.href)}
+        <button class:hidden={!isSharePossible} on:click={() => sharePage(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
+          ><ShareIcon size={16} /></button
+        >
+        <button class:hidden={isSharePossible} on:click={() => copyToClipboard(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
           ><ShareIcon size={16} /></button
         >
         <h2>
@@ -111,10 +114,10 @@
             >
           </div>
           <p>{userProfile.about ? userProfile.about : ""}</p>
-          <div class="userInfoString">
-            <a href="nostr:{userPub}"><button><OstrichIcon size={18} /></button></a>
-            <a href="{$page.url.origin}/{userPub}" target="_blank" rel="noreferrer"
-              ><button><LinktOut size={18} /></button></a
+          <div class="userInfoString" style="flex-direction:column;">
+            <a href="nostr:{userPub}"><button class="inline-span" style="gap: 0.3em; padding: 0.2em 0.3em;">See in native client <OstrichIcon size={18} /></button></a>
+            <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"
+              ><button class="inline-span" style="gap: 0.3em; padding: 0.2em 0.3em;">See in nostr client <LinktOut size={18} /></button></a
             >
           </div>
         {/if}

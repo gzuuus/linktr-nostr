@@ -22,7 +22,6 @@
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-    import PlusSmall from "$lib/elements/icons/plus-small.svelte";
 
   export let eventToEdit: NDKEvent | null = null;
   let showSpinner = false;

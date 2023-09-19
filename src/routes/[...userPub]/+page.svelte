@@ -5,17 +5,26 @@
   import PlusSmall from "$lib/elements/icons/plus-small.svelte";
   import { goto } from "$app/navigation";
   import { kindLinks, kindNotes, kindArticles } from "$lib/utils/constants";
+    import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
 
   let isEditHappens: boolean;
   let linkListLength: number;
+  let userProfile: NDKUserProfile;
   $: user = $page.data.npub;
   $: segments = $page.data.segments;
-  let lengths: { [key: number]: number } = {};
 </script>
-
+<svelte:head>
+  {#if userProfile}
+  <title>{userProfile.name ? userProfile.name : userProfile.displayName}</title>
+  <meta name="description" content={userProfile.about ? userProfile.about : ""} />
+  <meta property="og:title" content={userProfile.name ? userProfile.name : userProfile.displayName} />
+  <meta property="og:description" content={userProfile.about ? userProfile.about : ""} />
+  {/if}
+</svelte:head>
 <div class="commonContainerStyle">
   {#key user}
-    <ProfileCard userPub={user} />
+
+    <ProfileCard userPub={user} bind:userProfile />
     <div />
 
     {#key $page.url.pathname.split("/").length > 2}

@@ -40,14 +40,19 @@ async function fetchEvents(filter: NDKFilter) {
           sortEventList(eventList);
           eventList.forEach((event) => {
             event.tags.forEach((tag) => {
-              isSubscribe = false;
-              if (tag[0] == "t" ) eventHashtags.push(tag[1]); 
+              if (tag[0] == "t" && !eventHashtags.includes(tag[1]) ) eventHashtags.push(tag[1]); 
             });
           });
         });
+        isSubscribe = false;
 }
 </script>
-
+<svelte:head>
+  <title>{$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}</title>
+  <meta name="description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
+  <meta property="og:title" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}/>
+  <meta property="og:description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
+</svelte:head>
 {#key $page.url.href}
 {#await fetchEvents(ndkFilter)}
 <div class="commonContainerStyle">

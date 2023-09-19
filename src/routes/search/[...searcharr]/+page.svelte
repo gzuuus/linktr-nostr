@@ -16,6 +16,12 @@
         currentSearchQuery = $page.params.searcharr
     }
   </script>
+  <svelte:head>
+    <title>Nostree - Search</title>
+    <meta name="description" content="Search profiles" />
+    <meta property="og:title" content="Nostree - Search"/>
+    <meta property="og:description" content="Search profiles" />
+  </svelte:head>
   <h1>Profile search</h1>
   <p>You can try to find profiles by the name, handle, nostr address (nip05) or keywords</p>
   <div>

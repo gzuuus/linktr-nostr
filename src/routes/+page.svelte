@@ -6,12 +6,22 @@
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
   import HeartIcon from "$lib/elements/icons/heart-icon.svelte";
   import Login from "$lib/components/login.svelte";
+    import { ogImageUrl } from "$lib/utils/constants";
 </script>
+<svelte:head>
+<title>Nostree</title>
+<meta
+  name="description"
+  content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff."
+/>
 
-<!-- <div class="commonContainerStyle ">
-    <h3>⚠️ Important notice, please read this <a href="https://nostr.com/nevent1qqsy3pkv0usfmmk2neencwyyzpdf5xmatj5hsgxp3revpr054kqfprcpy9mhxue69uhhyetvv9ujucnfw33k76twvfshycm9d3hkucfw0puh5tczypqtnjzlll40c89dlrps5nju3pnqlahyjudqm3er6k4kwj67vx69zqcyqqqqqqgvtl9c8" target="_blank" rel="noopener noreferrer">note</a></h3>
-    <h4>We are implementing a new format for lists, you can use this client to migrate your lists to the new format. <a href="https://0c1d224a.nostree.pages.dev/" target="_blank" rel="noopener noreferrer">Client</a></h4>
-</div> -->
+<meta property="og:title" content="Nostree" />
+<meta
+  property="og:description"
+  content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff."
+/>
+<meta property="og:image" content={ogImageUrl} />
+</svelte:head>
 <div class="homeParentContainer commonContainerStyle">
   <div class="homeContainer">
     <div class="logoContainer">
