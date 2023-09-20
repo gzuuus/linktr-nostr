@@ -1,5 +1,5 @@
 import { nip19 } from "nostr-tools";
-import { NDKUser, type NDKEvent, type NDKTag } from "@nostr-dev-kit/ndk";
+import { NDKUser, NDKEvent, type NDKTag } from "@nostr-dev-kit/ndk";
 import { ndkUser } from "$lib/stores/user";
 import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from "$app/navigation";
@@ -212,9 +212,10 @@ export function truncatedBech(bech32: string, length?: number): string {
   return `${bech32.substring(0, length || 9)}...`;
 }
 
-export async function copyToClipboard(textToCopy: string) {
+export async function copyToClipboard(textToCopy: string){
   try {
     await navigator.clipboard.writeText(textToCopy);
+    return true
   } catch (err) {
     console.error("Failed to copy: ", err);
   }
@@ -227,11 +228,13 @@ export async function sharePage(urlToShare: string) {
       await navigator.share({
         url,
       });
+      return true;
     } catch (error) {
       console.error("Error :", error);
     }
   } else {
-    console.warn("no share");
+    copyToClipboard(urlToShare)
+    return true
   }
 }
 
@@ -257,3 +260,4 @@ export function generateNanoId(seed: string | undefined = unixTimeNow().toString
   const id = nanoid(6);
   return userID + id;
 }
+

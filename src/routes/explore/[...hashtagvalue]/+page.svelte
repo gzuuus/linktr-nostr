@@ -1,6 +1,6 @@
 <script lang="ts">
   import ndk from "$lib/stores/provider";
-  import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags } from "$lib/utils/helpers";
+  import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags, sharePage } from "$lib/utils/helpers";
   import { Button, Tag } from "agnostic-svelte";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
@@ -14,11 +14,14 @@
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import Logo from "$lib/elements/icons/logo.svelte";
+  import ShareIcon from "$lib/elements/icons/share-icon.svelte";
+  import { Toasts, Toast } from "agnostic-svelte";
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
   let isSubscribe: boolean = false;
   let eventList: NDKEvent[] = [];
+  let isShared:boolean = false;
 
   $: {
     ndkFilter = $page.params.hashtagvalue
@@ -46,7 +49,22 @@ async function fetchEvents(filter: NDKFilter) {
         });
         isSubscribe = false;
 }
+async function handleShareClick(urlToShare: string) {
+    const shared = await sharePage(urlToShare);
+    
+    if (shared) {
+      isShared = true;
+      setTimeout(() => {
+        isShared = false;
+      }, 8000);
+    }
+  }
 </script>
+<Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
+  <Toast isOpen={isShared} type="success">
+    <p>Copied to clipboard</p>
+  </Toast>
+</Toasts>
 <svelte:head>
   <title>{$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}</title>
   <meta name="description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
@@ -71,7 +89,7 @@ async function fetchEvents(filter: NDKFilter) {
     {/key}
     </div>
   {#if $page.params.hashtagvalue}
-  <h2>Exploring: #{$page.params.hashtagvalue}</h2>
+  <h2>Exploring: #{$page.params.hashtagvalue} <button class="noButton" on:click={()=> handleShareClick($page.params.hashtagvalue)}><ShareIcon size={16}/></button></h2>
   {/if}
 
   {#each eventList as event}

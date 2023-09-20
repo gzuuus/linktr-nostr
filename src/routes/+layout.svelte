@@ -354,4 +354,8 @@
   :global(.searchInput){
 	  padding: 0.5em;
   }
+  :global(.alert-toast-shadow){
+	border-radius: var(--agnostic-radius);    
+  }
+
 </style>

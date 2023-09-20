@@ -7,7 +7,7 @@
   export let isEditHappens: boolean = false;
   export let isFork: boolean = false;
   export let linkListLength: number = 0;
-
+  
   import { nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
   import {
@@ -26,7 +26,6 @@
   import { page } from "$app/stores";
   import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
   import { goto } from "$app/navigation";
-  import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import ChevronIconHorizontal from "$lib/elements/icons/chevron-icon-horizontal.svelte";
   import LinktOut from "$lib/elements/icons/linkt-out.svelte";
   import CreateNewList from "./create-new-list.svelte";
@@ -38,9 +37,9 @@
   import IdIcon from "$lib/elements/icons/id-icon.svelte";
   import SeparatorIcon from "$lib/elements/icons/separator-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import Logo from "$lib/elements/icons/logo.svelte";
   import ListItemsIcon from "$lib/elements/icons/list-items-icon.svelte";
-    import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+  import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+  import { Toasts, Toast } from "agnostic-svelte";
 
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
@@ -48,8 +47,7 @@
   let showListsIndex: boolean = false;
   let showListsIndexSwitchTabs: boolean = false;
   let showForkInfo: boolean = false;
-  let isSharePossible: boolean =
-    typeof navigator !== "undefined" && "share" in navigator && typeof navigator.share === "function";
+  let isShared: boolean = false;
   let isEditMode: boolean = false;
   let isFormSent: boolean = false;
   let eventTitles: string[] = [];
@@ -58,6 +56,7 @@
   const ndkFilter: NDKFilter = dValue
     ? { kinds: [eventKind], authors: [userPubDecoded], "#d": [`${dValue}`] }
     : { kinds: [eventKind], authors: [userPubDecoded], "#l": [`${listLabel}`] };
+
   async function fetchCurrentEvents() {
     if (eventKind == kindLinks) {
       $ndk
@@ -100,8 +99,24 @@
       isEditHappens = !isEditHappens;
     }
   }
-</script>
 
+  async function handleShareClick(urlToShare: string) {
+    const shared = await sharePage(urlToShare);
+    
+    if (shared) {
+      isShared = true;
+      setTimeout(() => {
+        isShared = false;
+      }, 8000);
+    }
+  }
+
+</script>
+<Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
+  <Toast isOpen={isShared} type="success">
+    <p>Copied to clipboard</p>
+  </Toast>
+</Toasts>
 {#await fetchCurrentEvents()}
   <ListItemsIcon size={50} />
   <h3>Loading Lists</h3>
@@ -185,46 +200,22 @@
                     {/if}
 
                     <div class="listLinkOutSection">
-                      {#if !isSharePossible}
-                        <a
-                          href={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <button class="iconButton"><LinktOut size={16} /></button>
-                        </a>
-                      {:else}
+
                         <button
                           class="iconButton"
                           on:click={() =>
-                            sharePage(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}
+                            handleShareClick(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}
                         >
                           <LinktOut size={16} />
                         </button>
-                      {/if}
                     </div>
 
                     <div class="listLinkOutSection">
-                      {#if !isSharePossible}
-                        <a
-                          href={`${$page.url.origin}/a/${buildEventPointer(
-                            undefined,
-                            [],
-                            userPubDecoded,
-                            eventList[currentIndex].kind,
-                            eventList[currentIndex].tagValue("d")
-                          )}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <button class="iconButton"><IdIcon size={16} /></button>
-                        </a>
-                      {:else}
+
                         <button
                           class="iconButton"
-                          class:hidden={!isSharePossible}
                           on:click={() =>
-                            sharePage(
+                            handleShareClick(
                               `${$page.url.origin}/a/${buildEventPointer(
                                 undefined,
                                 [],
@@ -236,7 +227,6 @@
                         >
                           <IdIcon size={16} />
                         </button>
-                      {/if}
                     </div>
                   </div>
                 </div>

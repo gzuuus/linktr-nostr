@@ -115,10 +115,8 @@
           </div>
           <p>{userProfile.about ? userProfile.about : ""}</p>
           <div class="userInfoString" style="flex-direction:column;">
+            <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"><button class="inline-span" style="gap: 0.3em; padding: 0.2em 0.3em;">See in nostr client <LinktOut size={18} /></button></a>
             <a href="nostr:{userPub}"><button class="inline-span" style="gap: 0.3em; padding: 0.2em 0.3em;">See in native client <OstrichIcon size={18} /></button></a>
-            <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"
-              ><button class="inline-span" style="gap: 0.3em; padding: 0.2em 0.3em;">See in nostr client <LinktOut size={18} /></button></a
-            >
           </div>
         {/if}
       </div>

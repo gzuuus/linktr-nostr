@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let mode: string;
+  export let mode: string | undefined = 'primary';
   export let doGoto: boolean = true;
   import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";

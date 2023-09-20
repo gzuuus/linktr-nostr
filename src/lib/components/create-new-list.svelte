@@ -1,6 +1,7 @@
 <script lang="ts">
   export let isFormSent: boolean = false;
   export let doGoto: boolean = true;
+  export let eventToEdit: NDKEvent | null = null;
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";
   import { Button, Spinner, Tag } from "agnostic-svelte";
@@ -22,9 +23,12 @@
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+    import CloseIcon from "$lib/elements/icons/close-icon.svelte";
+    import PublishKind1 from "./publish-kind1.svelte";
+    import { page } from "$app/stores";
 
-  export let eventToEdit: NDKEvent | null = null;
-  let showSpinner = false;
+  let showSpinner: boolean = false;
+  let publishKind1: boolean = false;
   const newDTag = `nostree-${uuidv4()}`;
   const validPrefixes: string[] = [
     "http://",
@@ -164,7 +168,12 @@
       .then(() => {
         showSpinner = false;
         isFormSent = true;
-        if (doGoto) {
+        if (!eventToEdit){
+          publishKind1 = true;
+        }
+      })
+      .then(() => {
+      if (doGoto) {
           goto(`/${$isNip05ValidStore.UserIdentifier}`);
         }
       })
@@ -181,8 +190,6 @@
       formData.links = [...formData.links, { link: "", description: "" }];
     }
 
-    // linkValidationStatus.push(false);
-    // linkNameValidationStatus.push(false);
     validateAllURLs();
     validateAllURLNames();
   }
@@ -236,8 +243,23 @@
   function handleBlur() {
     focusedIndex = -1;
   }
-</script>
 
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === ",") {
+      addHashtagField();
+    }
+  }
+</script>
+{#if publishKind1}
+<div class="modal">
+  <div class="modal-content">
+    <PublishKind1 listTitle={formData.title} listURL={`${$page.url.origin}/${$ndkUser?.npub}`}/>
+    <div class="closeModal">
+      <button on:click={() => (publishKind1 = false)}><CloseIcon size={18} /></button>
+    </div>
+  </div>
+</div>
+{/if}
 {#if showSpinner}
   <div class="spinnerContainer">
     <Spinner size="xlarge" />
@@ -334,6 +356,7 @@
               placeholder="hashtag"
               bind:value={hashTagData.hashtags}
               on:input={validateAllURLNames}
+              on:keydown={handleKeyDown}
             />
           </div>
 
