@@ -1,4 +1,5 @@
 <script lang="ts">
+    import DocListHashtags from "$lib/docsComponents/doc-list-hashtags.svelte";
   export let whatInfo: string | undefined = "";
   export let showInfoIcon: boolean = true;
   export let InfoIconSize: number = 18;
@@ -37,6 +38,8 @@
         <DocListNaddrShare />
       {:else if whatInfo == "list-old-format-migrate"}
         <DocOldLists />
+      {:else if whatInfo == "list-hashtags"}
+        <DocListHashtags />
       {/if}
       <div class="closeModal">
         <button type="button" on:click={() => (isModalVisible = false)}>👍</button>

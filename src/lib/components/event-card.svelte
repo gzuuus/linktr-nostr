@@ -292,12 +292,6 @@
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <Button isBlock
-                        >{text}
-                        <button class="overlayButton commonPadding"
-                          ><a href={url} rel="noreferrer"><OstrichIcon size={16} /></a></button
-                        >
-                      </Button>
                     </a>
                   {:else}
                     <a href={url} target="_blank" rel="noreferrer">
@@ -400,13 +394,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* gap: 0.2em; */
   }
-  .overlayButton {
+  /* .overlayButton {
     position: absolute;
     right: 0.3em;
     border: var(--common-border-style);
-  }
+  } */
   button.switchButtons.commonPadding {
     margin-top: 0.3em;
   }

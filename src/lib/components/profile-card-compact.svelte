@@ -38,18 +38,17 @@
     <h3>Loading profile</h3>
   {:then value}
     {#if !isImageBlocked}
-      <img class="avatar {showQR ? 'hidden' : ''}" src={user?.profile?.image} alt="avatar" />
-      <img class="avatar qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
+    <a href="/{userPub}"><img class="avatar {showQR ? 'hidden' : ''}" src={user?.profile?.image} alt="avatar" /></a>
+    <a href="/{userPub}"><img class="avatar qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" /></a>
     {:else}
       <img
         src={generateQRCode(`${$page.url.origin}/${userPub}`)}
         alt="QRAvatar"
-        class="avatar avatar--image {$$props.class}"
-        style={$$props.style}
+        class="avatar"
       />
     {/if}
     <div class="profileInfoBox">
-      <h3>{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</h3>
+      <h3><a style="color: var(--text-color);" href="/{userPub}">{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</a></h3>
       <div class="profileButtons">
         <div>
           <button
@@ -74,7 +73,6 @@
 </div>
 
 <style>
-  @import '$lib/elements/animations/general-animations.css';
   .avatar {
     max-width: 85px;
     border-radius: var(--agnostic-radius);
@@ -117,4 +115,10 @@
     align-items: start;
     line-height: 1em;
   }
+  .qrImage {
+    width: 120px;
+    max-width: unset !important;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
 </style>

@@ -322,7 +322,7 @@
         {/if}
       {/each}
       {#if formData.hashtags.length > 0}
-      <h3 class="inputWithIcon"><HashtagIconcopy size={18} />Hashtags </h3>
+      <h3 class="inputWithIcon"><HashtagIconcopy size={18} />Hashtags <InfoDialog whatInfo="list-hashtags" /></h3>
       {#each formData.hashtags as hashTagData, index}
         <div class="hashtagField" class:commonBorderStyle={focusedIndex === index}>
           <div class="inputWithIcon">
@@ -352,25 +352,29 @@
       <button type="button" class="secondary-button" on:click={() => addHashtagField()}><HashtagIconcopy size={18}/> Add hashtag</button>
       <div class="formButtons">
         {#if areAllLinksValid && formData.title.trim() != ""}
-          <Button type="button" isRounded on:click={() => addLinkField(true)}><InsertIcon size={18} /></Button>
-          <Button type="button" isRounded on:click={() => addLinkField(false)}
-            ><div class="FormButtonsAdd">
-              <InsertIcon size={18} flipVertical={true} />
-            </div></Button
-          >
-          <Button isBlock type="submit">Publish</Button>
+        <div>
+          <div class="insertButtons">
+            <Button type="button" isRounded on:click={() => addLinkField(true)}><InsertIcon size={18} /></Button>
+            <Button type="button" isRounded on:click={() => addLinkField(false)}><InsertIcon size={18} flipVertical={true} /></Button>
+          </div>
+          <div class="formButtons">
+            <Button isBlock type="submit">Publish</Button>
+            <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
+          </div>
+        </div>
         {:else}
-          <Button type="button" disabled isRounded on:click={() => addLinkField(true)}
-            ><div class="FormButtonsAdd"><InsertIcon size={18} /></div></Button
-          >
-          <Button type="button" isRounded disabled on:click={() => addLinkField(false)}
-            ><div class="FormButtonsAdd">
-              <InsertIcon size={18} flipVertical={true} />
-            </div></Button
-          >
-          <Button isBlock type="submit" disabled>Publish</Button>
+        <div>
+          <div class="insertButtons">
+            <Button type="button" disabled isRounded on:click={() => addLinkField(true)}><InsertIcon size={18} /></Button>
+            <Button type="button" isRounded disabled on:click={() => addLinkField(false)}><InsertIcon size={18} flipVertical={true} /></Button>
+          </div>
+          <div class="formButtons">
+            <Button isBlock type="submit" disabled>Publish</Button>
+            <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
+          </div>
+        </div>
         {/if}
-        <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
+        
       </div>
     </div>
   </form>
@@ -378,10 +382,14 @@
 
 <style>
   .formButtons {
-    display: flex;
-    gap: 0.3em;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.3em; 
+  }
+  .insertButtons{
+    display: grid;
+    grid-template-columns: auto auto; 
+    gap: 0.3em; 
   }
 
   button {

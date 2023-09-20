@@ -35,6 +35,7 @@
 </div>
 
 <style>
+  @import '$lib/elements/animations/general-animations.css';
   @font-face {
     font-family: "Fredoka";
     src: url("/fredoka-variable.woff") format("woff");
@@ -141,6 +142,7 @@
   .MainAppContainer {
     width: 25rem;
     display: block;
+    animation: fadeIn 0.3s ease-in-out;
   }
   :global(.commonContainerStyle) {
     border: 2px solid var(--hover-b-color);
@@ -148,6 +150,7 @@
     padding: 15px;
     margin: 1em;
     background: var(--background-color);
+    animation: fadeIn 0.3s ease-in-out;
   }
   @media screen and (max-width: 479px) {
     .MainAppContainer {
@@ -296,6 +299,7 @@
     z-index: 9999;
     overflow: scroll;
     line-height: 1.3em;
+    animation: fadeIn 0.3s ease-in-out;
   }
   :global(.modal-content) {
     background-color: var(--background-color);
@@ -329,12 +333,6 @@
     padding: 0 0.2em;
     align-items: center;
   }
-  /* :global(.closeModal) {
-        position: absolute;
-        top: 0;
-        right: 0.6em;
-        display: inline-flex;
-    } */
   :global(.iconButton) {
     display: inline-flex;
     line-height: normal;

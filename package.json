@@ -43,6 +43,7 @@
     "markdown-it": "^13.0.1",
     "nanoid": "^4.0.2",
     "nostr-tools": "^1.12.1",
+    "open-graph-scraper": "^6.2.2",
     "qrcode-generator": "^1.4.4",
     "svelte-a11y-dialog": "^0.2.0",
     "uuid": "^9.0.0"
