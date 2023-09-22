@@ -4,7 +4,7 @@ import { ndkUser } from "$lib/stores/user";
 import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
-import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
+import { isNip05Valid as isNip05ValidStore} from "$lib/stores/user";
 
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
@@ -39,6 +39,7 @@ export async function isNip05Valid(nip05: string | undefined = "", npub: string 
     const isNip05Valid = nip05Promise !== undefined;
     const Nip05address = nip05;
     const UserNpub = isNip05Valid ? nip05Promise.npub : npub;
+
     if (isNip05(Nip05address) && Nip05address.split("@")[1] == "nostree.me") {
       isNip05ValidStore.set({
         isNip05Valid,

@@ -18,7 +18,7 @@
   import InfoDialog from "$lib/components/info-dialog.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
-    import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+  import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
 
   let events: NDKEvent[] = [];
   let oldEvents: NDKEvent[] = [];

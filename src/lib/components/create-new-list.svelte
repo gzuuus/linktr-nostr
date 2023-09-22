@@ -23,12 +23,15 @@
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-    import CloseIcon from "$lib/elements/icons/close-icon.svelte";
-    import PublishKind1 from "./publish-kind1.svelte";
-    import { page } from "$app/stores";
+  import CloseIcon from "$lib/elements/icons/close-icon.svelte";
+  import PublishKind1 from "./publish-kind1.svelte";
+  import { page } from "$app/stores";
 
   let showSpinner: boolean = false;
   let publishKind1: boolean = false;
+  let showAddHashtags:boolean = false;
+  let showAddSlug:boolean = false
+  let isKind1Published:boolean=false
   const newDTag = `nostree-${uuidv4()}`;
   const validPrefixes: string[] = [
     "http://",
@@ -163,14 +166,15 @@
         ndkEvent.tags.push(["t", hashtags]);
       }
     }
+
     ndkEvent
       .publish()
       .then(() => {
         showSpinner = false;
         isFormSent = true;
-        if (!eventToEdit){
-          publishKind1 = true;
-        }
+        // if (!eventToEdit){
+        //   publishKind1 = true;
+        // }
       })
       .then(() => {
       if (doGoto) {
@@ -253,9 +257,9 @@
 {#if publishKind1}
 <div class="modal">
   <div class="modal-content">
-    <PublishKind1 listTitle={formData.title} listURL={`${$page.url.origin}/${$ndkUser?.npub}`}/>
+    <PublishKind1 listTitle={formData.title} listURL={`${$page.url.origin}/${$ndkUser?.npub}`} bind:isPublished={isKind1Published}/>
     <div class="closeModal">
-      <button on:click={() => (publishKind1 = false)}><CloseIcon size={18} /></button>
+      <button class="iconButton" on:click={() => (publishKind1 = false)}><CloseIcon size={18} /></button>
     </div>
   </div>
 </div>
@@ -331,7 +335,7 @@
           {/if}
         </div>
       {/each}
-
+        {#if showAddSlug}
       {#each formData.labels as linkLabel, index}
         {#if linkLabel.label.trim() != "nostree"}
           <div class="linkField">
@@ -343,7 +347,9 @@
           </div>
         {/if}
       {/each}
-      {#if formData.hashtags.length > 0}
+      {/if}
+      <button class:hidden={showAddSlug} type="button" class="secondary-button" on:click={() => showAddSlug = true}><HashtagIconcopy size={18}/> Add slug</button>
+      {#if formData.hashtags.length > 0 && showAddHashtags}
       <h3 class="inputWithIcon"><HashtagIconcopy size={18} />Hashtags <InfoDialog whatInfo="list-hashtags" /></h3>
       {#each formData.hashtags as hashTagData, index}
         <div class="hashtagField" class:commonBorderStyle={focusedIndex === index}>
@@ -372,7 +378,8 @@
         </div>
       {/each}
       {/if}
-      <button type="button" class="secondary-button" on:click={() => addHashtagField()}><HashtagIconcopy size={18}/> Add hashtag</button>
+      <button class:hidden={!showAddHashtags} type="button" class="secondary-button" on:click={() => addHashtagField()}><HashtagIconcopy size={18}/> Add hashtag</button>
+      <button class:hidden={showAddHashtags} type="button" class="secondary-button" on:click={() => showAddHashtags = true}><HashtagIconcopy size={18}/> Add hashtag</button>
       <div class="formButtons">
         {#if areAllLinksValid && formData.title.trim() != ""}
         <div>

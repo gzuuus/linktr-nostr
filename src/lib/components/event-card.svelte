@@ -40,6 +40,8 @@
   import ListItemsIcon from "$lib/elements/icons/list-items-icon.svelte";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import { Toasts, Toast } from "agnostic-svelte";
+  import ShareIcon from "$lib/elements/icons/share-icon.svelte";
+  import PublishKind1 from "./publish-kind1.svelte";
 
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
@@ -50,9 +52,11 @@
   let isShared: boolean = false;
   let isEditMode: boolean = false;
   let isFormSent: boolean = false;
+  let isKink1Published: boolean = false;
   let eventTitles: string[] = [];
   let eventSlugs: string[] = [];
   let eventHashtags: string[] = [];
+  let showShareModal:boolean = false;
   const ndkFilter: NDKFilter = dValue
     ? { kinds: [eventKind], authors: [userPubDecoded], "#d": [`${dValue}`] }
     : { kinds: [eventKind], authors: [userPubDecoded], "#l": [`${listLabel}`] };
@@ -98,6 +102,12 @@
       isEditMode = false;
       isEditHappens = !isEditHappens;
     }
+    if (isKink1Published) {
+      showShareModal = false
+      setTimeout(() => {
+        isKink1Published = false     
+      }, 3500)
+    }
   }
 
   async function handleShareClick(urlToShare: string) {
@@ -115,6 +125,9 @@
 <Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
   <Toast isOpen={isShared} type="success">
     <p>Copied to clipboard</p>
+  </Toast>
+  <Toast isOpen={isKink1Published} type="success">
+    <p>Note published</p>
   </Toast>
 </Toasts>
 {#await fetchCurrentEvents()}
@@ -227,9 +240,29 @@
                         >
                           <IdIcon size={16} />
                         </button>
+                        
                     </div>
                   </div>
                 </div>
+                <button
+                class="inline-span iconButton"
+                on:click={() => showShareModal = true }><ShareIcon size={18}/> Share on nostr!
+                </button>
+                {#if showShareModal && !isKink1Published}
+                <div class="modal">
+                  <div class="modal-content">
+                    <PublishKind1 
+                    listTitle={eventList[currentIndex].tagValue("title")} 
+                    listURL={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`}
+                    bind:isPublished={isKink1Published}
+                    />
+                    <div class="closeModal">
+                      <button type="button" class="iconButton" on:click={() => (showShareModal = false)}><CloseIcon size={18} /></button>
+                    </div>
+                  </div>
+                </div>
+                {/if}
+                
               {/if}
             {/each}
             <SeparatorIcon size={24} />

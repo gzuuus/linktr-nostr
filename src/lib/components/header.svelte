@@ -6,8 +6,8 @@
   import { goto } from "$app/navigation";
   import { logout } from "$lib/utils/helpers";
   import Login from "./login.svelte";
-    import SearchIcon from "$lib/elements/icons/search-icon.svelte";
-    import SearchWidget from "./search-widget.svelte";
+  import SearchIcon from "$lib/elements/icons/search-icon.svelte";
+  import SearchWidget from "./search-widget.svelte";
 </script>
 
 <div class="headerContainer">
