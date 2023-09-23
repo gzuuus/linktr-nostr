@@ -4,7 +4,7 @@ import { ndkUser } from "$lib/stores/user";
 import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
-import { isNip05Valid as isNip05ValidStore} from "$lib/stores/user";
+import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
 
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
@@ -213,10 +213,10 @@ export function truncatedBech(bech32: string, length?: number): string {
   return `${bech32.substring(0, length || 9)}...`;
 }
 
-export async function copyToClipboard(textToCopy: string){
+export async function copyToClipboard(textToCopy: string) {
   try {
     await navigator.clipboard.writeText(textToCopy);
-    return true
+    return true;
   } catch (err) {
     console.error("Failed to copy: ", err);
   }
@@ -234,8 +234,8 @@ export async function sharePage(urlToShare: string) {
       console.error("Error :", error);
     }
   } else {
-    copyToClipboard(urlToShare)
-    return true
+    copyToClipboard(urlToShare);
+    return true;
   }
 }
 
@@ -261,4 +261,3 @@ export function generateNanoId(seed: string | undefined = unixTimeNow().toString
   const id = nanoid(6);
   return userID + id;
 }
-

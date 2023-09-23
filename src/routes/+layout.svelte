@@ -100,6 +100,7 @@
   }
 
   :global(hr) {
+    border-color: var(--hover-b-color);
     color: var(--hover-b-color);
     margin: 0.3em;
   }

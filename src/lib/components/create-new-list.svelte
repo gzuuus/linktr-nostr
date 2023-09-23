@@ -335,7 +335,6 @@
           {/if}
         </div>
       {/each}
-        {#if showAddSlug}
       {#each formData.labels as linkLabel, index}
         {#if linkLabel.label.trim() != "nostree"}
           <div class="linkField">
@@ -347,9 +346,7 @@
           </div>
         {/if}
       {/each}
-      {/if}
-      <button class:hidden={showAddSlug} type="button" class="secondary-button" on:click={() => showAddSlug = true}><HashtagIconcopy size={18}/> Add slug</button>
-      {#if formData.hashtags.length > 0 && showAddHashtags}
+      {#if formData.hashtags.length > 0 || showAddHashtags}
       <h3 class="inputWithIcon"><HashtagIconcopy size={18} />Hashtags <InfoDialog whatInfo="list-hashtags" /></h3>
       {#each formData.hashtags as hashTagData, index}
         <div class="hashtagField" class:commonBorderStyle={focusedIndex === index}>

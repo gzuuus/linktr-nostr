@@ -8,6 +8,7 @@
   import Login from "./login.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
   import SearchWidget from "./search-widget.svelte";
+    import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
 </script>
 
 <div class="headerContainer">
@@ -15,7 +16,8 @@
   
   {#if $ndkUser}
     <div class="userMenu">
-      <button type="button" class="secondary-button" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
+      <button class="secondary-button" on:click={() => goto('/explore')}><ExploreIcon size={20}/></button>
+      <button class="secondary-button" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
       <button class="secondary-button" on:click={() => goto("/new")}>Manage lists</button>
       <button class="secondary-button" on:click={() => goto(`/${$ndkUser?.npub}`)}><ProfileIcon size={20} /></button>
       <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>

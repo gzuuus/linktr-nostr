@@ -37,7 +37,7 @@
   <h3>Loading...</h3>
 </div>
 {:then value } 
-<div class="commonContainerStyle">
+<div>
   {#if eventList.length == 0}
   <h2>No matching profiles</h2>
   {:else}

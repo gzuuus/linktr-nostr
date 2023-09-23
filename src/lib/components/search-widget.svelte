@@ -19,9 +19,9 @@
   }
 
 </script>
-<button class:hidden={showInputField} type="button" on:click={() => showInputField = !showInputField}><SearchIcon size={22}/></button>
+<button class="secondary-button" class:hidden={showInputField} on:click={() => showInputField = !showInputField}><SearchIcon size={22}/></button>
 <div class="inline-span" class:hidden={!showInputField} style="gap: 0.3em;">
   <input class="searchInput" type="text" bind:value={searchQuery} placeholder="What are you looking for?..." on:keypress={handleKeyPress} />
-  <button on:click={submitQuery}><SearchIcon size={22}/></button>
-  <button on:click={() => showInputField = !showInputField}><CloseIcon size={22}/></button>
+  <button class="secondary-button" on:click={submitQuery}><SearchIcon size={22}/></button>
+  <button class="secondary-button" on:click={() => showInputField = !showInputField}><CloseIcon size={22}/></button>
 </div>

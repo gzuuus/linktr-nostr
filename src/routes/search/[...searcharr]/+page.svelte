@@ -22,6 +22,7 @@
     <meta property="og:title" content="Nostree - Search"/>
     <meta property="og:description" content="Search profiles" />
   </svelte:head>
+  <div class="commonContainerStyle">
   <h1>Profile search</h1>
   <p>You can try to find profiles by the name, handle, nostr address (nip05) or keywords</p>
   <div>
@@ -34,3 +35,4 @@
   <SearchComponent searchQuery={currentSearchQuery} />
   {/if}
   {/key}
+  </div>
