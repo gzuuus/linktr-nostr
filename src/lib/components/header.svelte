@@ -1,61 +1,53 @@
 <script lang="ts">
-    import Logo from '$lib/elements/icons/logo.svelte';
-    import ProfileIcon from '$lib/elements/icons/profile-icon.svelte';
-    import LogoutIcon from '$lib/elements/icons/logout-icon.svelte';
-    import { ndkUser } from '$lib/stores/user';
-    import { goto } from '$app/navigation';
-    import { logout } from '$lib/utils/helpers';
-    import Login from './login.svelte';
-    import { isNip05Valid } from '$lib/stores/user';
-
-    function handleGotoProfile() {
-        if ($isNip05Valid.isNip05Valid){
-            goto(`/${$ndkUser?.profile?.nip05}`);
-        } else{
-            goto(`/${$ndkUser?.npub}`);
-        } 
-    }
-    function handleGotoNewList(){
-        goto('/new');
-    }
+  import Logo from "$lib/elements/icons/logo.svelte";
+  import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
+  import LogoutIcon from "$lib/elements/icons/logout-icon.svelte";
+  import { ndkUser } from "$lib/stores/user";
+  import { goto } from "$app/navigation";
+  import { logout } from "$lib/utils/helpers";
+  import Login from "./login.svelte";
+  import SearchIcon from "$lib/elements/icons/search-icon.svelte";
+  import SearchWidget from "./search-widget.svelte";
+    import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
 </script>
-  <div class="headerContainer">
-          <div class="headerLogo"><a href="/"><Logo size={50}/></a></div>
-    {#if $ndkUser}
+
+<div class="headerContainer">
+  <div class="headerLogo"><a href="/"><Logo size={40} /></a></div>
+  
+  {#if $ndkUser}
     <div class="userMenu">
-        <button class="secondary-button" on:click={handleGotoNewList}>Manage lists</button>
-        <button class="secondary-button" on:click={handleGotoProfile}><ProfileIcon size={20} /></button>        
-        <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
+      <button class="secondary-button" on:click={() => goto('/explore')}><ExploreIcon size={20}/></button>
+      <button class="secondary-button" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
+      <button class="secondary-button" on:click={() => goto("/new")}>Manage lists</button>
+      <button class="secondary-button" on:click={() => goto(`/${$ndkUser?.npub}`)}><ProfileIcon size={20} /></button>
+      <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
     </div>
-    {:else}
+  {:else}
     <div class="userMenu">
-        <Login mode="secondary"/>
+      <SearchWidget/>
+      <Login mode="secondary" />
     </div>
-    {/if}
-  </div>
+  {/if}
+</div>
 
 <style>
-    .headerContainer{
-        position: absolute;
-        width: 100%;
-    }
-    .userMenu{
-        position: absolute;
-        top: 0;
-        right: 0;
-        padding: 0 1em;
-        display: flex;
-        gap: 0.5em;
-        line-height: 0;
-    }
-    .headerLogo{
-        position: absolute;
-        top: 0;
-        left: 0;
-        padding: 0 1em;
-    }
-    /* img {
-        max-width: 50px;
-        border-radius: var(--agnostic-radius);
-    } */
+  .headerContainer {
+    position: absolute;
+    width: 100%;
+  }
+  .userMenu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0 1em;
+    display: flex;
+    gap: 0.5em;
+    line-height: 0;
+  }
+  .headerLogo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0.5em;
+  }
 </style>

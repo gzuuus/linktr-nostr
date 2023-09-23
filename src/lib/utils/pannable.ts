@@ -1,4 +1,4 @@
-import { spring } from 'svelte/motion';
+import { spring } from "svelte/motion";
 
 interface Coords {
   x: number;
@@ -12,13 +12,13 @@ export function pannable(node: HTMLElement) {
       x = event.touches[0].clientX;
 
       node.dispatchEvent(
-        new CustomEvent('panstart', {
+        new CustomEvent("panstart", {
           detail: { x },
         })
       );
 
-      window.addEventListener('touchmove', handleTouchMove);
-      window.addEventListener('touchend', handleTouchEnd);
+      window.addEventListener("touchmove", handleTouchMove);
+      window.addEventListener("touchend", handleTouchEnd);
     }
   }
 
@@ -28,7 +28,7 @@ export function pannable(node: HTMLElement) {
       x = event.touches[0].clientX;
 
       node.dispatchEvent(
-        new CustomEvent('panmove', {
+        new CustomEvent("panmove", {
           detail: { dx },
         })
       );
@@ -38,19 +38,17 @@ export function pannable(node: HTMLElement) {
   function handleTouchEnd() {
     x = 0;
 
-    node.dispatchEvent(
-      new CustomEvent('panend')
-    );
+    node.dispatchEvent(new CustomEvent("panend"));
 
-    window.removeEventListener('touchmove', handleTouchMove);
-    window.removeEventListener('touchend', handleTouchEnd);
+    window.removeEventListener("touchmove", handleTouchMove);
+    window.removeEventListener("touchend", handleTouchEnd);
   }
 
-  node.addEventListener('touchstart', handleTouchStart);
+  node.addEventListener("touchstart", handleTouchStart);
 
   return {
     destroy() {
-      node.removeEventListener('touchstart', handleTouchStart);
+      node.removeEventListener("touchstart", handleTouchStart);
     },
   };
 }

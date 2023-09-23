@@ -1,69 +1,60 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import ProfileCard from '$lib/components/profile-card.svelte';
-  import EventCard from '$lib/components/event-card.svelte';
-  import { lengthStore } from '$lib/stores/eventListsLengths';
-  import PlusSmall from '$lib/elements/icons/plus-small.svelte';
-  import { goto } from '$app/navigation';
-  import { kindLinks, kindNotes, kindArticles } from '$lib/utils/constants';
-  import { isNip05Valid } from "$lib/stores/user";
-   let isEditHappens:boolean
-   $: user = $page.data.npub;
-   $: segments = $page.data.segments;
-   $: visibleComponent = lengths[kindLinks] == 0 ? kindNotes : kindLinks;
-   let lengths: { [key: number]: number } = {};
+  import ProfileCard from "$lib/components/profile-card.svelte";
+  import EventCard from "$lib/components/event-card.svelte";
+  import PlusSmall from "$lib/elements/icons/plus-small.svelte";
+  import { goto } from "$app/navigation";
+  import { kindLinks, kindNotes, kindArticles } from "$lib/utils/constants";
+    import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
 
-   lengthStore.subscribe((newLengths) => {
-   lengths = newLengths;
-   });
-
-   function showComponent(kind: number) {
-     visibleComponent = kind;
-   }
-
+  let isEditHappens: boolean;
+  let linkListLength: number;
+  let userProfile: NDKUserProfile;
+  $: user = $page.data.npub;
+  $: segments = $page.data.segments;
 </script>
+<svelte:head>
+  {#if userProfile}
+  <title>{userProfile.name ? userProfile.name : userProfile.displayName}</title>
+  <meta name="description" content={userProfile.about ? userProfile.about : ""} />
+  <meta property="og:title" content={userProfile.name ? userProfile.name : userProfile.displayName} />
+  <meta property="og:description" content={userProfile.about ? userProfile.about : ""} />
+  {/if}
+</svelte:head>
 <div class="commonContainerStyle">
-{#key user}
+  {#key user}
 
-<ProfileCard userPub={user} />
-<div>
-  {#if lengths[kindNotes] != 0 || lengths[kindArticles] != 0}
-    <button class="switchButtons" class:selected={visibleComponent == kindLinks} on:click={() => showComponent(kindLinks)}>Links</button>
-  {/if}
-  {#if lengths[kindNotes] >= 1}
-    <button class="switchButtons" class:selected={visibleComponent == kindNotes} on:click={() => showComponent(kindNotes)}>Notes</button>
-  {/if}
-  {#if lengths[kindArticles] >= 1}
-    <button class="switchButtons" class:selected={visibleComponent == kindArticles} on:click={() => showComponent(kindArticles)}>Articles</button>
-  {/if}
-</div>
+    <ProfileCard userPub={user} bind:userProfile />
+    <div />
 
-{#key $page.url.pathname.split('/').length > 2 || isEditHappens}
-<div class={visibleComponent === kindLinks ? "visible" : "hidden"}>
-  <EventCard bind:isEditHappens={isEditHappens} userPub={user} eventKind={kindLinks} listLabel={segments[0]} />
-  {#if lengths[kindLinks] == 0}
-  <button class="noEventsButton" on:click={() => goto(`/new`)}>
-    <div class="noEvents">
-      <div class="borderedSection">
-        <PlusSmall size={30} />
-      </div>
-      <p>No links yet</p>
-    </div>
-  </button>
-  {/if}
-</div>
-{/key}
-
-
-<div class={visibleComponent === kindNotes ? "visible" : "hidden"}>
-  <EventCard userPub={user} eventKind={kindNotes} />
-</div>
-
-<div class={visibleComponent === kindArticles ? "visible" : "hidden"}>
-  <EventCard userPub={user} eventKind={kindArticles} />
-</div>
-
-{/key}
+    {#key $page.url.pathname.split("/").length > 2}
+      {#key isEditHappens}
+        <div>
+          <EventCard
+            bind:linkListLength
+            bind:isEditHappens
+            userPub={user}
+            eventKind={kindLinks}
+            listLabel={segments[0]}
+          />
+          {#if linkListLength == 0}
+            <button class="noEventsButton" on:click={() => goto(`/new`)}>
+              <div class="noEvents">
+                <div class="borderedSection">
+                  <PlusSmall size={30} />
+                </div>
+                <p>No links yet</p>
+              </div>
+            </button>
+            <p>See profile in nostr client</p>
+            <a href="https://nostr.com/{user}" target="_blank" rel="noopener noreferrer"
+              ><button class="iconButton">See outside</button></a
+            >
+          {/if}
+        </div>
+      {/key}
+    {/key}
+  {/key}
 </div>
 
 <style>

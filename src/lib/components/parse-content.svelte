@@ -4,43 +4,38 @@
   import { parseNostrUrls } from "$lib/utils/helpers";
   import PlusSmall from "$lib/elements/icons/plus-small.svelte";
   import MinusSmall from "$lib/elements/icons/minus-small.svelte";
-  import MarkdownIt from 'markdown-it';
-  import LinkifyIt from 'linkify-it';
+  import MarkdownIt from "markdown-it";
+  import LinkifyIt from "linkify-it";
 
   const md = new MarkdownIt();
   const linkify = new LinkifyIt();
-  
+
   let parsedContent: string;
   let showMore: boolean = false;
 
+  function parseLinks(rawContent: string): string {
+    rawContent = parseNostrUrls(rawContent);
 
-
-function parseLinks(rawContent: string): string {
-  rawContent = parseNostrUrls(rawContent);
-
-  const matches = linkify.match(rawContent);
-  if (matches) {
-    for (const match of matches) {
-      if (isImageLink(match.url)) {
-        rawContent = rawContent.replace(
-          match.text,
-          `<img src="${match.url}" alt="${match.text}" />`
-        );
-      } else if (isVideoLink(match.url)){
-        rawContent = rawContent.replace(
-          match.text,
-          `<video src="${match.url}" alt="${match.text}" controls></video>`
-        );
-      } else {
-        rawContent = rawContent.replace(
-          match.text,
-          `<a href="${match.url}" target="_blank" rel="noopener noreferrer">${match.text}</a>`
-        );
+    const matches = linkify.match(rawContent);
+    if (matches) {
+      for (const match of matches) {
+        if (isImageLink(match.url)) {
+          rawContent = rawContent.replace(match.text, `<img src="${match.url}" alt="${match.text}" />`);
+        } else if (isVideoLink(match.url)) {
+          rawContent = rawContent.replace(
+            match.text,
+            `<video src="${match.url}" alt="${match.text}" controls></video>`
+          );
+        } else {
+          rawContent = rawContent.replace(
+            match.text,
+            `<a href="${match.url}" target="_blank" rel="noopener noreferrer">${match.text}</a>`
+          );
+        }
       }
     }
+    return rawContent;
   }
-  return rawContent;
-}
   function isImageLink(url: string): boolean {
     return /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(url);
   }
@@ -63,14 +58,14 @@ function parseLinks(rawContent: string): string {
 </script>
 
 <div class="parsedContentContainer">
-  {@html (showMore ? parsedContent : getTruncatedContent())}
+  {@html showMore ? parsedContent : getTruncatedContent()}
 
   {#if parsedContent.length > charLimit}
     <button class="showMoreButton" on:click={toggleShowMore}>
       {#if showMore}
-        <MinusSmall size={20}/>
+        <MinusSmall size={20} />
       {:else}
-        <PlusSmall size={20}/>
+        <PlusSmall size={20} />
       {/if}
     </button>
   {/if}
@@ -87,7 +82,7 @@ function parseLinks(rawContent: string): string {
     bottom: 0;
     padding: 0;
     right: 0;
-    margin:0.4em;
+    margin: 0.4em;
     color: white;
   }
   .showMoreButton:hover {
