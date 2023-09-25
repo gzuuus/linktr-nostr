@@ -22,11 +22,13 @@
   let isSubscribe: boolean = false;
   let eventList: NDKEvent[] = [];
   let isShared:boolean = false;
+  let initialHashtagCount: number = 15;
+  let showAllHashtags:boolean = false;
 
   $: {
     ndkFilter = $page.params.hashtagvalue
-    ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 50 }
-    : { kinds: [kindLinks], "#l": ["nostree"], limit: 50 };
+    ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"]}
+    : { kinds: [kindLinks], "#l": ["nostree"]};
   }
 
 async function fetchEvents(filter: NDKFilter) {
@@ -59,6 +61,10 @@ async function handleShareClick(urlToShare: string) {
       }, 8000);
     }
   }
+
+function toggleHashtags() {
+    showAllHashtags = !showAllHashtags;
+  }
 </script>
 <Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
   <Toast isOpen={isShared} type="success">
@@ -80,12 +86,25 @@ async function handleShareClick(urlToShare: string) {
 </div>
 {:then value } 
 <div class="commonContainerStyle">
-  <h1><button type="button" class="noButton" on:click={() => goto('/explore')}><ExploreIcon size={25} /></button>Explore (beta)</h1>
+  <h1><button type="button" class="noButton" on:click={() => goto('/explore')}><ExploreIcon size={25} /></button>Explore</h1>
   <div>
     {#key isSubscribe}
-    {#each eventHashtags as eventHashtag }
-    <button type="button" class="noButton" on:click={() => goto (`/explore/${eventHashtag}`)}><Tag><HashtagIconcopy size={16}/>{eventHashtag}</Tag></button>
-    {/each}
+    {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag }
+    <button type="button" class="noButton" on:click={() => goto(`/explore/${eventHashtag}`)}>
+      <Tag>
+        <HashtagIconcopy size={16} />
+        {eventHashtag}
+      </Tag>
+    </button>
+  {/each}
+  
+  {#if eventHashtags.length > 10}
+  <div>
+    <button class="secondary-button" type="button" on:click={toggleHashtags}>
+      {!showAllHashtags ? `Show more hashtags (${eventHashtags.length - initialHashtagCount})` : 'Collapse'}
+    </button>
+  </div>
+  {/if}
     {/key}
     </div>
   {#if $page.params.hashtagvalue}

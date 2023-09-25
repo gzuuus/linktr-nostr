@@ -158,12 +158,12 @@
     }
     for (const linkData of formData.links) {
       const { link, description } = linkData;
-      ndkEvent.tags.push(["r", link, description]);
+      ndkEvent.tags.push(["r", link.trim(), description.trim()]);
     }
     for (const hashTagData of formData.hashtags) {
       const { hashtags } = hashTagData;
       if (hashtags.trim()!== "") {
-        ndkEvent.tags.push(["t", hashtags]);
+        ndkEvent.tags.push(["t", hashtags.trim()]);
       }
     }
 

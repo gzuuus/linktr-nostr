@@ -12,6 +12,7 @@
   import Logo from "$lib/elements/icons/logo.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";
+    import { CORSproxyUrl } from "$lib/utils/constants";
 
   let qrImageUrl: string = "";
   let isImageBlocked = false;
@@ -38,7 +39,7 @@
     <h3>Loading profile</h3>
   {:then value}
     {#if !isImageBlocked}
-    <a href="/{userPub}"><img class="avatar {showQR ? 'hidden' : ''}" src={user?.profile?.image} alt="avatar" /></a>
+    <a href="/{userPub}"><img class="avatar {showQR ? 'hidden' : ''}" src={user?.profile?.image ? CORSproxyUrl + encodeURIComponent(user.profile.image) : ''} alt="avatar" /></a>
     <a href="/{userPub}"><img class="avatar qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" /></a>
     {:else}
       <img

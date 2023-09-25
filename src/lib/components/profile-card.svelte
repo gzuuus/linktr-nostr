@@ -18,7 +18,7 @@
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import Logo from "$lib/elements/icons/logo.svelte";
-    import { outNostrLinksUrl } from "$lib/utils/constants";
+    import { CORSproxyUrl, outNostrLinksUrl } from "$lib/utils/constants";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
@@ -68,7 +68,7 @@
   {#if userProfile}
     <div class="profileContainer">
       <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
-        <img class=" {showQR ? 'hidden' : ''}" src={userProfile.image} alt="avatar" />
+        <img class={showQR ? 'hidden' : ''} src={userProfile.image ? CORSproxyUrl + encodeURIComponent(userProfile.image) : ''} alt="avatar" />
         <img class="qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
       </a>
       <div class="profileInfoBox">
