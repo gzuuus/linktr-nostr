@@ -15,9 +15,9 @@
 </script>
 <svelte:head>
   {#if userProfile}
-  <title>{userProfile.name ? userProfile.name : userProfile.displayName}</title>
+  <title>{userProfile.displayName ? userProfile.displayName : userProfile.name}</title>
   <meta name="description" content={userProfile.about ? userProfile.about : ""} />
-  <meta property="og:title" content={userProfile.name ? userProfile.name : userProfile.displayName} />
+  <meta property="og:title" content={userProfile.displayName ? userProfile.displayName : userProfile.name} />
   <meta property="og:description" content={userProfile.about ? userProfile.about : ""} />
   {/if}
 </svelte:head>

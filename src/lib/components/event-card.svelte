@@ -22,7 +22,7 @@
   import { Button, Tag } from "agnostic-svelte";
   import ParsedContent from "./parse-content.svelte";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-  import { kindLinks } from "$lib/utils/constants";
+  import { kindLinks, toastTimeOut } from "$lib/utils/constants";
   import { page } from "$app/stores";
   import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
   import { goto } from "$app/navigation";
@@ -106,7 +106,7 @@
       showShareModal = false
       setTimeout(() => {
         isKink1Published = false     
-      }, 3500)
+      }, toastTimeOut)
     }
   }
 
@@ -117,7 +117,7 @@
       isShared = true;
       setTimeout(() => {
         isShared = false;
-      }, 8000);
+      }, toastTimeOut);
     }
   }
 

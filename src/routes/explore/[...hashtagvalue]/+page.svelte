@@ -5,7 +5,7 @@
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-  import { kindLinks } from "$lib/utils/constants";
+  import { kindLinks, toastTimeOut } from "$lib/utils/constants";
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import { nip19 } from "nostr-tools";
@@ -16,6 +16,7 @@
   import Logo from "$lib/elements/icons/logo.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import { Toasts, Toast } from "agnostic-svelte";
+  import SearchWidget from "$lib/components/search-widget.svelte";
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
@@ -58,7 +59,7 @@ async function handleShareClick(urlToShare: string) {
       isShared = true;
       setTimeout(() => {
         isShared = false;
-      }, 8000);
+      }, toastTimeOut);
     }
   }
 
@@ -97,14 +98,14 @@ function toggleHashtags() {
       </Tag>
     </button>
   {/each}
-  
-  {#if eventHashtags.length > 10}
   <div>
-    <button class="secondary-button" type="button" on:click={toggleHashtags}>
-      {!showAllHashtags ? `Show more hashtags (${eventHashtags.length - initialHashtagCount})` : 'Collapse'}
+    {#if eventHashtags.length > 10}
+    <button class="secondary-button inline-span" type="button" on:click={toggleHashtags}>
+      {!showAllHashtags ? `Show more hashtags` : 'Collapse'}
     </button>
+    {/if}
+    <SearchWidget searchHashtag={true} buttonText={"Search hastags"}/>
   </div>
-  {/if}
     {/key}
     </div>
   {#if $page.params.hashtagvalue}

@@ -7,6 +7,7 @@
   import HeartIcon from "$lib/elements/icons/heart-icon.svelte";
   import Login from "$lib/components/login.svelte";
     import { ogImageUrl } from "$lib/utils/constants";
+    import GhIcon from "$lib/elements/icons/gh-icon.svelte";
 </script>
 <svelte:head>
 <title>Nostree</title>
@@ -29,7 +30,7 @@
     </div>
     <div>
       <h1>Nostree</h1>
-      <p>A Nostr-based application to create, manage and discover link lists, show notes and other stuff.</p>
+      <p>A Nostr-based application to create, manage and discover link lists, and other stuff.</p>
     </div>
     {#if !$ndkUser}
       <Login mode="primary" />
@@ -49,6 +50,10 @@
     <button
       on:click={() => goto("/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5ds")}
       class="switchButtons"><HeartIcon size={16} /></button
+    >
+    -
+    <a href="https://github.com/gzuuus/linktr-nostr" target="_blank" rel="noopener noreferrer"
+      ><button class="switchButtons"><GhIcon size={16} /></button></a
     >
   </p>
 </div>

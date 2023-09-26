@@ -18,11 +18,13 @@
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import Logo from "$lib/elements/icons/logo.svelte";
-    import { CORSproxyUrl, outNostrLinksUrl } from "$lib/utils/constants";
+  import { CORSproxyUrl, outNostrLinksUrl, toastTimeOut } from "$lib/utils/constants";
+  import { Toasts, Toast } from "agnostic-svelte";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
+  let isShared: boolean = false;
 
   let user = $ndk.getUser({
     npub: userPub,
@@ -53,10 +55,23 @@
   function handleMoreInfo() {
     showAbout = !showAbout;
   }
-  let isSharePossible: boolean =
-    typeof navigator !== "undefined" && "share" in navigator && typeof navigator.share === "function";
-</script>
+    async function handleShareClick(urlToShare: string) {
+    const shared = await sharePage(urlToShare);
+    
+    if (shared) {
+      isShared = true;
+      setTimeout(() => {
+        isShared = false;
+      }, toastTimeOut);
+    }
+  }
 
+</script>
+<Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
+  <Toast isOpen={isShared} type="success">
+    <p>Copied to clipboard</p>
+  </Toast>
+</Toasts>
 {#await fetchUserProfile()}
   <div class="profileContainer">
     <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
@@ -68,7 +83,10 @@
   {#if userProfile}
     <div class="profileContainer">
       <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
-        <img class={showQR ? 'hidden' : ''} src={userProfile.image ? CORSproxyUrl + encodeURIComponent(userProfile.image) : ''} alt="avatar" />
+        <img class={showQR ? 'hidden' : ''} 
+        src={userProfile.image ? CORSproxyUrl + encodeURIComponent(userProfile.image) : ''} 
+        alt="avatar"
+        />
         <img class="qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
       </a>
       <div class="profileInfoBox">
@@ -76,15 +94,12 @@
           ><QrIcon size={18} /></button
         >
         <a href="lightning:{userProfile.lud16}"><button><LnIcon size={18} /></button></a>
-        <button class:hidden={!isSharePossible} on:click={() => sharePage(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
-          ><ShareIcon size={16} /></button
-        >
-        <button class:hidden={isSharePossible} on:click={() => copyToClipboard(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
+        <button on:click={() =>  handleShareClick(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
           ><ShareIcon size={16} /></button
         >
         <h2>
           <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}"
-            >{userProfile.name ? userProfile.name : userProfile.displayName}</a
+            >{userProfile.displayName ? userProfile.displayName : userProfile.name}</a
           >
         </h2>
 

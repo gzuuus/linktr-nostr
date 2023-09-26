@@ -15,7 +15,6 @@
     import { CORSproxyUrl } from "$lib/utils/constants";
 
   let qrImageUrl: string = "";
-  let isImageBlocked = false;
   let showQR: boolean = false;
 
   $: user = $ndk.getUser({ npub: userPub });
@@ -27,10 +26,6 @@
     qrImageUrl = qr.createDataURL();
     return qrImageUrl;
   }
-
-  function handleImageError() {
-    isImageBlocked = true;
-  }
 </script>
 
 <div transition:fade class="profileContainer">
@@ -38,16 +33,8 @@
   <div class="loading-global"><Logo size={50}/></div>
     <h3>Loading profile</h3>
   {:then value}
-    {#if !isImageBlocked}
     <a href="/{userPub}"><img class="avatar {showQR ? 'hidden' : ''}" src={user?.profile?.image ? CORSproxyUrl + encodeURIComponent(user.profile.image) : ''} alt="avatar" /></a>
     <a href="/{userPub}"><img class="avatar qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" /></a>
-    {:else}
-      <img
-        src={generateQRCode(`${$page.url.origin}/${userPub}`)}
-        alt="QRAvatar"
-        class="avatar"
-      />
-    {/if}
     <div class="profileInfoBox">
       <h3><a style="color: var(--text-color);" href="/{userPub}">{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</a></h3>
       <div class="profileButtons">
@@ -69,7 +56,7 @@
       </div>
     </div>
   {:catch error}
-    <img alt="Error loading avatar" class="avatar avatar--error {$$props.class}" style={$$props.style} />
+    <img alt="Error loading avatar"/>
   {/await}
 </div>
 
