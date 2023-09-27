@@ -43,17 +43,15 @@
     <Button on:click={() => goto("/docs")} mode="primary" isBlock isRounded>Docs</Button>
   </div>
   <p>
-    From gzuuus with <a href="lightning:gzuuus@getalby.com"
+    <a href="lightning:gzuuus@getalby.com"
       ><button class="switchButtons"><LnIcon size={16} /></button></a
     >
-    and
     <button
       on:click={() => goto("/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5ds")}
       class="switchButtons"><HeartIcon size={16} /></button
     >
-    -
     <a href="https://github.com/gzuuus/linktr-nostr" target="_blank" rel="noopener noreferrer"
-      ><button class="switchButtons"><GhIcon size={16} /></button></a
+    ><button class="switchButtons"><GhIcon size={16} /></button></a
     >
   </p>
 </div>
