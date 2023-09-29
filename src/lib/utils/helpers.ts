@@ -5,6 +5,7 @@ import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
+import { outNostrLinksUrl } from "./constants";
 
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
@@ -187,7 +188,7 @@ export function parseNostrUrls(rawContent: string): string {
 
   return rawContent.replace(nostrPattern, (match, type, id) => {
     let nostrEntity = type + id;
-    let nostrEntityUrl = `https://njump.me/${nostrEntity}`;
+    let nostrEntityUrl = `${outNostrLinksUrl}/${nostrEntity}`;
 
     switch (type) {
       case "nprofile":

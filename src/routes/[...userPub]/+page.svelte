@@ -6,6 +6,7 @@
   import { goto } from "$app/navigation";
   import { kindLinks, kindNotes, kindArticles } from "$lib/utils/constants";
     import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+    import { outNostrLinksUrl } from "../../lib/utils/constants";
 
   let isEditHappens: boolean;
   let linkListLength: number;
@@ -47,7 +48,7 @@
               </div>
             </button>
             <p>See profile in nostr client</p>
-            <a href="https://njump.me/{user}" target="_blank" rel="noopener noreferrer"
+            <a href="{outNostrLinksUrl}/{user}" target="_blank" rel="noopener noreferrer"
               ><button class="iconButton">See outside</button></a
             >
           {/if}

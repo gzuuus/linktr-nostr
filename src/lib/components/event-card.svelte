@@ -42,6 +42,7 @@
   import { Toasts, Toast } from "agnostic-svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import PublishKind1 from "./publish-kind1.svelte";
+    import { outNostrLinksUrl } from "../utils/constants";
 
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
@@ -311,7 +312,7 @@
                 {#each findListTags(eventList[currentIndex].tags) as { url, text }}
                   {#if url.startsWith("nostr:")}
                     <a
-                      href={`https://njump.me/${url.split(":")[url.split(":").length - 1]}`}
+                      href={`${outNostrLinksUrl}/${url.split(":")[url.split(":").length - 1]}`}
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -395,7 +396,7 @@
           <div class="infoBox">
             <Tag>{unixToDate(event.created_at)}</Tag>
             <a
-              href="https://njump.me/{buildEventPointer(
+              href="{outNostrLinksUrl}/{buildEventPointer(
                 event.id,
                 [event.relay?.url ?? ''],
                 event.pubkey,
