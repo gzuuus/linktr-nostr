@@ -311,7 +311,7 @@
                 {#each findListTags(eventList[currentIndex].tags) as { url, text }}
                   {#if url.startsWith("nostr:")}
                     <a
-                      href={`https://nostr.com/${url.split(":")[url.split(":").length - 1]}`}
+                      href={`https://njump.me/${url.split(":")[url.split(":").length - 1]}`}
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -395,7 +395,7 @@
           <div class="infoBox">
             <Tag>{unixToDate(event.created_at)}</Tag>
             <a
-              href="https://nostr.com/{buildEventPointer(
+              href="https://njump.me/{buildEventPointer(
                 event.id,
                 [event.relay?.url ?? ''],
                 event.pubkey,

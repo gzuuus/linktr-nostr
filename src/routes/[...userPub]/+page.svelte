@@ -47,7 +47,7 @@
               </div>
             </button>
             <p>See profile in nostr client</p>
-            <a href="https://nostr.com/{user}" target="_blank" rel="noopener noreferrer"
+            <a href="https://njump.me/{user}" target="_blank" rel="noopener noreferrer"
               ><button class="iconButton">See outside</button></a
             >
           {/if}

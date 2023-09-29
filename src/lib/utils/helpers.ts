@@ -187,7 +187,7 @@ export function parseNostrUrls(rawContent: string): string {
 
   return rawContent.replace(nostrPattern, (match, type, id) => {
     let nostrEntity = type + id;
-    let nostrEntityUrl = `https://nostr.com/${nostrEntity}`;
+    let nostrEntityUrl = `https://njump.me/${nostrEntity}`;
 
     switch (type) {
       case "nprofile":
