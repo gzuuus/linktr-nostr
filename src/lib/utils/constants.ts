@@ -6,5 +6,5 @@ export const kindLinks = 30001;
 export const kindNotes = 1;
 export const kindArticles = 30023;
 export const toastTimeOut = 5000;
-export const outNostrLinksUrl = "https://nostr.com";
+export const outNostrLinksUrl = "https://njump.me";
 export const CORSproxyUrl = "https://corsproxy.io/?";
