@@ -39,6 +39,7 @@ async function fetchEvents(filter: NDKFilter) {
         .fetchEvents(ndkFilter, {
           closeOnEose: false,
           cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST,
+          groupable: true,
         })
         .then((fetchedEvent) => {
           eventList = Array.from(fetchedEvent);

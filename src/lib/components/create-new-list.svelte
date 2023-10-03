@@ -161,7 +161,7 @@
     for (const hashTagData of formData.hashtags) {
       const { hashtags } = hashTagData;
       if (hashtags.trim()!== "") {
-        ndkEvent.tags.push(["t", hashtags.trim()]);
+        ndkEvent.tags.push(["t", hashtags.trim().toLowerCase()]);
       }
     }
 

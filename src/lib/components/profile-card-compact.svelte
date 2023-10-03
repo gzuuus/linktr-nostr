@@ -29,7 +29,7 @@
 </script>
 
 <div transition:fade class="profileContainer">
-  {#await user?.fetchProfile( { closeOnEose: true, groupable: true, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST } )}
+  {#await user?.fetchProfile( { closeOnEose: true, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST, groupable: false } )}
   <div class="loading-global"><Logo size={50}/></div>
     <h3>Loading profile</h3>
   {:then value}
