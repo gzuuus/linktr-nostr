@@ -4,7 +4,7 @@
   export let eventToEdit: NDKEvent | null = null;
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";
-  import { Button, Spinner, Tag } from "agnostic-svelte";
+  import { Button, Disclose, Spinner, Tag } from "agnostic-svelte";
   import ResetIcon from "$lib/elements/icons/reset-icon.svelte";
   import LinkIcon from "$lib/elements/icons/link-icon.svelte";
   import TextIcon from "$lib/elements/icons/text-icon.svelte";
@@ -42,6 +42,7 @@
     "data:",
     "ssh://",
     "irc://",
+    "magnet:",
   ];
 
   let linkValidationStatus: boolean[] = [];
@@ -49,6 +50,7 @@
 
   let formData = {
     title: "",
+    summary: "",
     links: [{ link: "", description: "" }],
     labels: [{ label: "" }],
     forkData: { forkPubKey: "", forkEventoPointer: "" },
@@ -57,6 +59,7 @@
 
   if (eventToEdit) {
     let title = eventToEdit.tagValue("title");
+    let summary = eventToEdit.tagValue("summary");
     const rTags = findListTags(eventToEdit.tags);
     const links = rTags.map((tag) => ({ link: tag.url, description: tag.text }));
     const labels = findOtherTags(eventToEdit.tags, "l").map((tag) => ({ label: tag }));
@@ -77,6 +80,7 @@
 
     formData = {
       title: title!,
+      summary: summary ? summary : "",
       links: links,
       labels: labels,
       forkData: {
@@ -126,6 +130,7 @@
     if (eventToEdit) {
       ndkEvent.tags = [
         ["title", formData.title],
+        ["summary", formData.summary],
         ["d", eventToEdit.tagValue("d")!],
       ];
       for (const labelData of formData.labels) {
@@ -149,6 +154,7 @@
     } else {
       ndkEvent.tags = [
         ["title", formData.title],
+        ["summary", formData.summary],
         ["d", newDTag],
         ["l", "nostree"],
         ["l", formData.labels[0].label ? formData.labels[0].label : generateNanoId($ndkUser?.npub)],
@@ -212,6 +218,7 @@
   function handleReset() {
     formData = {
       title: "",
+      summary: "",
       links: [{ link: "", description: "" }],
       labels: [{ label: "" }],
       forkData: { forkPubKey: "", forkEventoPointer: "" },
@@ -271,10 +278,13 @@
   <h2>{titleText}<span class="inline-span"><InfoDialog whatInfo="new-list" /></span></h2>
 
   <form on:submit|preventDefault={handleSubmit}>
-    <div class="formFieldsContainer">
-      <h3><label for="title">Title</label></h3>
+    <div class="formFieldsContainer text-align-start">
+      <h4><label for="title">Title <span style="color: red;">*</span></label></h4>
       <input type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
 
+      <h4><label for="title">Summary</label></h4>
+      <input type="text" id="summary" placeholder="Brief description of your list" bind:value={formData.summary} maxlength="120"/>
+      <h4>Links <span style="color: red;">*</span></h4>
       {#each formData.links as linkData, index}
         <div class="linkField" class:commonBorderStyle={focusedIndex === index}>
           <div class="inputWithIcon">
@@ -302,7 +312,7 @@
 
           {#if !linkValidationStatus[index] && linkData.link.trim()}
             <span class:hidden={linkData.link.trim() && linkValidationStatus[index]}
-              ><Tag><InfoIcon size={18} /> Prefix needed</Tag></span
+              ><Tag><InfoIcon size={18} /> Prefix needed <span style="color: red;">*</span></Tag></span
             >
           {/if}
 
@@ -333,6 +343,8 @@
           {/if}
         </div>
       {/each}
+      <hr/>
+      <Disclose isBackground title="Slug/hashtags">
       {#each formData.labels as linkLabel, index}
         {#if linkLabel.label.trim() != "nostree"}
           <div class="linkField">
@@ -374,6 +386,7 @@
       {/each}
       {/if}
       <button type="button" class="secondary-button" on:click={() => addHashtagField()}><HashtagIconcopy size={18}/> Add hashtag</button>
+    </Disclose>
       <div class="formButtons">
         {#if areAllLinksValid && formData.title.trim() != ""}
         <div>
@@ -398,7 +411,6 @@
           </div>
         </div>
         {/if}
-        
       </div>
     </div>
   </form>
@@ -457,10 +469,6 @@
   .inputWithIcon label {
     display: flex;
     align-items: center;
-  }
-
-  #title {
-    text-align: center;
   }
   .inputLinkDescription:focus {
     background-color: var(--text-color);

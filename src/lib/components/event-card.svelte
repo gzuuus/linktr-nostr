@@ -168,6 +168,9 @@
               <ChevronIconHorizontal size={20} />
             </button>
           </div>
+          <h4 class:hidden={isEditMode || !eventList[currentIndex].tagValue("summary")}>
+            {eventList[currentIndex].tagValue("summary")}
+          </h4>
           <div class:hidden={isEditMode} class="indexDotButtonContainer">
             <button class="switchButtons noBorder" on:click={() => (showListsIndex = !showListsIndex)}>
               {#if !showListsIndex}

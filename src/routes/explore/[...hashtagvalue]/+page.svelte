@@ -39,7 +39,7 @@ async function fetchEvents(filter: NDKFilter) {
         .fetchEvents(ndkFilter, {
           closeOnEose: false,
           cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST,
-          groupable: true,
+          groupable: false,
         })
         .then((fetchedEvent) => {
           eventList = Array.from(fetchedEvent);
@@ -118,6 +118,7 @@ function toggleHashtags() {
       <ProfileCardCompact userPub={event.author.npub} />
       <div class="eventContentContainer">
         <h3>{event.tagValue("title")}</h3>
+        <h4 class:hidden={!event.tagValue("summary")}>{event.tagValue("summary")}</h4>
         {#each findListTags(event.tags) as { url, text }}
           <a href={url} target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
         {/each}

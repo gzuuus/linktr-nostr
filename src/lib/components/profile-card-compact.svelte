@@ -29,14 +29,14 @@
 </script>
 
 <div transition:fade class="profileContainer">
-  {#await user?.fetchProfile( { closeOnEose: true, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST, groupable: false } )}
+  {#await user?.fetchProfile( { closeOnEose: true, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST, groupable: true } )}
   <div class="loading-global"><Logo size={50}/></div>
     <h3>Loading profile</h3>
   {:then value}
     <a href="/{userPub}"><img class="avatar {showQR ? 'hidden' : ''}" src={user?.profile?.image ? CORSproxyUrl + encodeURIComponent(user.profile.image) : ''} alt="avatar" /></a>
     <a href="/{userPub}"><img class="avatar qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" /></a>
     <div class="profileInfoBox">
-      <h3><a style="color: var(--text-color);" href="/{userPub}">{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</a></h3>
+      <h3 class="text-align-start"><a class="text-color" href="/{userPub}">{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</a></h3>
       <div class="profileButtons">
         <div>
           <button

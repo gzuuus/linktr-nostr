@@ -62,8 +62,10 @@
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
     let title = eventToPublish.tagValue("title");
+    let summary = eventToPublish.tagValue("summary");
     ndkEvent.tags = [
       ["title", title!],
+      summary ? ["summary", summary] : ["summary", ""],
       ["d", eventToPublish.tagValue("d")!],
     ];
     let links;

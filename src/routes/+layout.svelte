@@ -62,6 +62,9 @@
     --hover-color: #ff9900;
     --accent-color: #916dbb;
   }
+  :global(h4, h5, h6){
+    font-weight: lighter;
+  }
   :global(.no-line-height) {
     line-height: 0;
   }
