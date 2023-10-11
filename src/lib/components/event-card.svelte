@@ -184,7 +184,7 @@
           {#if showListsIndex && !isEditMode}
             {#each findOtherTags(eventList[currentIndex].tags, "l") as label}
               {#if label !== "nostree"}
-              <div class="commonPadding">
+              <div class="commonPadding" style="flex-wrap:wrap; justify-content:center">
                 {#each findOtherTags(eventList[currentIndex].tags, "t") as hashtag}
                 <button type="button" class="noButton" on:click={() => goto (`/explore/${hashtag}`)}><Tag><HashtagIconcopy size={16}/>{hashtag}</Tag></button>
                 {/each}
