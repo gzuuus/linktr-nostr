@@ -71,7 +71,7 @@
   {/if}
 </div>
 
-<style>
+<!-- <style>
   .showMoreButton {
     display: flex;
     background: var(--elements-b-color);
@@ -88,4 +88,4 @@
   .showMoreButton:hover {
     background: var(--hover-b-color);
   }
-</style>
+</style> -->

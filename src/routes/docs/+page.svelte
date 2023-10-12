@@ -7,12 +7,11 @@
   import DocListSlug from "$lib/docsComponents/doc-list-slug.svelte";
   import DocNewList from "$lib/docsComponents/doc-new-list.svelte";
   import DocOldLists from "$lib/docsComponents/doc-old-lists.svelte";
-  import { Disclose } from "agnostic-svelte";
 </script>
 
 <div class="commonContainerStyle">
   <h1>Docs</h1>
-  <Disclose isBackground title="Create New lists">
+  <!-- <Disclose isBackground title="Create New lists">
     <DocNewList />
     <Disclose isBackground title="What are slugs?">
       <DocListSlug />
@@ -32,8 +31,5 @@
   </Disclose>
   <Disclose isBackground title="Migrate Old Lists">
     <DocOldLists />
-  </Disclose>
+  </Disclose> -->
 </div>
-
-<style>
-</style>

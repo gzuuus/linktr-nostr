@@ -1,9 +1,10 @@
 <script lang="ts">
+  import "../app.postcss";
   import Header from "$lib/components/header.svelte";
-  import "agnostic-svelte/css/common.min.css";
   import { onMount } from "svelte";
   import ndk from "$lib/stores/provider";
   import { ogImageUrl } from "$lib/utils/constants";
+  import { AppShell } from '@skeletonlabs/skeleton';
 
   onMount(async () => {
     try {
@@ -20,7 +21,7 @@
     name="description"
     content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff."
   />
-
+  
   <meta property="og:title" content="Nostree" />
   <meta
     property="og:description"
@@ -28,14 +29,17 @@
   />
   <meta property="og:image" content={ogImageUrl} />
 </svelte:head>
-<Header />
 
-<div class="MainAppContainer">
-  <slot />
-</div>
+<AppShell>
+	<svelte:fragment slot="header"><Header /></svelte:fragment>
+  <div class="MainAppContainer flex flex-col h-screen ">
+    <slot />
+  </div>
+</AppShell>
 
+<!-- 
 <style>
-  @import '$lib/elements/animations/general-animations.css';
+  @import "$lib/elements/animations/general-animations.css";
   @font-face {
     font-family: "Fredoka";
     src: url("/fredoka-variable.woff") format("woff");
@@ -62,7 +66,7 @@
     --hover-color: #ff9900;
     --accent-color: #916dbb;
   }
-  :global(h4, h5, h6){
+  :global(h4, h5, h6) {
     font-weight: lighter;
   }
   :global(.no-line-height) {
@@ -355,11 +359,10 @@
     display: block;
     width: 100%;
   }
-  :global(.searchInput){
-	  padding: 0.5em;
+  :global(.searchInput) {
+    padding: 0.5em;
   }
-  :global(.alert-toast-shadow){
-	border-radius: var(--agnostic-radius);    
+  :global(.alert-toast-shadow) {
+    border-radius: var(--agnostic-radius);
   }
-
-</style>
+</style> -->

@@ -1,0 +1,56 @@
+/* Write your global styles here, in PostCSS syntax */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  @apply h-full overflow-hidden;
+}
+
+h1 {
+  @apply text-3xl font-bold mb-2;
+}
+
+h2 {
+  @apply text-2xl font-semibold;
+}
+
+h3 {
+  @apply text-xl font-medium;
+}
+
+h4 {
+  @apply text-lg font-semibold;
+}
+
+p {
+  @apply text-base;
+}
+
+
+/* Page Styles */
+/* Use these to define common page styles. */
+.page-container {
+	@apply container mx-auto page-padding space-y-10;
+}
+.common-container {
+	@apply max-w-md m-auto content-center justify-center text-center rounded-3xl px-5 py-7 bg-surface-50/30 dark:bg-surface-900/30 shadow-lg;
+}
+.common-container-content {
+    @apply flex flex-col gap-3;
+}
+.common-ring {
+    @apply ring-1 ring-surface-500 dark:ring-surface-50
+}
+.page-container-wide {
+	@apply w-full max-w-7xl mx-auto space-y-10;
+}
+.page-container-aside {
+	@apply w-full max-w-4xl mx-auto space-y-10;
+}
+.page-padding {
+	@apply p-4 md:p-10;
+}
+.page-section {
+	@apply space-y-4;
+}

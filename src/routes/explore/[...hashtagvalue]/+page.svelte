@@ -1,7 +1,6 @@
 <script lang="ts">
   import ndk from "$lib/stores/provider";
   import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags, sharePage } from "$lib/utils/helpers";
-  import { Button, Tag } from "agnostic-svelte";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
@@ -15,7 +14,6 @@
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import Logo from "$lib/elements/icons/logo.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
-  import { Toasts, Toast } from "agnostic-svelte";
   import SearchWidget from "$lib/components/search-widget.svelte";
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
@@ -68,11 +66,11 @@ function toggleHashtags() {
     showAllHashtags = !showAllHashtags;
   }
 </script>
-<Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
+<!-- <Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
   <Toast isOpen={isShared} type="success">
     <p>Copied to clipboard</p>
   </Toast>
-</Toasts>
+</Toasts> -->
 <svelte:head>
   <title>{$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}</title>
   <meta name="description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
@@ -93,10 +91,10 @@ function toggleHashtags() {
     {#key isSubscribe}
     {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag }
     <button type="button" class="noButton" on:click={() => goto(`/explore/${eventHashtag}`)}>
-      <Tag>
+      <!-- <Tag>
         <HashtagIconcopy size={16} />
         {eventHashtag}
-      </Tag>
+      </Tag> -->
     </button>
   {/each}
   <div>
@@ -120,7 +118,7 @@ function toggleHashtags() {
         <h3>{event.tagValue("title")}</h3>
         <h4 class:hidden={!event.tagValue("summary")}>{event.tagValue("summary")}</h4>
         {#each findListTags(event.tags) as { url, text }}
-          <a href={url} target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
+          <a href={url} target="_blank" rel="noreferrer"><button>{text}</button></a>
         {/each}
         {#each findOtherTags(event.tags, "a") as label}
           <button class="switchButtons commonPadding" on:click={() => (showForkInfo = !showForkInfo)}>
@@ -148,12 +146,12 @@ function toggleHashtags() {
       </div>
       <div>
         {#each findOtherTags(event.tags, "t") as hashtag}
-        <button type="button" class="noButton" on:click={() => goto (`/explore/${hashtag}`)}><Tag><HashtagIconcopy size={16}/>{hashtag}</Tag></button>
+        <button type="button" class="noButton" on:click={() => goto (`/explore/${hashtag}`)}><span class="badge variant-filled"><HashtagIconcopy size={16}/>{hashtag}</span></button>
         {/each}
         </div>
         <hr>
       <div class="infoBox">
-        <Tag>{unixToDate(event.created_at)}</Tag>
+        <span class="badge variant-filled">{unixToDate(event.created_at)}</span>
       </div>
     </div>
   {/each}
@@ -163,8 +161,7 @@ function toggleHashtags() {
 
 {/key}
 
-<style>
-  @import '$lib/elements/animations/general-animations.css';
+<!-- <style>
   .eventContentContainer {
     margin: 0.3em 0;
     word-wrap: break-word;
@@ -179,4 +176,4 @@ function toggleHashtags() {
     padding-top: 0.1em;
     gap: 0.5em;
   }
-</style>
+</style> -->

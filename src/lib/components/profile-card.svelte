@@ -19,7 +19,7 @@
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import Logo from "$lib/elements/icons/logo.svelte";
   import { CORSproxyUrl, outNostrLinksUrl, toastTimeOut } from "$lib/utils/constants";
-  import { Toasts, Toast } from "agnostic-svelte";
+  import { Avatar } from '@skeletonlabs/skeleton';
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
@@ -67,11 +67,11 @@
   }
 
 </script>
-<Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
+<!-- <Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
   <Toast isOpen={isShared} type="success">
     <p>Copied to clipboard</p>
   </Toast>
-</Toasts>
+</Toasts> -->
 {#await fetchUserProfile()}
   <div class="profileContainer">
     <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
@@ -82,13 +82,17 @@
 {:then value}
   {#if userProfile}
     <div class="profileContainer">
+      <div class="mx-auto w-fit">
       <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
-        <img class={showQR ? 'hidden' : ''} 
-        src={userProfile.image ? CORSproxyUrl + encodeURIComponent(userProfile.image) : ''} 
+        <Avatar class={showQR ? 'hidden' : ''} 
+        src={userProfile.image} 
+        width="w-24"
+        rounded="rounded-full"
         alt="avatar"
         />
         <img class="qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" />
       </a>
+    </div>
       <div class="profileInfoBox">
         <button on:click={() => generateQRCode(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
           ><QrIcon size={18} /></button
@@ -139,7 +143,7 @@
   {/if}
 {/await}
 
-<style>
+<!-- <style>
   @import '$lib/elements/animations/general-animations.css';
   .profileContainer {
     margin: 10px;
@@ -173,4 +177,4 @@
     align-items: center;
     padding: 0.3em 0;
   }
-</style>
+</style> -->

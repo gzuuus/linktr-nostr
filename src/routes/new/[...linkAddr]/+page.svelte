@@ -3,13 +3,10 @@
   import ndk from "$lib/stores/provider";
   import CreateNewList from "$lib/components/create-new-list.svelte";
   import { ndkUser } from "$lib/stores/user";
-  import { Button, Tag } from "agnostic-svelte";
   import { nip19 } from "nostr-tools";
   import { findHashTags, findListTags, findOtherTags, sortEventList } from "$lib/utils/helpers";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
-  import { Disclose } from "agnostic-svelte";
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
-  import { Spinner } from "agnostic-svelte";
   import PinIcon from "$lib/elements/icons/pin-icon.svelte";
   import Login from "$lib/components/login.svelte";
   import { kindLinks } from "$lib/utils/constants";
@@ -141,7 +138,7 @@
 </svelte:head>
 {#if showSpinner}
   <div class="spinnerContainer">
-    <Spinner size="xlarge" />
+    <!-- <Spinner size="xlarge" /> -->
   </div>
 {/if}
 <div class="listContainer commonContainerStyle">
@@ -161,7 +158,7 @@
       {#if events.length > 0}
         <div class="allListsContainer">
           {#key fetchedMigratedEvents}
-            <Disclose isBackground title="All your lists">
+            <!-- <Disclose isBackground title="All your lists">
               {#each events as event, i}
                 {#if !deletedEventsIds.includes(event.tagValue("d") ?? "")}
                   <div class="commonBorderStyle commonPadding">
@@ -226,7 +223,7 @@
                   </div>
                 {/if}
               {/each}
-            </Disclose>
+            </Disclose> -->
           {/key}
         </div>
       {/if}
@@ -260,7 +257,7 @@
                       >
                       <h3>{event.tagValue("title")}</h3>
                       {#each findListTags(event.tags) as { url, text }}
-                        <a href={url} target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
+                        <a href={url} target="_blank" rel="noreferrer"><button >{text}</button></a>
                       {/each}
                     </div>
                   </div>
@@ -274,7 +271,7 @@
   </div>
 </div>
 
-<style>
+<!-- <style>
   button:hover {
     color: var(--hover-color);
   }
@@ -307,4 +304,4 @@
   .showLinksDetails {
     padding: 0.5em;
   }
-</style>
+</style> -->

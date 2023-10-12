@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { page } from "$app/stores";
-  import ProfileCard from "$lib/components/profile-card.svelte";
-  import EventCard from "$lib/components/event-card.svelte";
+   import { page } from "$app/stores";
+   import ProfileCard from "$lib/components/profile-card.svelte";
+   import EventCard from "$lib/components/event-card.svelte";
   import PlusSmall from "$lib/elements/icons/plus-small.svelte";
   import { goto } from "$app/navigation";
   import { kindLinks, kindNotes, kindArticles } from "$lib/utils/constants";
     import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
-    import { outNostrLinksUrl } from "../../lib/utils/constants";
+    import { outNostrLinksUrl } from "$lib/utils/constants";
 
   let isEditHappens: boolean;
   let linkListLength: number;
@@ -22,7 +22,7 @@
   <meta property="og:description" content={userProfile.about ? userProfile.about : ""} />
   {/if}
 </svelte:head>
-<div class="commonContainerStyle">
+<div class="common-container common-ring">
   {#key user}
 
     <ProfileCard userPub={user} bind:userProfile />
@@ -58,7 +58,7 @@
   {/key}
 </div>
 
-<style>
+<!-- <style>
   .noEvents {
     background: var(--background-color);
     display: flex;
@@ -76,4 +76,4 @@
     padding: 0;
     width: 80%;
   }
-</style>
+</style> -->

@@ -60,7 +60,7 @@
   {/await}
 </div>
 
-<style>
+<!-- <style>
   .avatar {
     max-width: 85px;
     border-radius: var(--agnostic-radius);
@@ -109,4 +109,4 @@
     animation: fadeIn 0.3s ease-in-out;
   }
 
-</style>
+</style> -->

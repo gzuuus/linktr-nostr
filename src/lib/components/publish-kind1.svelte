@@ -6,7 +6,6 @@
     import ndk from "$lib/stores/provider";
     import { ndkUser } from "$lib/stores/user";
     import Login from "./login.svelte";
-    import { Toast, Toasts } from "agnostic-svelte";
 
   const msgBodyTemplate:string = `Look this cool nostree list \n"${listTitle}" \nURL: ${listURL}`
   let msgBody: string = msgBodyTemplate;
@@ -56,7 +55,7 @@
 <Login doGoto={false}/>
 {/if}
 
-<style>
+<!-- <style>
   div.commonContainerStyle{
     display: flex;
     flex-direction: column;
@@ -72,4 +71,4 @@
     text-align: center;
     width: 100%;
   }
-</style>
+</style> -->

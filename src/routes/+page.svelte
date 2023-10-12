@@ -1,6 +1,5 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { Button } from "agnostic-svelte";
   import Logo from "$lib/elements/icons/logo.svelte";
   import { ndkUser } from "$lib/stores/user";
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
@@ -23,9 +22,9 @@
 />
 <meta property="og:image" content={ogImageUrl} />
 </svelte:head>
-<div class="homeParentContainer commonContainerStyle">
-  <div class="homeContainer">
-    <div class="logoContainer">
+<div class="common-container common-ring">
+  <div class="common-container-content">
+    <div class="mx-auto w-fit common-ring p-5 rounded-full">
       <Logo size={100} />
     </div>
     <div>
@@ -33,30 +32,31 @@
       <p>A Nostr-based application to create, manage and discover link lists, and other stuff.</p>
     </div>
     {#if !$ndkUser}
-      <Login mode="primary" />
+      <Login  />
     {:else}
-      <Button on:click={() => goto(`/${$ndkUser?.npub}`)} mode="primary" isBlock isRounded>Profile</Button>
-      <Button on:click={() => goto("/new")} mode="primary" isBlock isRounded>Manage lists</Button>
+      <button class="btn variant-filled" on:click={() => goto(`/${$ndkUser?.npub}`)}>Profile</button>
+      <button on:click={() => goto("/new")}>Manage lists</button>
     {/if}
-    <Button on:click={() => goto("/search")} mode="primary" isBlock isRounded>Search</Button>
-    <Button on:click={() => goto("/explore")} mode="primary" isBlock isRounded>Explore</Button>
-    <Button on:click={() => goto("/docs")} mode="primary" isBlock isRounded>Docs</Button>
-  </div>
+    <button class="btn variant-filled" on:click={() => goto("/search")}>Search</button>
+    <button class="btn variant-filled" on:click={() => goto("/explore")}>Explore</button>
+    <button class="btn variant-filled" on:click={() => goto("/docs")}>Docs</button>
+  
   <p>
     <a href="lightning:gzuuus@getalby.com"
-      ><button class="switchButtons"><LnIcon size={16} /></button></a
+      ><button class="btn-icon btn-icon-sm variant-ghost"><LnIcon size={16} /></button></a
     >
     <button
       on:click={() => goto("/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5ds")}
-      class="switchButtons"><HeartIcon size={16} /></button
+      class="btn-icon btn-icon-sm variant-ghost"><HeartIcon size={16} /></button
     >
     <a href="https://github.com/gzuuus/linktr-nostr" target="_blank" rel="noopener noreferrer"
-    ><button class="switchButtons"><GhIcon size={16} /></button></a
+    ><button class="btn-icon btn-icon-sm variant-ghost"><GhIcon size={16} /></button></a
     >
   </p>
 </div>
+</div>
 
-<style>
+<!-- <style>
   .homeContainer {
     display: flex;
     flex-direction: column;
@@ -83,4 +83,4 @@
     padding: 0;
     border-radius: calc(var(--agnostic-radius) + 2px);
   }
-</style>
+</style> -->

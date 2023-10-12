@@ -5,7 +5,6 @@
   import ndk from "$lib/stores/provider";
   import { ndkUser } from "$lib/stores/user";
   import { goto } from "$app/navigation";
-  import { Button } from "agnostic-svelte";
   import { page } from "$app/stores";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   let isModalVisible: boolean = false;
@@ -41,9 +40,9 @@
 </script>
 
 {#if mode === "primary"}
-  <Button on:click={login} mode="primary" isBlock isRounded>Login</Button>
+  <button class="btn variant-filled" on:click={login}>Login</button>
 {:else if mode === "secondary" && $page.url.href !== `${$page.url.origin}/`}
-  <Button on:click={login} mode="primary" isRounded>Login</Button>
+  <button class="btn variant-filled-secondary" on:click={login}>Login</button>
 {/if}
 {#if isModalVisible}
   <div class="modal">

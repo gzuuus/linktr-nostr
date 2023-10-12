@@ -4,7 +4,6 @@
   export let eventToEdit: NDKEvent | null = null;
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";
-  import { Button, Disclose, Spinner, Tag } from "agnostic-svelte";
   import ResetIcon from "$lib/elements/icons/reset-icon.svelte";
   import LinkIcon from "$lib/elements/icons/link-icon.svelte";
   import TextIcon from "$lib/elements/icons/text-icon.svelte";
@@ -269,11 +268,11 @@
   </div>
 </div>
 {/if}
-{#if showSpinner}
+<!-- {#if showSpinner}
   <div class="spinnerContainer">
     <Spinner size="xlarge" />
   </div>
-{/if}
+{/if} -->
 <main>
   <h2>{titleText}<span class="inline-span"><InfoDialog whatInfo="new-list" /></span></h2>
 
@@ -312,7 +311,7 @@
 
           {#if !linkValidationStatus[index] && linkData.link.trim()}
             <span class:hidden={linkData.link.trim() && linkValidationStatus[index]}
-              ><Tag><InfoIcon size={18} /> Prefix needed <span style="color: red;">*</span></Tag></span
+              ><span class="badge variant-filled"><InfoIcon size={18} /> Prefix needed <span style="color: red;">*</span></span></span
             >
           {/if}
 
@@ -344,7 +343,7 @@
         </div>
       {/each}
       <hr/>
-      <Disclose isBackground title="Slug/hashtags">
+      <!-- <Disclose isBackground title="Slug/hashtags">
       {#each formData.labels as linkLabel, index}
         {#if linkLabel.label.trim() != "nostree"}
           <div class="linkField">
@@ -386,28 +385,28 @@
       {/each}
       {/if}
       <button type="button" class="secondary-button" on:click={() => addHashtagField()}><HashtagIconcopy size={18}/> Add hashtag</button>
-    </Disclose>
+    </Disclose> -->
       <div class="formButtons">
         {#if areAllLinksValid && formData.title.trim() != ""}
         <div>
           <div class="insertButtons">
-            <Button type="button" isRounded on:click={() => addLinkField(true)}><InsertIcon size={18} /></Button>
-            <Button type="button" isRounded on:click={() => addLinkField(false)}><InsertIcon size={18} flipVertical={true} /></Button>
+            <button type="button" on:click={() => addLinkField(true)}><InsertIcon size={18} /></button>
+            <button type="button" on:click={() => addLinkField(false)}><InsertIcon size={18} flipVertical={true} /></button>
           </div>
           <div class="formButtons">
-            <Button isBlock type="submit">Publish</Button>
-            <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
+            <button type="submit">Publish</button>
+            <button type="button" on:click={handleReset}><ResetIcon size={18} /></button>
           </div>
         </div>
         {:else}
         <div>
           <div class="insertButtons">
-            <Button type="button" disabled isRounded on:click={() => addLinkField(true)}><InsertIcon size={18} /></Button>
-            <Button type="button" isRounded disabled on:click={() => addLinkField(false)}><InsertIcon size={18} flipVertical={true} /></Button>
+            <button type="button" on:click={() => addLinkField(true)}><InsertIcon size={18} /></button>
+            <button type="button" on:click={() => addLinkField(false)}><InsertIcon size={18} flipVertical={true} /></button>
           </div>
           <div class="formButtons">
-            <Button isBlock type="submit" disabled>Publish</Button>
-            <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
+            <button type="submit">Publish</button>
+            <button type="button" on:click={handleReset}><ResetIcon size={18} /></button>
           </div>
         </div>
         {/if}
@@ -416,7 +415,7 @@
   </form>
 </main>
 
-<style>
+<!-- <style>
   .formButtons {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -477,4 +476,4 @@
   .secondary-button {
 	width: fit-content;
     }
-</style>
+</style> -->

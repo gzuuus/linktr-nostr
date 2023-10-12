@@ -8,14 +8,15 @@
   import Login from "./login.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
   import SearchWidget from "./search-widget.svelte";
-    import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
+  import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
+  import { LightSwitch } from '@skeletonlabs/skeleton';
 </script>
 
-<div class="headerContainer">
+<div class="absolute w-full inline-flex items-center p-2 justify-between">
   <div class="headerLogo"><a href="/"><Logo size={40} /></a></div>
   
   {#if $ndkUser}
-    <div class="userMenu">
+    <div class= "flex gap-2 items-center">
       <button class="secondary-button" on:click={() => goto('/explore')}><ExploreIcon size={20}/></button>
       <button class="secondary-button" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
       <button class="secondary-button" on:click={() => goto("/new")}>Manage lists</button>
@@ -23,14 +24,15 @@
       <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
     </div>
   {:else}
-    <div class="userMenu">
+    <div class="flex gap-2 items-center">
       <SearchWidget/>
-      <Login mode="secondary" />
+      <LightSwitch />
+      <Login/>
     </div>
   {/if}
 </div>
 
-<style>
+<!-- <style>
   .headerContainer {
     position: absolute;
     width: 100%;
@@ -50,4 +52,4 @@
     left: 0;
     padding: 0.5em;
   }
-</style>
+</style> -->

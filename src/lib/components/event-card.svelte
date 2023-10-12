@@ -19,7 +19,6 @@
     sharePage,
     naddrEncodeATags,
   } from "$lib/utils/helpers";
-  import { Button, Tag } from "agnostic-svelte";
   import ParsedContent from "./parse-content.svelte";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import { kindLinks, toastTimeOut } from "$lib/utils/constants";
@@ -39,7 +38,6 @@
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import ListItemsIcon from "$lib/elements/icons/list-items-icon.svelte";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-  import { Toasts, Toast } from "agnostic-svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import PublishKind1 from "./publish-kind1.svelte";
     import { outNostrLinksUrl } from "../utils/constants";
@@ -123,14 +121,14 @@
   }
 
 </script>
-<Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
+<!-- <Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
   <Toast isOpen={isShared} type="success">
     <p>Copied to clipboard</p>
   </Toast>
   <Toast isOpen={isKink1Published} type="success">
     <p>Note published</p>
   </Toast>
-</Toasts>
+</Toasts> -->
 {#await fetchCurrentEvents()}
   <ListItemsIcon size={50} />
   <h3>Loading Lists</h3>
@@ -186,7 +184,7 @@
               {#if label !== "nostree"}
               <div class="commonPadding" style="flex-wrap:wrap; justify-content:center">
                 {#each findOtherTags(eventList[currentIndex].tags, "t") as hashtag}
-                <button type="button" class="noButton" on:click={() => goto (`/explore/${hashtag}`)}><Tag><HashtagIconcopy size={16}/>{hashtag}</Tag></button>
+                <button type="button" class="noButton" on:click={() => goto (`/explore/${hashtag}`)}><span class="badge variant-filled"><HashtagIconcopy size={16}/>{hashtag}</span></button>
                 {/each}
                 </div>
                 <div>
@@ -304,7 +302,7 @@
                   }}>{slug}</button
                 >
               {/each}
-              <div><Tag>{unixToDate(eventList[currentIndex].created_at)}</Tag></div>
+              <div>{unixToDate(eventList[currentIndex].created_at)}</div>
             </div>
           {/if}
         </div>
@@ -322,7 +320,7 @@
                     </a>
                   {:else}
                     <a href={url} target="_blank" rel="noreferrer">
-                      <Button isBlock>{text}</Button>
+                      <button>{text}</button>
                     </a>
                   {/if}
                 {/each}
@@ -331,7 +329,7 @@
               <div>
                 {#each findListTags(eventList[currentIndex].tags) as { url, text }}
                   <a href={url} target="_blank" rel="noreferrer">
-                    <Button isBlock>{text}</Button>
+                    <button>{text}</button>
                   </a>
                 {/each}
               </div>
@@ -397,7 +395,7 @@
             {/if}
           </div>
           <div class="infoBox">
-            <Tag>{unixToDate(event.created_at)}</Tag>
+            {unixToDate(event.created_at)}
             <a
               href="{outNostrLinksUrl}/{buildEventPointer(
                 event.id,
@@ -415,7 +413,7 @@
     {/if}
   </div>
 {/await}
-
+<!-- 
 <style>
   .listLinkOutSection {
     display: flex;
@@ -496,4 +494,4 @@
     margin-top: 0.5em;
     gap: 0 !important;
   }
-</style>
+</style> -->
