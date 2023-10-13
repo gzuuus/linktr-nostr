@@ -40,9 +40,11 @@
 </script>
 
 {#if mode === "primary"}
-  <button class="btn variant-filled" on:click={login}>Login</button>
+  <button class="common-btn-filled" on:click={login}>Login</button>
+{:else if mode === "primary-sm" && $page.url.href !== `${$page.url.origin}/`}
+  <button class="common-btn-sm-filled" on:click={login}>Login</button>
 {:else if mode === "secondary" && $page.url.href !== `${$page.url.origin}/`}
-  <button class="btn variant-filled-secondary" on:click={login}>Login</button>
+  <button class="common-btn-sm-ghost" on:click={login}>Login</button>
 {/if}
 {#if isModalVisible}
   <div class="modal">

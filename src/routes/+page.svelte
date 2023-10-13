@@ -40,19 +40,18 @@
     <button class="btn variant-filled" on:click={() => goto("/search")}>Search</button>
     <button class="btn variant-filled" on:click={() => goto("/explore")}>Explore</button>
     <button class="btn variant-filled" on:click={() => goto("/docs")}>Docs</button>
-  
-  <p>
+  <div>
     <a href="lightning:gzuuus@getalby.com"
-      ><button class="btn-icon btn-icon-sm variant-ghost"><LnIcon size={16} /></button></a
+      ><button class="common-btn-icon-ghost"><LnIcon size={16} /></button></a
     >
-    <button
+    <button class="common-btn-icon-ghost"
       on:click={() => goto("/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5ds")}
-      class="btn-icon btn-icon-sm variant-ghost"><HeartIcon size={16} /></button
+      ><HeartIcon size={16} /></button
     >
     <a href="https://github.com/gzuuus/linktr-nostr" target="_blank" rel="noopener noreferrer"
-    ><button class="btn-icon btn-icon-sm variant-ghost"><GhIcon size={16} /></button></a
+    ><button class="common-btn-icon-ghost"><GhIcon size={16} /></button></a
     >
-  </p>
+    </div>
 </div>
 </div>
 

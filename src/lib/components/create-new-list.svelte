@@ -311,7 +311,7 @@
 
           {#if !linkValidationStatus[index] && linkData.link.trim()}
             <span class:hidden={linkData.link.trim() && linkValidationStatus[index]}
-              ><span class="badge variant-filled"><InfoIcon size={18} /> Prefix needed <span style="color: red;">*</span></span></span
+              ><span class="common-badge-filled"><InfoIcon size={18} /> Prefix needed <span style="color: red;">*</span></span></span
             >
           {/if}
 

@@ -31,12 +31,16 @@
 </svelte:head>
 
 <AppShell>
-	<svelte:fragment slot="header"><Header /></svelte:fragment>
-  <div class="MainAppContainer flex flex-col h-screen ">
+	<svelte:fragment slot="header">
+    <Header />
+  </svelte:fragment>
+  <div class="grid place-content-center min-h-screen m-4">
     <slot />
   </div>
 </AppShell>
-
+<style>
+  @import '$lib/elements/animations/general-animations.css';
+</style>
 <!-- 
 <style>
   @import "$lib/elements/animations/general-animations.css";

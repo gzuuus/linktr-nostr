@@ -23,11 +23,9 @@
   {/if}
 </svelte:head>
 <div class="common-container common-ring">
+  <div class="common-container-content">
   {#key user}
-
     <ProfileCard userPub={user} bind:userProfile />
-    <div />
-
     {#key $page.url.pathname.split("/").length > 2}
       {#key isEditHappens}
         <div>
@@ -56,6 +54,7 @@
       {/key}
     {/key}
   {/key}
+  </div>
 </div>
 
 <!-- <style>

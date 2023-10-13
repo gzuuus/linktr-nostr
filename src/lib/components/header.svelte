@@ -17,17 +17,18 @@
   
   {#if $ndkUser}
     <div class= "flex gap-2 items-center">
-      <button class="secondary-button" on:click={() => goto('/explore')}><ExploreIcon size={20}/></button>
-      <button class="secondary-button" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
-      <button class="secondary-button" on:click={() => goto("/new")}>Manage lists</button>
-      <button class="secondary-button" on:click={() => goto(`/${$ndkUser?.npub}`)}><ProfileIcon size={20} /></button>
-      <button class="secondary-button" on:click={logout}><LogoutIcon size={20} /></button>
+      <button class="common-btn-icon-ghost" on:click={() => goto('/explore')}><ExploreIcon size={20}/></button>
+      <button class="common-btn-icon-ghost" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
+      <button class="common-btn-sm-ghost" on:click={() => goto("/new")}>Manage lists</button>
+      <button class="common-btn-icon-ghost" on:click={() => goto(`/${$ndkUser?.npub}`)}><ProfileIcon size={20} /></button>
+      <LightSwitch />
+      <button class="common-btn-icon-ghost" on:click={logout}><LogoutIcon size={20} /></button>
     </div>
   {:else}
     <div class="flex gap-2 items-center">
-      <SearchWidget/>
+      <button class="common-btn-icon-ghost" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
       <LightSwitch />
-      <Login/>
+      <Login mode={"primary-sm"}/>
     </div>
   {/if}
 </div>

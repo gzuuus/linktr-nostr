@@ -146,12 +146,12 @@ function toggleHashtags() {
       </div>
       <div>
         {#each findOtherTags(event.tags, "t") as hashtag}
-        <button type="button" class="noButton" on:click={() => goto (`/explore/${hashtag}`)}><span class="badge variant-filled"><HashtagIconcopy size={16}/>{hashtag}</span></button>
+        <button type="button" class="noButton" on:click={() => goto (`/explore/${hashtag}`)}><span class="common-badge-filled"><HashtagIconcopy size={16}/>{hashtag}</span></button>
         {/each}
         </div>
         <hr>
       <div class="infoBox">
-        <span class="badge variant-filled">{unixToDate(event.created_at)}</span>
+        <span class="common-badge-filled">{unixToDate(event.created_at)}</span>
       </div>
     </div>
   {/each}
