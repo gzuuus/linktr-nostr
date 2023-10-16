@@ -4,7 +4,7 @@
    import EventCard from "$lib/components/event-card.svelte";
   import PlusSmall from "$lib/elements/icons/plus-small.svelte";
   import { goto } from "$app/navigation";
-  import { kindLinks, kindNotes, kindArticles } from "$lib/utils/constants";
+  import { kindLinks} from "$lib/utils/constants";
     import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
     import { outNostrLinksUrl } from "$lib/utils/constants";
 
@@ -22,8 +22,7 @@
   <meta property="og:description" content={userProfile.about ? userProfile.about : ""} />
   {/if}
 </svelte:head>
-<div class="common-container common-ring">
-  <div class="common-container-content">
+
   {#key user}
     <ProfileCard userPub={user} bind:userProfile />
     {#key $page.url.pathname.split("/").length > 2}
@@ -54,8 +53,6 @@
       {/key}
     {/key}
   {/key}
-  </div>
-</div>
 
 <!-- <style>
   .noEvents {

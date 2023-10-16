@@ -34,7 +34,7 @@
 	<svelte:fragment slot="header">
     <Header />
   </svelte:fragment>
-  <div class="grid place-content-center min-h-screen m-4">
+  <div class="grid place-content-center h-full sm:py-6">
     <slot />
   </div>
 </AppShell>

@@ -29,9 +29,9 @@
   }
 
 </script>
-<button class="secondary-button" class:inline-span={searchHashtag} class:hidden={showInputField} on:click={() => showInputField = !showInputField}>{buttonText}<SearchIcon size={22}/></button>
+<button class="common-btn-sm-ghost gap-2" class:inline-span={searchHashtag} class:hidden={showInputField} on:click={() => showInputField = !showInputField}>{buttonText}<SearchIcon size={20}/></button>
 <div class="inline-span" class:hidden={!showInputField} style="gap: 0.3em;">
   <input class="searchInput" type="text" bind:value={searchQuery} placeholder="What are you looking for?..." on:keypress={handleKeyPress} />
-  <button class="secondary-button" on:click={submitQuery}><SearchIcon size={22}/></button>
-  <button class:hidden={isSearchBar} class="secondary-button" on:click={() => showInputField = !showInputField}><CloseIcon size={22}/></button>
+  <button class="common-btn-sm-ghost" on:click={submitQuery}><SearchIcon size={22}/></button>
+  <button class:hidden={isSearchBar} class="common-btn-sm-ghost" on:click={() => showInputField = !showInputField}><CloseIcon size={22}/></button>
 </div>

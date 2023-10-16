@@ -12,7 +12,7 @@
   import { LightSwitch } from '@skeletonlabs/skeleton';
 </script>
 
-<div class="absolute w-full inline-flex items-center p-2 justify-between">
+<div class="sm:absolute w-full inline-flex items-center p-2 justify-between">
   <div class="headerLogo"><a href="/"><Logo size={40} /></a></div>
   
   {#if $ndkUser}

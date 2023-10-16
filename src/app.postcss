@@ -30,14 +30,15 @@ p {
 /* Page Styles */
 /* Use these to define common page styles. */
 .common-container {
-	@apply w-screen max-w-sm mx-2 content-center justify-center text-center rounded-3xl px-3 py-5 bg-surface-50/30 dark:bg-surface-900/30 shadow-lg;
+	@apply w-screen max-w-sm mx-2 content-center justify-center text-center rounded-3xl px-3 py-5 sm:bg-surface-50/30 sm:dark:bg-surface-900/30 sm:shadow-lg;
 }
 .common-container-content {
     @apply flex flex-col gap-3 break-words;
 }
 .common-ring {
-    @apply ring-1 ring-surface-500 dark:ring-surface-50
+    @apply sm:ring-1 ring-surface-500 dark:ring-surface-50;
 }
+
 .common-btn-icon-ghost{
   @apply btn-icon btn-icon-sm variant-ghost;
 }

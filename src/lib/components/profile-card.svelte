@@ -14,12 +14,14 @@
   import AtIcon from "$lib/elements/icons/at-icon.svelte";
   import { isNip05Valid } from "$lib/utils/helpers";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
-  import LinktOut from "$lib/elements/icons/linkt-out.svelte";
+  import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import Logo from "$lib/elements/icons/logo.svelte";
   import { CORSproxyUrl, outNostrLinksUrl, toastTimeOut } from "$lib/utils/constants";
   import { Avatar } from '@skeletonlabs/skeleton';
+    import PlaceHolderLoading from "./placeHolderLoading.svelte";
+    import ClipboardButton from "./clipboardButton.svelte";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
@@ -52,9 +54,7 @@
     showQR = !showQR;
     return (qrImageUrl = qr.createDataURL());
   }
-  function handleMoreInfo() {
-    showAbout = !showAbout;
-  }
+
     async function handleShareClick(urlToShare: string) {
     const shared = await sharePage(urlToShare);
     
@@ -73,10 +73,9 @@
   </Toast>
 </Toasts> -->
 {#await fetchUserProfile()}
-    <a href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
-      <div class="loading-global w-fit m-auto"><Logo size={50}/></div>
-    </a>
-    <h2>Loading Profile...</h2>
+<div class="w-fit m-auto">
+    <PlaceHolderLoading layoutKind={"avatar"} />
+</div>
 {:then value}
   {#if userProfile}
       <div class="mx-auto w-fit">
@@ -110,19 +109,14 @@
 
         <div>
           <span class="common-badge-filled">
-          <button
-            on:click={() => copyToClipboard(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
-          >
-            {#if !$isNip05ValidStore.isNip05Valid}
-              <AtIcon size={16} />
-            {/if}
-              {$isNip05ValidStore.isNip05Valid
-                ? userProfile.nip05
-                  ? userProfile.nip05
-                  : $isNip05ValidStore.Nip05address
-                : truncateString(userPub)}
-          </button>
-          <button on:click={() => handleMoreInfo()}><InfoIcon size={16} /></button>
+          <ClipboardButton contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`} buttonText={$isNip05ValidStore.isNip05Valid
+            ? userProfile.nip05
+              ? userProfile.nip05
+              : $isNip05ValidStore.Nip05address
+            : truncateString(userPub)} 
+            isButton={false}
+            />
+          <button on:click={() => showAbout = !showAbout}><InfoIcon size={16} /></button>
           </span>
         </div>
         {#if showAbout}
@@ -133,7 +127,7 @@
           </span>
           <p>{userProfile.about ? userProfile.about : ""}</p>
           <div>
-            <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">See in nostr client <LinktOut size={18} /></span></a>
+            <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">See in nostr client <LinkOut size={18} /></span></a>
             <a href="nostr:{userPub}"><span class="common-badge-ghost gap-2">See in native client <OstrichIcon size={18} /></span></a>
           </div>
         {/if}

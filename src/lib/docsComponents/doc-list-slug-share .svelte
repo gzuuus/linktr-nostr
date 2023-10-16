@@ -1,5 +1,5 @@
 <script>
-  import LinktOut from "$lib/elements/icons/linkt-out.svelte";
+  import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OpenDrawerIcon from "$lib/elements/icons/open-drawer-icon.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
 </script>
@@ -11,7 +11,7 @@
     You will find this function on each list card, usually by pressing <OpenDrawerIcon size={18} /> icon to display the drawer.
   </p>
   <hr />
-  <p>> <LinktOut size={18} /> This will open a new tab with the slug page.</p>
+  <p>> <LinkOut size={18} /> This will open a new tab with the slug page.</p>
   <p>
     > <ShareIcon size={18} /> This will open a dialog menu to share the slug (only available on mobile).
   </p>

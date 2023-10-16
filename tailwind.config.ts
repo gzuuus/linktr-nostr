@@ -11,7 +11,10 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Inter']
-			}
+			},
+			screens: {
+                'sm': '408px', // Modifica la pantalla más pequeña
+			},
 		}
 	},
 	plugins: [
@@ -28,8 +31,8 @@ export default {
 					{ name: 'skeleton', enhancements: true },
 					{ name: 'vintage', enhancements: true },
 					{ name: 'wintry', enhancements: true }
-				]
-			}
+				],
+			},
 		})
 	]
 } satisfies Config;

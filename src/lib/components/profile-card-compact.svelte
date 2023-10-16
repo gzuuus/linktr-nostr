@@ -2,17 +2,18 @@
   export let userPub: string;
   import ndk from "$lib/stores/provider";
   import { fade } from "svelte/transition";
-  import { truncateString, copyToClipboard } from "$lib/utils/helpers";
-  import CopyIcon from "$lib/elements/icons/copy-icon.svelte";
+  import { truncateString} from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
-  import Logo from "$lib/elements/icons/logo.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";
     import { CORSproxyUrl } from "$lib/utils/constants";
+    import PlaceHolderLoading from "./placeHolderLoading.svelte";
+    import { Avatar } from "@skeletonlabs/skeleton";
+    import ClipboardButton from "./clipboardButton.svelte";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
@@ -28,24 +29,29 @@
   }
 </script>
 
-<div transition:fade class="profileContainer">
+
   {#await user?.fetchProfile( { closeOnEose: true, cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST, groupable: true } )}
-  <div class="loading-global"><Logo size={50}/></div>
-    <h3>Loading profile</h3>
+  <div class="flex gap-2">
+    <PlaceHolderLoading layoutKind={"avatar"} logoSize={40} />
+    <PlaceHolderLoading colCount={2} listItemPadding={"py-2"} />
+  </div>
   {:then value}
-    <a href="/{userPub}"><img class="avatar {showQR ? 'hidden' : ''}" src={user?.profile?.image ? CORSproxyUrl + encodeURIComponent(user.profile.image) : ''} alt="avatar" /></a>
-    <a href="/{userPub}"><img class="avatar qrImage {showQR ? '' : 'hidden'}" src={qrImageUrl} alt="QR Code" /></a>
-    <div class="profileInfoBox">
-      <h3 class="text-align-start"><a class="text-color" href="/{userPub}">{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</a></h3>
-      <div class="profileButtons">
-        <div>
-          <button
-            class="userPubString"
-            on:click={() => {
-              user?.profile?.nip05 ? copyToClipboard(user?.profile?.nip05) : copyToClipboard(userPub);
-            }}>{user?.profile?.nip05 ? user?.profile?.nip05 : truncateString(userPub)}<CopyIcon size={14} /></button
-          >
-        </div>
+  <div transition:fade class="flex gap-2 text-left justify-start whitespace-pre-wrap">
+  <a href="{userPub}">
+    <Avatar class={showQR ? 'hidden' : 'common-ring'}
+    src={user?.profile?.image ? CORSproxyUrl + encodeURIComponent(user.profile.image) : ''}
+    width="w-16"
+    alt="avatar"
+    />
+    <Avatar class="{showQR ? 'common-ring' : 'hidden'}" 
+    src={qrImageUrl} 
+    width="w-32" 
+    alt="QR Code"
+    />
+  </a>
+    <div class=" flex flex-col">
+      <div class="inline-flex items-center gap-2">
+        <h3><a href="/{userPub}">{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</a></h3>
         <button on:click={() => goto(`/${userPub}`)}><ProfileIcon size={18} /></button>
         {#if user?.profile?.lud16}
           <a href="lightning:{user?.profile?.lud16}"><button><LnIcon size={18} /></button></a>
@@ -54,11 +60,18 @@
           ><QrIcon size={18} /></button
         >
       </div>
+      
+      <span class="common-badge-filled">
+        <ClipboardButton 
+          contentToCopy={user?.profile?.nip05 ? user?.profile?.nip05 : userPub} 
+          buttonText={user?.profile?.nip05 ? user?.profile?.nip05 : truncateString(userPub)}
+          isButton={false}
+        />
+      </span>
     </div>
-  {:catch error}
-    <img alt="Error loading avatar"/>
+  </div>
   {/await}
-</div>
+
 
 <!-- <style>
   .avatar {
