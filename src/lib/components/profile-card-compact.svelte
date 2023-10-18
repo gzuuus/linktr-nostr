@@ -36,10 +36,10 @@
     <PlaceHolderLoading colCount={2} listItemPadding={"py-2"} />
   </div>
   {:then value}
-  <div transition:fade class="flex gap-2 text-left justify-start whitespace-pre-wrap">
-  <a href="{userPub}">
+  <div transition:fade class="flex gap-2 text-left justify-start items-center">
+  <a href="/{userPub}">
     <Avatar class={showQR ? 'hidden' : 'common-ring'}
-    src={user?.profile?.image ? CORSproxyUrl + encodeURIComponent(user.profile.image) : ''}
+    src={user?.profile?.image ? user.profile.image : ''}
     width="w-16"
     alt="avatar"
     />
@@ -49,25 +49,25 @@
     alt="QR Code"
     />
   </a>
-    <div class=" flex flex-col">
-      <div class="inline-flex items-center gap-2">
+    <div class="flex flex-col gap-1">
         <h3><a href="/{userPub}">{user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}</a></h3>
-        <button on:click={() => goto(`/${userPub}`)}><ProfileIcon size={18} /></button>
-        {#if user?.profile?.lud16}
-          <a href="lightning:{user?.profile?.lud16}"><button><LnIcon size={18} /></button></a>
-        {/if}
-        <button on:click={() => generateQRCode(`${$page.url.origin}/${userPub}`)}
-          ><QrIcon size={18} /></button
-        >
-      </div>
-      
-      <span class="common-badge-filled">
+      <span class="common-badge-soft w-fit">
         <ClipboardButton 
-          contentToCopy={user?.profile?.nip05 ? user?.profile?.nip05 : userPub} 
+          contentToCopy={`${$page.url.origin}/${userPub}`} 
           buttonText={user?.profile?.nip05 ? user?.profile?.nip05 : truncateString(userPub)}
           isButton={false}
+          buttonIcon="none"
         />
       </span>
+      <div class="inline-flex gap-2 w-fit">
+        <button on:click={() => goto(`/${userPub}`)}><ProfileIcon size={16} /></button>
+        {#if user?.profile?.lud16}
+          <a href="lightning:{user?.profile?.lud16}"><LnIcon size={16} /></a>
+        {/if}
+        <button on:click={() => generateQRCode(`${$page.url.origin}/${userPub}`)}
+          ><QrIcon size={16} /></button
+        >
+      </div>
     </div>
   </div>
   {/await}

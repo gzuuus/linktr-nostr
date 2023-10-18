@@ -16,6 +16,7 @@
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import SearchWidget from "$lib/components/search-widget.svelte";
     import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
+    import ClipboardButton from "$lib/components/clipboardButton.svelte";
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
@@ -91,14 +92,14 @@ function toggleHashtags() {
     <div>
     {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag }
     <button on:click={() => goto(`/explore/${eventHashtag}`)}>  
-    <span class="badge variant-soft hover:variant-filled m-1">
+    <span class="common-badge-soft m-1">
         <HashtagIconcopy size={16} />
         {eventHashtag}
       </span>
     </button>
     {/each}
   </div>
-  <div>
+  <div class=" flex flex-wrap justify-center gap-2">
     {#if eventHashtags.length > 10}
     <button class="common-btn-sm-ghost" type="button" on:click={toggleHashtags}>
       {!showAllHashtags ? `Show more hashtags` : 'Collapse'}
@@ -109,21 +110,20 @@ function toggleHashtags() {
     {/key}
   </div>
   {#if $page.params.hashtagvalue}
-  <h3>Exploring: #{$page.params.hashtagvalue} <button class="noButton" on:click={()=> handleShareClick($page.params.hashtagvalue)}><ShareIcon size={16}/></button></h3>
-  <hr/>
+  <h3>Exploring: #{$page.params.hashtagvalue} 
+    <ClipboardButton contentToCopy={$page.params.hashtagvalue} buttonIcon={"share"} />
+  </h3>
   {/if}
-
+  <hr/>
   {#each eventList as event}
     <div class="common-container-content">
       <ProfileCardCompact userPub={event.author.npub} />
-      <div >
+      <div>
         <h3>{event.tagValue("title")}</h3>
         <span class="text-sm" class:hidden={!event.tagValue("summary")}>{event.tagValue("summary")}</span>
         
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-2 pt-2">
         {#each findListTags(event.tags) as { url, text }}
-          <!-- <a href={url} target="_blank" rel="noreferrer"><button>{text}</button></a> -->
-          
           {#if url.startsWith("nostr:")}
           <a
             href={`${outNostrLinksUrl}/${url.split(":")[url.split(":").length - 1]}`}
@@ -166,11 +166,11 @@ function toggleHashtags() {
       </div>
       <div class=" inline-flex gap-2 flex-wrap items-center justify-center">
         {#each findOtherTags(event.tags, "t") as hashtag}
-          <button class="common-btn-sm-ghost w-fit" on:click={() => goto (`/explore/${hashtag}`)}><HashtagIconcopy size={16}/>{hashtag}</button>
+          <button class="common-badge-soft w-fit" on:click={() => goto (`/explore/${hashtag}`)}><HashtagIconcopy size={16}/>{hashtag}</button>
         {/each}
       </div>
       <div>
-      <span class="common-badge-filled">{unixToDate(event.created_at)}</span>
+      <span class="common-badge-glass">{unixToDate(event.created_at)}</span>
     </div>
     </div>
     <hr/>

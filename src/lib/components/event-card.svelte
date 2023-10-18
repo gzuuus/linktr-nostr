@@ -159,50 +159,52 @@
             {#each findOtherTags(eventList[currentIndex].tags, "l") as label}
               {#if label !== "nostree"}
               <div class="inline-flex gap-2 justify-center flex-wrap">
+              <div>
+                {#if $ndkUser}
+                <div>
+                  {#if eventList[currentIndex].author.npub != $ndkUser?.npub}
+                    <button
+                      class="btn btn-sm variant-ghost"
+                      on:click={() => {
+                        isEditMode = !isEditMode;
+                        isFork = true;
+                      }}><ForkIcon size={16} /></button
+                    >
+                  {:else}
+                    <button
+                      class="btn btn-sm variant-ghost"
+                      on:click={() => {
+                        isEditMode = !isEditMode;
+                        isFork = false;
+                      }}><EditIcon size={16} /></button
+                    >
+                  {/if}
+                </div>
+              {/if}
+            </div>
+              <ClipboardButton buttonIcon="link" contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`} />
+              <ClipboardButton buttonIcon="id" contentToCopy={`${$page.url.origin}/a/${buildEventPointer(
+                undefined,
+                [],
+                userPubDecoded,
+                eventList[currentIndex].kind,
+                eventList[currentIndex].tagValue("d")
+              )}`}/>
+              <button
+              class="common-btn-sm-ghost gap-1"
+              on:click={() => showShareModal = true }><ShareIcon size={16}/> Share on nostr!
+              </button>
+              
+              <div class="flex flex-wrap justify-center gap-1">
                 {#each findOtherTags(eventList[currentIndex].tags, "t") as hashtag}
-                <button on:click={() => goto (`/explore/${hashtag}`)}><span class="common-badge-filled"><HashtagIconcopy size={16}/>{hashtag}</span></button>
+                <button on:click={() => goto (`/explore/${hashtag}`)}><span class="badge variant-soft hover:variant-filled"><HashtagIconcopy size={16}/>{hashtag}</span></button>
                 {/each}
                 </div>
-                  <div>
                     <div
                       class:hidden={!showListsIndex}
                       class="flex gap-2 items-center justify-center"
                     >
-                      {#if $ndkUser}
-                        <div>
-                          {#if eventList[currentIndex].author.npub != $ndkUser?.npub}
-                            <button
-                              class="btn btn-sm variant-ghost"
-                              on:click={() => {
-                                isEditMode = !isEditMode;
-                                isFork = true;
-                              }}><ForkIcon size={16} /></button
-                            >
-                          {:else}
-                            <button
-                              class="btn btn-sm variant-ghost"
-                              on:click={() => {
-                                isEditMode = !isEditMode;
-                                isFork = false;
-                              }}><EditIcon size={16} /></button
-                            >
-                          {/if}
-                        </div>
-                      {/if}
-                          <ClipboardButton buttonIcon="link" contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`} />
-                          <ClipboardButton buttonIcon="id" contentToCopy={`${$page.url.origin}/a/${buildEventPointer(
-                            undefined,
-                            [],
-                            userPubDecoded,
-                            eventList[currentIndex].kind,
-                            eventList[currentIndex].tagValue("d")
-                          )}`}/>
                     </div>
-                  </div>
-                  <button
-                  class="common-btn-sm-ghost"
-                  on:click={() => showShareModal = true }><ShareIcon size={18}/> Share on nostr!
-                  </button>
                   {#if showShareModal && !isKink1Published}
                   <div class="modal">
                     <div class="modal-content">
@@ -217,23 +219,12 @@
                     </div>
                   </div>
                   {/if}
+                </div>
                 {/if}
               {/each}
-              <hr/>
-              <!-- <div class=" inline-flex gap-2 justify-center">
-                <button
-                  class="btn btn-sm variant-outline"
-                  class:selected={!showListsIndexSwitchTabs}
-                  on:click={() => (showListsIndexSwitchTabs = !showListsIndexSwitchTabs)}>Lists</button
-                >
-                <button
-                  class="btn btn-sm variant-outline"
-                  class:selected={showListsIndexSwitchTabs}
-                  on:click={() => (showListsIndexSwitchTabs = !showListsIndexSwitchTabs)}>Slugs</button
-                >
-              </div> -->
-            
+              <hr/>            
               <div class="flex flex-col gap-2 items-center">
+                <p class=" font-bold ">Other lists</p>
                 {#each eventTitles as title, index}
                   <button
                     class:hidden={showListsIndexSwitchTabs}
@@ -244,16 +235,7 @@
                     }}>{index + 1}.{title}</button
                   >
                 {/each}
-                <!-- {#each eventSlugs as slug}
-                  <button
-                    class="btn btn-sm variant-ghost"
-                    class:hidden={!showListsIndexSwitchTabs}
-                    on:click={() => {
-                      goto(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${slug}`);
-                    }}>{slug}</button
-                  >
-                {/each} -->
-                <span class="common-badge-filled">{unixToDate(eventList[currentIndex].created_at)}</span>
+                <span class="common-badge-glass">{unixToDate(eventList[currentIndex].created_at)}</span>
               </div>
               <hr class="!border-t-2" />
             </div>
@@ -264,7 +246,6 @@
           {#if !isEditMode}
           <div class="flex flex-col gap-2">
             {#if eventList.length > 1}
-
                 {#each findListTags(eventList[currentIndex].tags) as { url, text }}
                   {#if url.startsWith("nostr:")}
                     <a
@@ -272,21 +253,20 @@
                       target="_blank"
                       rel="noreferrer"
                     >
-                    <button class="btn variant-filled w-full whitespace-pre-wrap">{text}</button>
+                    <button class="common-list-btn-filled">{text}</button>
                     </a>
                   {:else}
                     <a href={url} target="_blank" rel="noreferrer">
-                      <button class="btn variant-filled w-full whitespace-pre-wrap">{text}</button>
+                      <button class="common-list-btn-filled">{text}</button>
                     </a>
                   {/if}
                 {/each}
             {:else}
                 {#each findListTags(eventList[currentIndex].tags) as { url, text }}
                   <a href={url} target="_blank" rel="noreferrer">
-                    <button class="btn variant-filled w-full">{text}</button>
+                    <button class="common-list-btn-filled">{text}</button>
                   </a>
                 {/each}
-
             {/if}
           </div>
           {:else}

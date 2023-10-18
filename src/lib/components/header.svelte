@@ -10,27 +10,33 @@
   import SearchWidget from "./search-widget.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
   import { LightSwitch } from '@skeletonlabs/skeleton';
+  import { AppBar, popup, getModalStore } from '@skeletonlabs/skeleton';
+    import ThemeButton from "./theme-button.svelte";
+    import ThemesIcon from "$lib/elements/icons/themes-icon.svelte";
 </script>
 
-<div class="sm:absolute w-full inline-flex items-center p-2 justify-between">
+<div class="sm:absolute w-full inline-flex items-center px-4 py-2 justify-between">
   <div class="headerLogo"><a href="/"><Logo size={40} /></a></div>
-  
-  {#if $ndkUser}
-    <div class= "flex gap-2 items-center">
-      <button class="common-btn-icon-ghost" on:click={() => goto('/explore')}><ExploreIcon size={20}/></button>
-      <button class="common-btn-icon-ghost" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
-      <button class="common-btn-sm-ghost" on:click={() => goto("/new")}>Manage lists</button>
+  <div class="flex gap-2 items-center">
+    <button class="common-btn-icon-ghost" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
+    <button class="common-btn-icon-ghost" on:click={() => goto('/explore')}><ExploreIcon size={20}/></button>
+    <!-- Theme -->
+    <button class="common-btn-icon-ghost" use:popup={{ event: 'click', target: 'theme', closeQuery: 'a[href]' }}>
+      <ThemesIcon size={20} />
+    </button>
+    <div class="card p-4 w-60 shadow-xl" data-popup="theme">
+      <ThemeButton />
+    </div>
+    <!-- . -->
+    {#if $ndkUser}
       <button class="common-btn-icon-ghost" on:click={() => goto(`/${$ndkUser?.npub}`)}><ProfileIcon size={20} /></button>
-      <LightSwitch />
+      <button class="common-btn-sm-ghost" on:click={() => goto("/new")}>Manage lists</button>
       <button class="common-btn-icon-ghost" on:click={logout}><LogoutIcon size={20} /></button>
-    </div>
-  {:else}
-    <div class="flex gap-2 items-center">
-      <button class="common-btn-icon-ghost" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
-      <LightSwitch />
+      {:else}
       <Login mode={"primary-sm"}/>
-    </div>
-  {/if}
+    {/if}
+  </div>
+
 </div>
 
 <!-- <style>

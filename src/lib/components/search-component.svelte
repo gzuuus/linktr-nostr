@@ -5,6 +5,7 @@
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import Logo from "$lib/elements/icons/logo.svelte";
+    import PlaceHolderLoading from "./placeHolderLoading.svelte";
 
   let eventList: NDKEvent[] = [];
   let ndkFilter: NDKFilter
@@ -32,20 +33,22 @@
 
 </script>
 {#await searchEvents(ndkFilter)}
-<div class="commonContainerStyle">
-  <div class="loading-global"><Logo size={50}/></div>
-  <h3>Loading...</h3>
+<div class="m-auto w-fit">
+  <PlaceHolderLoading layoutKind={"avatar"} />
 </div>
 {:then value } 
 <div>
   {#if eventList.length == 0}
   <h2>No matching profiles</h2>
   {:else}
+  <div class="flex flex-col gap-4">
   {#each eventList as event}
-    <div class="eventContainer">
+    <div class="common-container-content">
       <ProfileCardCompact userPub={event.author.npub} />
     </div>
+    <hr/>
   {/each}
+  </div>
   {/if}
 </div>
 {/await}

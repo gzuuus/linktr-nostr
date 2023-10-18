@@ -35,7 +35,7 @@
       <Login  />
     {:else}
       <button class="btn variant-filled" on:click={() => goto(`/${$ndkUser?.npub}`)}>Profile</button>
-      <button on:click={() => goto("/new")}>Manage lists</button>
+      <button class="btn variant-filled" on:click={() => goto("/new")}>Manage lists</button>
     {/if}
     <button class="btn variant-filled" on:click={() => goto("/search")}>Search</button>
     <button class="btn variant-filled" on:click={() => goto("/explore")}>Explore</button>

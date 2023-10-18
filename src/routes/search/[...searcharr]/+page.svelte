@@ -1,6 +1,7 @@
 <script lang="ts">
     import SearchComponent from "$lib/components/search-component.svelte";
     import { page } from "$app/stores";
+    import SearchIcon from "$lib/elements/icons/search-icon.svelte";
   
     let searchQuery = "";
     let currentSearchQuery = "";
@@ -22,12 +23,18 @@
     <meta property="og:title" content="Nostree - Search"/>
     <meta property="og:description" content="Search profiles" />
   </svelte:head>
-  <div class="commonContainerStyle">
   <h1>Profile search</h1>
   <p>You can try to find profiles by the name, handle, nostr address (nip05) or keywords</p>
   <div>
-    <input class="searchInput" type="text" bind:value={searchQuery} placeholder="What are you looking for?..." on:keypress={handleKeyPress} />
-    <button on:click={submitQuery}>Search</button>
+    <!-- <input class="input" type="text" bind:value={searchQuery} placeholder="What are you looking for?..." on:keypress={handleKeyPress} />
+    <button on:click={submitQuery}>Search</button> -->
+
+<div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
+	<div class="input-group-shim"><SearchIcon size={18}/></div>
+	<input type="search" bind:value={searchQuery} on:keypress={handleKeyPress} placeholder="Search..." />
+	<button class="variant-filled-secondary" on:click={submitQuery}>Search</button>
+</div>
+		
   </div>
   {#key $page.params.searcharr}
   {#if currentSearchQuery}
@@ -35,4 +42,3 @@
   <SearchComponent searchQuery={currentSearchQuery} />
   {/if}
   {/key}
-  </div>

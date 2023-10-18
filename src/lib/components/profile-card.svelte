@@ -78,7 +78,7 @@
 </div>
 {:then value}
   {#if userProfile}
-      <div class="mx-auto w-fit">
+      <div class="mx-auto w-fit flex flex-col gap-2">
       <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
         <Avatar class={showQR ? 'hidden' : 'common-ring'}
         src={userProfile.image} 
@@ -91,39 +91,41 @@
         alt="QR Code"
         />
       </a>
+      <div>
+      <button class="common-btn-icon-ghost" on:click={() => generateQRCode(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
+        ><QrIcon size={16} /></button
+      >
+      <a href="lightning:{userProfile.lud16}"><button class="common-btn-icon-ghost"><LnIcon size={16} /></button></a>
+      <button class="common-btn-icon-ghost" on:click={() =>  handleShareClick(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
+        ><ShareIcon size={16} /></button
+      >
+    </div>
     </div>
       <div>
-        <button class="common-btn-icon-ghost" on:click={() => generateQRCode(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
-          ><QrIcon size={18} /></button
-        >
-        <a href="lightning:{userProfile.lud16}"><button class="common-btn-icon-ghost"><LnIcon size={18} /></button></a>
-        
-        <button class="common-btn-icon-ghost" on:click={() =>  handleShareClick(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
-          ><ShareIcon size={16} /></button
-        >
-        <h2>
+        <h1>
           <a href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}"
             >{userProfile.displayName ? userProfile.displayName : userProfile.name}</a
           >
-        </h2>
+        </h1>
 
         <div>
-          <span class="common-badge-filled">
+          <span class="common-badge-soft">
           <ClipboardButton contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`} buttonText={$isNip05ValidStore.isNip05Valid
             ? userProfile.nip05
               ? userProfile.nip05
               : $isNip05ValidStore.Nip05address
             : truncateString(userPub)} 
             isButton={false}
+            buttonIcon="none"
             />
           <button on:click={() => showAbout = !showAbout}><InfoIcon size={16} /></button>
           </span>
         </div>
         {#if showAbout}
-          <span class="common-badge-ghost">
-            <button class="inline-flex gap-2" on:click={() => copyToClipboard(userPub)}
-              >{truncateString(userPub)}<CopyIcon size={14} />
-            </button>
+          <span class="common-badge-soft">
+            <ClipboardButton contentToCopy={userPub} buttonText={truncateString(userPub)}
+              isButton={false}
+              />
           </span>
           <p>{userProfile.about ? userProfile.about : ""}</p>
           <div>
