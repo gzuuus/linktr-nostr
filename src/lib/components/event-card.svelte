@@ -36,7 +36,9 @@
     import { outNostrLinksUrl } from "../utils/constants";
     import ClipboardButton from "./clipboardButton.svelte";
     import PlaceHolderLoading from "./placeHolderLoading.svelte";
+    import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 
+  const modalStore = getModalStore();
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   let showDialog: boolean = false;
@@ -83,6 +85,19 @@
     }
   }
 
+  function craftModal(modalTitle:string | undefined = "", modalContent:string) {
+    const modal: ModalSettings = {
+      type: 'component',
+      title: modalTitle,
+      body: `Share this nostree list '${modalTitle}' from ${$isNip05ValidStore.UserIdentifier} with everyone`,
+      component: 'modalPublishKind1',
+      meta: {
+        noteContent: `Look this cool nostree list '${modalTitle}' from nostr:${$isNip05ValidStore.UserNpub}\n${modalContent}`
+    }
+};
+    modalStore.trigger(modal);
+  }
+
   $: currentIndex = 0;
   function clampIndex(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
@@ -113,7 +128,7 @@
 <PlaceHolderLoading colCount={6} />
 {:then value}
     {#if eventList.length > 0}
-        <div>
+        <div >
           <div class:justify-between={eventList.length > 1} class="flex justify-center">
             <button
               class:disabled={currentIndex === 0}
@@ -159,9 +174,9 @@
             {#each findOtherTags(eventList[currentIndex].tags, "l") as label}
               {#if label !== "nostree"}
               <div class="inline-flex gap-2 justify-center flex-wrap">
+            <div class="flex flex-col gap-2">
               <div>
                 {#if $ndkUser}
-                <div>
                   {#if eventList[currentIndex].author.npub != $ndkUser?.npub}
                     <button
                       class="btn btn-sm variant-ghost"
@@ -179,9 +194,7 @@
                       }}><EditIcon size={16} /></button
                     >
                   {/if}
-                </div>
               {/if}
-            </div>
               <ClipboardButton buttonIcon="link" contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`} />
               <ClipboardButton buttonIcon="id" contentToCopy={`${$page.url.origin}/a/${buildEventPointer(
                 undefined,
@@ -192,19 +205,17 @@
               )}`}/>
               <button
               class="common-btn-sm-ghost gap-1"
-              on:click={() => showShareModal = true }><ShareIcon size={16}/> Share on nostr!
+              on:click={() => craftModal(eventList[currentIndex].tagValue("title"),`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}
+              ><ShareIcon size={16}/> Share on nostr!
               </button>
               
+            </div>
               <div class="flex flex-wrap justify-center gap-1">
                 {#each findOtherTags(eventList[currentIndex].tags, "t") as hashtag}
                 <button on:click={() => goto (`/explore/${hashtag}`)}><span class="badge variant-soft hover:variant-filled"><HashtagIconcopy size={16}/>{hashtag}</span></button>
                 {/each}
                 </div>
-                    <div
-                      class:hidden={!showListsIndex}
-                      class="flex gap-2 items-center justify-center"
-                    >
-                    </div>
+              </div>
                   {#if showShareModal && !isKink1Published}
                   <div class="modal">
                     <div class="modal-content">
@@ -314,117 +325,5 @@
           {/each}
         </div>
         </div>
-    <!-- {:else}
-    {#each eventList as event}
-        <div class="eventContainer">
-          <div class="eventContentContainer">
-            {#if event.kind === 30023}
-              <h3>{event.tagValue("title")}</h3>
-              {#if showSummary}
-                <p>{event.tagValue("summary")}</p>
-              {/if}
-            {/if}
-            {#if event.kind != 30023}
-              <ParsedContent content={event.content} />
-            {/if}
-          </div>
-          <div class="infoBox">
-            {unixToDate(event.created_at)}
-            <a
-              href="{outNostrLinksUrl}/{buildEventPointer(
-                event.id,
-                [event.relay?.url ?? ''],
-                event.pubkey,
-                event.kind,
-                event.tagValue('d')
-              )}"
-              target="_blank"
-              rel="noreferrer"><button class="infoButton"><LinkOut size={20} color="var(--accent-color)" /></button></a
-            >
-          </div>
-        </div>
-      {/each} -->
     {/if}
 {/await}
-<!-- 
-<style>
-  .listLinkOutSection {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  /* .overlayButton {
-    position: absolute;
-    right: 0.3em;
-    border: var(--common-border-style);
-  } */
-  button.switchButtons.commonPadding {
-    margin-top: 0.3em;
-  }
-  button.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .infoButton {
-    margin: 0;
-    display: flex;
-    background: transparent;
-    border: none;
-    transition: all 0.2s ease-in-out;
-  }
-  .eventContentContainer {
-    margin: 0.3em 0;
-    word-wrap: break-word;
-    overflow: hidden;
-  }
-  .sectionContainer {
-    overflow: auto;
-  }
-  .indexDotButtonContainer {
-    max-width: 100%;
-  }
-  @media screen and (max-width: 350px) {
-    .indexDotButtonContainer {
-      overflow: scroll !important;
-    }
-  }
-  .switchButtons {
-    padding: 0;
-    margin: 0;
-    display: inline-flex;
-  }
-  .eventContainerButtons {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    margin-bottom: 0.3em;
-    width: 100%;
-    position: relative;
-  }
-  .listLinkOutContainer {
-    gap: 0.5em;
-  }
-  .listLinkOutContainerContent {
-    display: flex;
-    gap: 0.5em;
-    align-items: baseline;
-  }
-  .eventContainerButtons > div {
-    display: flex;
-    gap: 0.5em;
-    align-items: center;
-  }
-  .infoBox {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-top: 1px solid var(--accent-color);
-    padding-top: 0.1em;
-    gap: 0.5em;
-  }
-  .listsIndexSection {
-    flex-direction: column;
-    margin-top: 0.5em;
-    gap: 0 !important;
-  }
-</style> -->

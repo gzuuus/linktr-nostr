@@ -12,8 +12,6 @@
   import { page } from "$app/stores";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-  import Logo from "$lib/elements/icons/logo.svelte";
-  import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import SearchWidget from "$lib/components/search-widget.svelte";
     import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
     import ClipboardButton from "$lib/components/clipboardButton.svelte";
@@ -68,11 +66,6 @@ function toggleHashtags() {
     showAllHashtags = !showAllHashtags;
   }
 </script>
-<!-- <Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
-  <Toast isOpen={isShared} type="success">
-    <p>Copied to clipboard</p>
-  </Toast>
-</Toasts> -->
 <svelte:head>
   <title>{$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}</title>
   <meta name="description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
@@ -82,11 +75,13 @@ function toggleHashtags() {
 
 {#key $page.url.href}
 {#await fetchEvents(ndkFilter)}
-  <div class="loading-global w-fit m-auto"><Logo size={75}/></div>
+  <div class="loading-global w-fit m-auto">
+    <PlaceHolderLoading layoutKind={"avatar"} />
+  </div>
   <h2 class:hidden={!$page.params.hashtagvalue}> #{$page.params.hashtagvalue}</h2>
   <PlaceHolderLoading colCount={6} />
 {:then value } 
-  <h1><button type="button" class="noButton" on:click={() => goto('/explore')}><ExploreIcon size={25} /></button>Explore</h1>
+  <h1 class="inline-flex justify-center"><button type="button" on:click={() => goto('/explore')}><ExploreIcon size={25} /></button>Explore</h1>
   <div class="flex flex-col gap-2">
     {#key isSubscribe}
     <div>

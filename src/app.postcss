@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+html,
+body {
   @apply h-full overflow-hidden;
 }
 
@@ -26,31 +27,30 @@ p {
   @apply text-base;
 }
 
-
 /* Page Styles */
 /* Use these to define common page styles. */
 .common-container {
-	@apply w-screen max-w-sm mx-2 content-center justify-center text-center rounded-container-token px-3 py-5 sm:bg-surface-50/30 sm:dark:bg-surface-900/30 sm:shadow-lg;
+  @apply w-screen max-w-sm mx-2 content-center justify-center text-center rounded-container-token px-3 py-5 sm:bg-surface-50/30 sm:dark:bg-surface-900/30 sm:shadow-lg;
 }
 .common-container-content {
-    @apply flex flex-col gap-3 break-words;
+  @apply flex flex-col gap-2 break-words;
 }
 .common-ring {
-    @apply sm:ring-1;
+  @apply sm:ring-1 sm:variant-outline;
 }
-.common-btn-icon-ghost{
+.common-btn-icon-ghost {
   @apply btn-icon btn-icon-sm variant-ghost hover:variant-filled;
 }
-.common-btn-sm-ghost{
+.common-btn-sm-ghost {
   @apply btn btn-sm variant-ghost hover:variant-filled;
 }
-.common-btn-sm-soft{
+.common-btn-sm-soft {
   @apply btn btn-sm variant-soft hover:variant-filled;
 }
-.common-btn-filled{
+.common-btn-filled {
   @apply btn variant-filled;
 }
-.common-btn-sm-filled{
+.common-btn-sm-filled {
   @apply btn btn-sm variant-filled;
 }
 .common-badge-filled {
@@ -68,6 +68,6 @@ p {
 .common-list-btn-filled {
   @apply btn variant-filled w-full whitespace-pre-wrap hover:ring-1;
 }
-.hidden{
+.hidden {
   @apply invisible;
 }

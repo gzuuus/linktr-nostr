@@ -3,26 +3,24 @@
   export let userProfile: NDKUserProfile | null;
   import ndk from "$lib/stores/provider";
   import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
-  import { truncateString, copyToClipboard, sharePage } from "$lib/utils/helpers";
-  import CopyIcon from "$lib/elements/icons/copy-icon.svelte";
+  import { truncateString, sharePage } from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
   import { page } from "$app/stores";
   import InfoIcon from "$lib/elements/icons/info-icon.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
-  import AtIcon from "$lib/elements/icons/at-icon.svelte";
   import { isNip05Valid } from "$lib/utils/helpers";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import Logo from "$lib/elements/icons/logo.svelte";
-  import { CORSproxyUrl, outNostrLinksUrl, toastTimeOut } from "$lib/utils/constants";
+  import { outNostrLinksUrl, toastTimeOut } from "$lib/utils/constants";
   import { Avatar } from '@skeletonlabs/skeleton';
     import PlaceHolderLoading from "./placeHolderLoading.svelte";
     import ClipboardButton from "./clipboardButton.svelte";
-
+    import ParseContent from "./parse-content.svelte";
+    
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
@@ -67,11 +65,6 @@
   }
 
 </script>
-<!-- <Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
-  <Toast isOpen={isShared} type="success">
-    <p>Copied to clipboard</p>
-  </Toast>
-</Toasts> -->
 {#await fetchUserProfile()}
 <div class="w-fit m-auto">
     <PlaceHolderLoading layoutKind={"avatar"} />
@@ -81,13 +74,18 @@
       <div class="mx-auto w-fit flex flex-col gap-2">
       <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
         <Avatar class={showQR ? 'hidden' : 'common-ring'}
+        border="border-2 border-surface-300-600-token hover:!border-primary-500"
+        cursor="cursor-pointer"
+        initials={$isNip05ValidStore.UserIdentifier}
         src={userProfile.image} 
         width="w-32"
-        alt="avatar"
+        fallback={qrImageUrl}
+        alt={$isNip05ValidStore.UserIdentifier}
         />
         <Avatar class="{showQR ? 'common-ring' : 'hidden'}" 
         src={qrImageUrl} 
-        width="w-32" 
+        width="w-32"
+        rounded="rounded-3xl"
         alt="QR Code"
         />
       </a>
@@ -122,16 +120,20 @@
           </span>
         </div>
         {#if showAbout}
-          <span class="common-badge-soft">
+        <div class="flex flex-col gap-2 justify-center items-center">
+          <span class="common-badge-soft w-fit">
             <ClipboardButton contentToCopy={userPub} buttonText={truncateString(userPub)}
               isButton={false}
               />
           </span>
-          <p>{userProfile.about ? userProfile.about : ""}</p>
-          <div>
-            <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">See in nostr client <LinkOut size={18} /></span></a>
-            <a href="nostr:{userPub}"><span class="common-badge-ghost gap-2">See in native client <OstrichIcon size={18} /></span></a>
+          {#if userProfile.about }
+          <ParseContent content={userProfile.about} charLimit={300}/>
+          {/if}
+          <div class="flex gap-2 flex-wrap justify-center">
+            <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>
+            <a href="nostr:{userPub}"><span class="common-badge-ghost gap-2">View profile in native client <OstrichIcon size={18} /></span></a>
           </div>
+      </div>
         {/if}
       </div>
   {/if}

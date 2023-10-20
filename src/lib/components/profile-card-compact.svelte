@@ -39,13 +39,20 @@
   <div transition:fade class="flex gap-2 text-left justify-start items-center">
   <a href="/{userPub}">
     <Avatar class={showQR ? 'hidden' : 'common-ring'}
-    src={user?.profile?.image ? user.profile.image : ''}
+    border="border-2 border-surface-300-600-token hover:!border-primary-500"
+    cursor="cursor-pointer"
+    initials={user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}
+    src={user?.profile?.image ? user.profile.image : ''} 
     width="w-16"
-    alt="avatar"
+    fallback={qrImageUrl}
+    alt={user?.profile?.name ? user?.profile?.name : user?.profile?.displayName}
     />
     <Avatar class="{showQR ? 'common-ring' : 'hidden'}" 
+    border="border-4 border-surface-300-600-token hover:!border-primary-500"
+    cursor="cursor-pointer"
     src={qrImageUrl} 
-    width="w-32" 
+    width="w-32"
+    rounded="rounded-3xl"
     alt="QR Code"
     />
   </a>

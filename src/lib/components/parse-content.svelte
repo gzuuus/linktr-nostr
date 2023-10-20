@@ -29,7 +29,7 @@
         } else {
           rawContent = rawContent.replace(
             match.text,
-            `<a href="${match.url}" target="_blank" rel="noopener noreferrer">${match.text}</a>`
+            `<a class=" underline hover:cursor-pointer" href="${match.url}" target="_blank" rel="noopener noreferrer">${match.text}</a>`
           );
         }
       }
@@ -56,12 +56,10 @@
     return parsedContent.length > charLimit ? parsedContent.slice(0, charLimit) + "..." : parsedContent;
   }
 </script>
-
-<div class="parsedContentContainer">
   {@html showMore ? parsedContent : getTruncatedContent()}
 
   {#if parsedContent.length > charLimit}
-    <button class="showMoreButton" on:click={toggleShowMore}>
+    <button class="common-btn-icon-ghost" on:click={toggleShowMore}>
       {#if showMore}
         <MinusSmall size={20} />
       {:else}
@@ -69,7 +67,6 @@
       {/if}
     </button>
   {/if}
-</div>
 
 <!-- <style>
   .showMoreButton {
