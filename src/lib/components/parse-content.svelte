@@ -29,7 +29,7 @@
         } else {
           rawContent = rawContent.replace(
             match.text,
-            `<a class=" underline hover:cursor-pointer" href="${match.url}" target="_blank" rel="noopener noreferrer">${match.text}</a>`
+            `<a href="${match.url}" target="_blank" rel="noopener noreferrer">${match.text}</a>`
           );
         }
       }

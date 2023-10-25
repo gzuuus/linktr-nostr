@@ -7,12 +7,10 @@
   import { logout } from "$lib/utils/helpers";
   import Login from "./login.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
-  import SearchWidget from "./search-widget.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-  import { LightSwitch } from '@skeletonlabs/skeleton';
-  import { AppBar, popup, getModalStore } from '@skeletonlabs/skeleton';
-    import ThemeButton from "./theme-button.svelte";
-    import ThemesIcon from "$lib/elements/icons/themes-icon.svelte";
+  import { popup } from '@skeletonlabs/skeleton';
+  import ThemeButton from "./theme-button.svelte";
+  import ThemesIcon from "$lib/elements/icons/themes-icon.svelte";
 </script>
 
 <div class="sm:absolute w-full inline-flex items-center px-4 py-2 justify-between">
@@ -20,14 +18,12 @@
   <div class="flex gap-2 items-center">
     <button class="common-btn-icon-ghost" on:click={() => goto('/search')}><SearchIcon size={20}/></button>
     <button class="common-btn-icon-ghost" on:click={() => goto('/explore')}><ExploreIcon size={20}/></button>
-    <!-- Theme -->
     <button class="common-btn-icon-ghost" use:popup={{ event: 'click', target: 'theme', closeQuery: 'a[href]' }}>
       <ThemesIcon size={20} />
     </button>
     <div class="card p-4 w-60 shadow-xl" data-popup="theme">
       <ThemeButton />
     </div>
-    <!-- . -->
     {#if $ndkUser}
       <button class="common-btn-icon-ghost" on:click={() => goto(`/${$ndkUser?.npub}`)}><ProfileIcon size={20} /></button>
       <button class="common-btn-sm-ghost" on:click={() => goto("/new")}>Manage lists</button>
@@ -38,25 +34,3 @@
   </div>
 
 </div>
-
-<!-- <style>
-  .headerContainer {
-    position: absolute;
-    width: 100%;
-  }
-  .userMenu {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 0 1em;
-    display: flex;
-    gap: 0.5em;
-    line-height: 0;
-  }
-  .headerLogo {
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 0.5em;
-  }
-</style> -->

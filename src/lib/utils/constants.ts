@@ -1,3 +1,5 @@
+import type { ToastSettings } from "@skeletonlabs/skeleton";
+
 export const ogImageUrl =
   "https://image.nostr.build/35a3489682170c6797e36559088b7622900b541bfd5a627d8e3fee841675f5da.png";
 export const ogLogoImg =
@@ -5,6 +7,25 @@ export const ogLogoImg =
 export const kindLinks = 30001;
 export const kindNotes = 1;
 export const kindArticles = 30023;
-export const toastTimeOut = 5000;
+export const toastTimeOut = 3500;
 export const outNostrLinksUrl = "https://njump.me";
 export const CORSproxyUrl = "https://corsproxy.io/?";
+
+export const succesPublishToast: ToastSettings = {
+	message: 'Published successfully!',
+	timeout: toastTimeOut,
+	hoverable: true,
+	background: 'variant-filled-success'
+	};
+export const errorPublishToast: ToastSettings = {
+	message: 'Error on publishing, look at console!',
+	timeout: toastTimeOut,
+	hoverable: true,
+	background: 'variant-filled-error'
+	};
+export const succesDeletingToast: ToastSettings = {
+  message: 'Deleted successfully!',
+  timeout: toastTimeOut,
+  hoverable: true,
+  background: 'variant-filled-success'
+  };

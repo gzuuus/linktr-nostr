@@ -2,6 +2,8 @@
     import SearchComponent from "$lib/components/search-component.svelte";
     import { page } from "$app/stores";
     import SearchIcon from "$lib/elements/icons/search-icon.svelte";
+    import { focusTrap } from "@skeletonlabs/skeleton";
+    let isFocused: boolean = true;
   
     let searchQuery = "";
     let currentSearchQuery = "";
@@ -28,13 +30,15 @@
   <div>
     <!-- <input class="input" type="text" bind:value={searchQuery} placeholder="What are you looking for?..." on:keypress={handleKeyPress} />
     <button on:click={submitQuery}>Search</button> -->
-
+    <form use:focusTrap={true}>
 <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
 	<div class="input-group-shim"><SearchIcon size={18}/></div>
+  
 	<input type="search" bind:value={searchQuery} on:keypress={handleKeyPress} placeholder="Search..." />
 	<button class="variant-filled-secondary" on:click={submitQuery}>Search</button>
+
 </div>
-		
+</form>
   </div>
   {#key $page.params.searcharr}
   {#if currentSearchQuery}

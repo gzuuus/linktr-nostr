@@ -3,26 +3,13 @@
 	import ndk from "$lib/stores/provider";
 	import { getModalStore } from '@skeletonlabs/skeleton';
     import { ndkUser } from '$lib/stores/user';
-	import { getToastStore } from '@skeletonlabs/skeleton';
-	import type { ToastSettings } from '@skeletonlabs/skeleton';
     import Login from './login.svelte';
+	import { getToastStore } from '@skeletonlabs/skeleton';
+	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
 
 	export let parent: any;
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
-
-	const succesToast: ToastSettings = {
-	message: 'Published successfully!',
-	timeout: 5000,
-	hoverable: true,
-	background: 'variant-filled-success'
-	};
-	const errorToast: ToastSettings = {
-	message: 'Error on publishing, look at console!',
-	timeout: 5000,
-	hoverable: true,
-	background: 'variant-filled-error'
-	};
 
 	const formData = {
 		eventContent: $modalStore[0].meta.noteContent
@@ -37,12 +24,12 @@
 		ndkEvent
 		.publish()
 		.then(() => {
-				toastStore.trigger(succesToast)
+				toastStore.trigger(succesPublishToast)
 				modalStore.close()
 			}
 		)
 		.catch((error) => {
-			toastStore.trigger(errorToast)
+			toastStore.trigger(errorPublishToast)
 			console.log("Error:", error);
 		})
 	}

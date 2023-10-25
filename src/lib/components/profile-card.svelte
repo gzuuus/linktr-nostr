@@ -15,7 +15,7 @@
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import { outNostrLinksUrl, toastTimeOut } from "$lib/utils/constants";
+  import { outNostrLinksUrl } from "$lib/utils/constants";
   import { Avatar } from '@skeletonlabs/skeleton';
     import PlaceHolderLoading from "./placeHolderLoading.svelte";
     import ClipboardButton from "./clipboardButton.svelte";
@@ -55,13 +55,6 @@
 
     async function handleShareClick(urlToShare: string) {
     const shared = await sharePage(urlToShare);
-    
-    if (shared) {
-      isShared = true;
-      setTimeout(() => {
-        isShared = false;
-      }, toastTimeOut);
-    }
   }
 
 </script>
@@ -101,7 +94,7 @@
     </div>
       <div>
         <h1>
-          <a href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}"
+          <a class="no-underline" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}"
             >{userProfile.displayName ? userProfile.displayName : userProfile.name}</a
           >
         </h1>
@@ -138,39 +131,3 @@
       </div>
   {/if}
 {/await}
-
-<!-- <style>
-  @import '$lib/elements/animations/general-animations.css';
-  .profileContainer {
-    margin: 10px;
-    border-radius: var(--agnostic-radius);
-    word-wrap: anywhere;
-  }
-  .userPubButton {
-    padding-right: 0.5em;
-  }
-  img {
-    max-width: 125px;
-    border-radius: var(--agnostic-radius);
-  }
-  button {
-    margin: 0;
-    display: inline-flex;
-    background: transparent;
-    cursor: pointer;
-    color: var(--accent-color);
-    padding: 0.2em;
-    border: var(--common-border-style);
-  }
-  button:hover {
-    color: var(--hover-color);
-  }
-  .userInfoString {
-    border: none;
-    display: inline-flex;
-    gap: 5px;
-    font-size: 16px;
-    align-items: center;
-    padding: 0.3em 0;
-  }
-</style> -->
