@@ -21,7 +21,7 @@
 </script>
         <div class="space-y-4">
             <section class="flex justify-between items-center">
-                <h6 class="h6">Mode</h6>
+                <span>Mode</span>
                 <LightSwitch />
             </section>
             <hr />

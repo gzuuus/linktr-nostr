@@ -9,11 +9,13 @@
   import { storePopup } from '@skeletonlabs/skeleton';
   import { initializeStores } from '@skeletonlabs/skeleton';
   import PublishKind1Modal from "$lib/components/publish-kind1-modal.svelte";
+  import SearchWidget from "$lib/components/search-widget.svelte";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
   const modalRegistry: Record<string, ModalComponent> = {
-	modalPublishKind1: { ref: PublishKind1Modal}
+	modalPublishKind1: { ref: PublishKind1Modal},
+  modalSearch: { ref: SearchWidget }
 };
 
   onMount(async () => {

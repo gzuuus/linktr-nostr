@@ -25,7 +25,9 @@
   import { FormData } from "$lib/classes/list";
 	import { getToastStore, Accordion, AccordionItem, focusTrap } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
-    import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+  import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+  import { popup } from '@skeletonlabs/skeleton';
+
   const validPrefixes: string[] = [
     "http://",
     "https://",
@@ -224,11 +226,11 @@
         <input class="input" type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
       </label>
 
-      <label class="label" for="title">
+      <label class="label" for="summary">
         Description
         <input class="input" type="text" id="summary" placeholder="Brief description of your list" bind:value={formData.summary} maxlength="120"/>
       </label>
-      <label class="label" for="title">
+      <label class="label" for="links">
         Links
         {#each formData.links as linkData, index}
         <div class="flex flex-col gap-2 pb-2 rounded-container-token" class:variant-soft-surface={focusedIndex == index}>
@@ -245,7 +247,7 @@
             />
           </div>
           <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-            <div class="input-group-shim">
+            <div class="input-group-shim cursor-pointer" use:popup={{ event: 'click', target: 'popupSlug', placement: 'top' }}>
               <LinkIcon size={18} />
             </div>
             <input
@@ -255,6 +257,18 @@
               bind:value={linkData.link}
               on:input={validateAllURLs}
             />
+          </div>
+          <div class="card p-4 variant-filled" data-popup="popupSlug">
+            <ol class="list">
+              Allowed prefixes:
+              {#each validPrefixes as prefix }
+              <li>
+                <span class="flex-auto">{prefix}</span>
+              </li>
+              <hr/>
+              {/each}
+            </ol>
+            <div class="arrow variant-filled" />
           </div>
 
           {#if !linkValidationStatus[index] && linkData.link.trim()}
@@ -302,27 +316,68 @@
       {#each formData.labels as linkLabel, index}
         {#if linkLabel.label.trim() != "nostree"}
         <label class="label" for={`slug-${index}`}>
-          Slug
-        <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
+          <span class=" inline-flex gap-1">Slug
+            <button type="button" 
+            use:popup={{ event: 'click', target: 'popupSlug', placement: 'top' }}>
+            <InfoIcon size={18} />
+            </button>
+          </span>
+        <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]" >
           <div class="input-group-shim">
             <SlugIcon size={18} />
           </div>
-          <input type="text" id={`slug-${index}`} placeholder="short-slug" bind:value={linkLabel.label} />
+          <input type="text" id={`slug-${index}`} placeholder="short-slug" bind:value={linkLabel.label} maxlength="24" />
+        </div>
+        <div class="card p-4 variant-filled" data-popup="popupSlug">
+          <p>Slugs are a memorable way to identify your Nostree lists. It gives you a link to your list like nostree.me/user/SLUG</p>
+          <div class="arrow variant-filled" />
         </div>
         </label>
         {/if}
       {/each}
       <label class="label" for="hashtags">
-        Hashtags
-      <InputChip bind:value={formData.hashtags} name="chips" placeholder="Enter any value...(press intro)" />
+        <span class=" inline-flex gap-1">Hashtags 
+          <button type="button" 
+          use:popup={{ event: 'click', target: 'popupHashtag', placement: 'top' }}>
+          <InfoIcon size={18} />
+          </button>
+        </span>
+      <InputChip bind:value={formData.hashtags} name="chips" placeholder="Enter any value...(press intro)"/>
+      <div class="card p-4 variant-filled" data-popup="popupHashtag">
+        <p>Hashtags are a way to categorize your nostree list in order to increase discoverability. 💡 Press 'intro' to add hashtags</p>
+        <div class="arrow variant-filled" />
+      </div>
       </label>
     </svelte:fragment>
   </AccordionItem>
 </Accordion>
       <div class="flex flex-col gap-2">
           <div class="btn-group variant-ghost grid grid-cols-[auto_auto]">
-            <button type="button" class:opacity-50={!isFormValid}  disabled={!isFormValid} on:click={() => addLinkField(true)}><InsertIcon size={18} /></button>
-            <button type="button" class:opacity-50={!isFormValid}  disabled={!isFormValid} on:click={() => addLinkField(false)}><InsertIcon size={18} flipVertical={true} /></button>
+            <button 
+              type="button" 
+              class:opacity-50={!isFormValid}  
+              disabled={!isFormValid} 
+              on:click={() => addLinkField(true)}
+              use:popup={{ event: 'hover', target: 'popupIsertTop', placement: 'top' }}
+              >
+              <InsertIcon size={18} />
+            </button>
+            <button 
+              type="button" 
+              class:opacity-50={!isFormValid}  
+              disabled={!isFormValid} on:click={() => addLinkField(false)}
+              use:popup={{ event: 'hover', target: 'popupIsertBottom', placement: 'top' }}
+              >
+              <InsertIcon size={18} flipVertical={true} />
+            </button>
+          </div>
+          <div class="card p-4 variant-filled" data-popup="popupIsertTop">
+            <p>Insert link at the top of the list</p>
+            <div class="arrow variant-filled" />
+          </div>
+          <div class="card p-4 variant-filled" data-popup="popupIsertBottom">
+            <p>Insert link at the bottom of the list</p>
+            <div class="arrow variant-filled" />
           </div>
           <div class="btn-group variant-filled grid grid-cols-[1fr_auto]">
             <button class:opacity-50={!isFormValid}  disabled={!isFormValid} type="submit">Publish</button>

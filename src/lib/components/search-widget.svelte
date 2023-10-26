@@ -1,37 +1,30 @@
 <script lang="ts">
-  export let searchHashtag:boolean=false;
-  export let isSearchBar:boolean=false;
-  export let buttonText:string | undefined = "";
-  import SearchIcon from "$lib/elements/icons/search-icon.svelte";
   import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
-    import CloseIcon from "$lib/elements/icons/close-icon.svelte";
+  import { getModalStore } from '@skeletonlabs/skeleton';
+  export let parent: any;
 
-  let showInputField: boolean=false;
-  if (isSearchBar){
-    showInputField = true;
-  }
-
+  const modalStore = getModalStore();
   let searchQuery = "";
-  function submitQuery(){
-    if (searchHashtag){
-      goto(`${$page.url.origin}/explore/${searchQuery}`);
-    } else {
-      goto(`${$page.url.origin}/search/${searchQuery}`);
+
+  function submitQuery() {
+    if (searchQuery.trim() !== "") {
+      goto(`/search/${searchQuery}`);
     }
-  }
-  function handleKeyPress(event: KeyboardEvent) {
-      if (event.key === "Enter") {
-          submitQuery();
-          showInputField = false;
-          searchQuery="";
-      }
+    parent.onClose();
   }
 </script>
 
-<button class="common-btn-sm-ghost gap-1" class:inline-span={searchHashtag} class:hidden={showInputField} on:click={() => showInputField = !showInputField}>{buttonText}<SearchIcon size={20}/></button>
-<div class=" inline-flex gap-1" class:hidden={!showInputField}>
-  <input class=" variant-form-material p-1" type="text" bind:value={searchQuery} placeholder="What are you looking for?..." on:keypress={handleKeyPress} />
-  <button class="common-btn-sm-ghost" on:click={submitQuery}><SearchIcon size={22}/></button>
-  <button class:hidden={isSearchBar} class="common-btn-sm-ghost" on:click={() => showInputField = !showInputField}><CloseIcon size={22}/></button>
+{#if $modalStore[0]}
+<div class="card p-4 w-modal shadow-xl space-y-4">
+  <header class="text-2xl font-bold">Search</header>
+  <form
+    class="modal-form border border-surface-500 p-6 space-y-4 rounded-container-token"
+    on:submit|preventDefault={submitQuery}
+  >
+    <span>You can try to find profiles by name, handle, nostr address (nip05) or keywords in their biography.</span>
+    <input class="input" type="text" bind:value={searchQuery} placeholder="What are you looking for?..." />
+    <button type="submit" class="btn {parent.buttonPositive}">Search</button>
+    <button type="button" class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
+  </form>
 </div>
+{/if}

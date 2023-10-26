@@ -2,6 +2,7 @@
   "name": "nostree",
   "version": "0.1.4",
   "private": true,
+  "homepage": "https://nostree.me",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",

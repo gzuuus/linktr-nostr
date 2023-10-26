@@ -4,8 +4,7 @@
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import Logo from "$lib/elements/icons/logo.svelte";
-    import PlaceHolderLoading from "./placeHolderLoading.svelte";
+  import PlaceHolderLoading from "./placeHolderLoading.svelte";
 
   let eventList: NDKEvent[] = [];
   let ndkFilter: NDKFilter

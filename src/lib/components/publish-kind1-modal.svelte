@@ -40,7 +40,7 @@
 </script>
 
 {#if $modalStore[0]}
-	<div class="modal-example-form {cBase}">
+	<div class="{cBase}">
 		<header class={cHeader}>Share: {$modalStore[0].title ?? '(title missing)'}</header>
 
 		<form class="modal-form {cForm}">

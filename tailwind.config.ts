@@ -22,22 +22,22 @@ export default {
     },
   },
   plugins: [
-    forms,
-    skeleton({
-      themes: {
-        preset: [
-          { name: "crimson", enhancements: true },
-          { name: "gold-nouveau", enhancements: true },
-          { name: "hamlindigo", enhancements: true },
-          { name: "modern", enhancements: true },
-          { name: "rocket", enhancements: true },
-          { name: "sahara", enhancements: true },
-          { name: "seafoam", enhancements: true },
-          { name: "skeleton", enhancements: true },
-          { name: "vintage", enhancements: true },
-          { name: "wintry", enhancements: true },
-        ],
-      },
-    }),
-  ],
+		forms,
+		skeleton({
+			themes: {
+				preset: [
+					{ name: 'crimson', enhancements: true },
+					{ name: 'gold-nouveau', enhancements: true },
+					{ name: 'hamlindigo', enhancements: true },
+					{ name: 'modern', enhancements: true },
+					{ name: 'rocket', enhancements: true },
+					{ name: 'sahara', enhancements: true },
+					{ name: 'seafoam', enhancements: true },
+					{ name: 'skeleton', enhancements: true },
+					{ name: 'vintage', enhancements: true },
+					{ name: 'wintry', enhancements: true }
+				]
+			}
+		})
+	],
 } satisfies Config;

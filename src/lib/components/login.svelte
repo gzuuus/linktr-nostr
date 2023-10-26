@@ -40,7 +40,7 @@
 </script>
 
 {#if mode === "primary"}
-  <button class="common-btn-filled" on:click={login}>Login</button>
+  <button class="common-btn-filled w-full" on:click={login}>Login</button>
 {:else if mode === "primary-sm" && $page.url.href !== `${$page.url.origin}/`}
   <button class="common-btn-sm-filled" on:click={login}>Login</button>
 {:else if mode === "secondary" && $page.url.href !== `${$page.url.origin}/`}
