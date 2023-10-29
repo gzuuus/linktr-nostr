@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import { storeTheme } from '$lib/stores/stores';
+    export let widgetLayout: string = 'max-h-64 lg:max-h-[500px]';
 	const themes = [
 		{ type: 'skeleton', name: 'Skeleton', icon: '💀' },
 		{ type: 'wintry', name: 'Wintry', icon: '🌨️' },
@@ -25,7 +26,7 @@
                 <LightSwitch />
             </section>
             <hr />
-            <nav class="list-nav p-4 -m-4 max-h-64 lg:max-h-[500px] overflow-y-auto">
+            <nav class="list-nav p-4 -m-4 {widgetLayout} overflow-y-auto">
                     <ul>
                         {#each themes as { icon, name, type }}
                             <li>

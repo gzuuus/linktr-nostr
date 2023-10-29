@@ -34,9 +34,9 @@
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import PublishKind1 from "./publish-kind1.svelte";
     import { outNostrLinksUrl } from "../utils/constants";
-    import ClipboardButton from "./clipboardButton.svelte";
     import PlaceHolderLoading from "./placeHolderLoading.svelte";
     import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+    import ClipboardButton from "./clipboard-button.svelte";
 
   const modalStore = getModalStore();
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
@@ -175,6 +175,11 @@
               {#if label !== "nostree"}
               <div class="inline-flex gap-2 justify-center flex-wrap">
             <div class="flex flex-col gap-2">
+              <div class="flex flex-wrap justify-center gap-1">
+                {#each findOtherTags(eventList[currentIndex].tags, "t") as hashtag}
+                <button on:click={() => goto (`/explore/${hashtag}`)}><span class="badge variant-soft hover:variant-filled"><HashtagIconcopy size={16}/>{hashtag}</span></button>
+                {/each}
+                </div>
               <div>
                 {#if $ndkUser}
                   {#if eventList[currentIndex].author.npub != $ndkUser?.npub}
@@ -210,11 +215,6 @@
               </button>
               
             </div>
-              <div class="flex flex-wrap justify-center gap-1">
-                {#each findOtherTags(eventList[currentIndex].tags, "t") as hashtag}
-                <button on:click={() => goto (`/explore/${hashtag}`)}><span class="badge variant-soft hover:variant-filled"><HashtagIconcopy size={16}/>{hashtag}</span></button>
-                {/each}
-                </div>
               </div>
                   {#if showShareModal && !isKink1Published}
                   <div class="modal">

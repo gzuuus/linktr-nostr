@@ -12,20 +12,20 @@ export const outNostrLinksUrl = "https://njump.me";
 export const CORSproxyUrl = "https://corsproxy.io/?";
 
 export const succesPublishToast: ToastSettings = {
-	message: 'Published successfully!',
-	timeout: toastTimeOut,
-	hoverable: true,
-	background: 'variant-filled-success'
-	};
-export const errorPublishToast: ToastSettings = {
-	message: 'Error on publishing, look at console!',
-	timeout: toastTimeOut,
-	hoverable: true,
-	background: 'variant-filled-error'
-	};
-export const succesDeletingToast: ToastSettings = {
-  message: 'Deleted successfully!',
+  message: "Published successfully!",
   timeout: toastTimeOut,
   hoverable: true,
-  background: 'variant-filled-success'
-  };
+  background: "variant-filled-success",
+};
+export const errorPublishToast: ToastSettings = {
+  message: "Error on publishing, look at console!",
+  timeout: toastTimeOut,
+  hoverable: true,
+  background: "variant-filled-error",
+};
+export const succesDeletingToast: ToastSettings = {
+  message: "Deleted successfully!",
+  timeout: toastTimeOut,
+  hoverable: true,
+  background: "variant-filled-success",
+};

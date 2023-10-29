@@ -18,7 +18,7 @@
 <div class="card p-4 w-modal shadow-xl space-y-4">
   <header class="text-2xl font-bold">Search</header>
   <form
-    class="modal-form border border-surface-500 p-6 space-y-4 rounded-container-token"
+    class="border border-surface-500 p-6 space-y-4 rounded-container-token"
     on:submit|preventDefault={submitQuery}
   >
     <span>You can try to find profiles by name, handle, nostr address (nip05) or keywords in their biography.</span>

@@ -4,18 +4,21 @@
   import { onMount } from "svelte";
   import ndk from "$lib/stores/provider";
   import { ogImageUrl } from "$lib/utils/constants";
-  import { AppShell, Modal, Toast, type ModalComponent } from '@skeletonlabs/skeleton';
+  import { AppShell, Modal, Toast, type ModalComponent, Drawer } from '@skeletonlabs/skeleton';
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
   import { storePopup } from '@skeletonlabs/skeleton';
   import { initializeStores } from '@skeletonlabs/skeleton';
   import PublishKind1Modal from "$lib/components/publish-kind1-modal.svelte";
   import SearchWidget from "$lib/components/search-widget.svelte";
+  import Drawers from "$lib/components/drawers.svelte";
+    import NoExtensionModal from "$lib/components/no-extension-modal.svelte";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
   const modalRegistry: Record<string, ModalComponent> = {
 	modalPublishKind1: { ref: PublishKind1Modal},
-  modalSearch: { ref: SearchWidget }
+  modalSearch: { ref: SearchWidget },
+  modalNoNip07: { ref: NoExtensionModal}
 };
 
   onMount(async () => {
@@ -42,6 +45,7 @@
 </svelte:head>
 <Modal components={modalRegistry} />
 <Toast position="t" />
+<Drawers />
 <AppShell>
 	<svelte:fragment slot="header">
     <Header />

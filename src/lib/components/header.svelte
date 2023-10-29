@@ -1,111 +1,94 @@
 <script lang="ts">
-  import Logo from "$lib/elements/icons/logo.svelte";
-  import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
-  import { goto } from "$app/navigation";
-  import SearchIcon from "$lib/elements/icons/search-icon.svelte";
-  import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-  import ThemeButton from "./theme-button.svelte";
-  import ThemesIcon from "$lib/elements/icons/themes-icon.svelte";
-	import type { ModalSettings} from '@skeletonlabs/skeleton';
-	import { AppBar, popup, getModalStore } from '@skeletonlabs/skeleton';
-  import ThreeDotsIcon from "$lib/elements/icons/three-dots-icon.svelte";
-  import UserMenu from "./user-menu.svelte";
-  const modalStore = getModalStore();
+	import Logo from "$lib/elements/icons/logo.svelte";
+	import { goto } from "$app/navigation";
+	import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
+	import ThemeButton from "./theme-button.svelte";
+	import ThemesIcon from "$lib/elements/icons/themes-icon.svelte";
+	import type { ModalSettings, DrawerSettings } from '@skeletonlabs/skeleton';
+	import { AppBar, popup, getModalStore, getDrawerStore } from '@skeletonlabs/skeleton';
+	import HamburgerIcon from "$lib/elements/icons/hamburger-icon.svelte";
+	import Login from "./login.svelte";
+    import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
+    import { logout } from "$lib/utils/helpers";
+    import LogoutIcon from "$lib/elements/icons/logout-icon.svelte";
+	import { ndkUser } from "$lib/stores/user";
+    import EditIcon from "$lib/elements/icons/edit-icon.svelte";
+	const modalStore = getModalStore();
+	const drawerStore = getDrawerStore();
 
-  function triggerSearch(): void {
-		// const modal: ModalSettings = {
-		// 	type: 'component',
-		// 	component: 'modalSearch',
-		// 	position: 'item-start'
-		// };
-		// modalStore.trigger(modal);
-
-  const modal: ModalSettings = {
-      type: 'component',
-      component: 'modalSearch',
-  }
-  modalStore.trigger(modal);
+	function triggerSearch(): void {
+	const modal: ModalSettings = {
+		type: 'component',
+		component: 'modalSearch',
 	}
+	modalStore.trigger(modal);
+	}
+
 	function onWindowKeydown(e: KeyboardEvent): void {
 		if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
 			e.preventDefault();
 			$modalStore.length ? modalStore.close() : triggerSearch();
 		}
 	}
+
+	function drawerOpen(): void {
+		const s: DrawerSettings = { 
+			id: 'side-nav',
+			width: 'w-[280px] md:w-[480px]',
+			padding: 'p-2',
+			rounded: 'rounded-xl',
+			position: 'right'
+			};
+		drawerStore.open(s);
+	}
 </script>
 <svelte:window on:keydown|stopPropagation={onWindowKeydown} />
-
 <AppBar background=" bg-transparent" slotTrail="!space-x-2">
 	<svelte:fragment slot="lead">
 		<div class="flex items-center space-x-4">
-			<a class="lg:!ml-0 w-[32px] lg:w-auto overflow-hidden" href="/" title="Go to Homepage">
-				<Logo size={32} />
+			<a class="lg:!ml-0 w-fit lg:w-auto overflow-hidden" href="/" title="Go to Homepage">
+				<Logo size={36} />
 			</a>
 		</div>
 	</svelte:fragment>
 	<svelte:fragment slot="trail">
-		<div class="relative hidden lg:block">
+		<div class="hidden gap-2 sm:inline-flex">
 			<button class="common-btn-icon-ghost" on:click={() => goto('/explore')}>
 				<ExploreIcon size={18} />
 			</button>
-		</div>
-
-		<div class="relative hidden lg:block">
-			<button class="common-btn-icon-ghost" use:popup={{ event: 'click', target: 'theme', closeQuery: 'a[href]' }}>
-				<span class="hidden md:inline-block"><ThemesIcon size={18} /></span>
+			<button class="common-btn-icon-ghost " use:popup={{ event: 'click', target: 'theme', closeQuery: 'a[href]' }}>
+				<span><ThemesIcon size={18} /></span>
 			</button>
-      <div class="card p-4 w-60 shadow-xl" data-popup="theme">
-        <ThemeButton />
-      </div>
-		</div>
-
-
-			<button class="common-btn-icon-ghost" use:popup={{ event: 'click', target: 'userMenu', closeQuery: 'a[href]' }}>
-				<span class="md:inline-block"><ProfileIcon size={18} /></span>
+			<div class="card p-4 w-60 shadow-xl" data-popup="theme">
+				<ThemeButton />
+			</div>
+			{#if $ndkUser}
+			<button
+				class="common-btn-icon-ghost"
+				on:click={() => goto(`/${$ndkUser?.npub}`)}
+			>
+				<span><ProfileIcon size={20} /></span>
 			</button>
-      <div class="card p-4 w-60 shadow-xl" data-popup="userMenu">
-        <UserMenu />
-      </div>
-    <div class="relative hidden lg:block">
-      <button class="common-btn-icon-ghost" on:click={triggerSearch}>
-				<SearchIcon size={18} />
+			<button
+				class="common-btn-icon-ghost"
+				on:click={() => goto("/new")}
+			>
+				<span><EditIcon size={20} /></span>
 			</button>
+			<button
+				class="common-btn-icon-ghost-error"
+				on:click={logout}
+			>
+				<span><LogoutIcon size={20} /></span>
+			</button>
+			{:else}
+			<Login mode={"primary-sm"}/>
+			{/if}
 		</div>
-
     <!-- Hamburger Menu -->
-			<button on:click={() => console.log("clicked")} class="common-btn-icon-ghost lg:!hidden" use:popup={{ event: 'click', target: 'hamburgerMenu', closeQuery: 'a[href]' }}>
-				<ThreeDotsIcon size={20} />
-			</button>
-      <div class="card p-4 w-60 shadow-xl" data-popup="hamburgerMenu">
-        <div class="flex flex-col gap-2">
-          <div class="space-y-4">
-            <nav class="list-nav p-4 -m-4 max-h-64 lg:max-h-[500px] overflow-y-auto">
-              <ul>
-                <li>
-                  <button
-                    class="option w-full h-full variant-soft"
-                    on:click={triggerSearch}
-                  >
-                  <span><SearchIcon size={18} /></span>
-                  <span class="flex-auto text-left">Search</span>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    class="option w-full h-full variant-soft"
-                    on:click={() => goto('/explore')}
-                  >
-                  <span><ExploreIcon size={18} /></span>
-                  <span class="flex-auto text-left">Explore</span>
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
-          <div>
-            <ThemeButton />
-          </div>
-        </div>
-      </div>
+		<button on:click={drawerOpen} class="common-btn-icon-ghost sm:!hidden"
+        >
+			<HamburgerIcon size={20} />
+		</button>
 	</svelte:fragment>
 </AppBar>

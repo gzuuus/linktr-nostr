@@ -189,7 +189,7 @@
                     {#if isEditMode && editIndex == i}
                       <CreateNewList eventToEdit={event} doGoto={true} />
                     {/if}
-                    <div class:hidden={isEditMode && editIndex != i}>
+                    <div class:hidden={isEditMode && editIndex == i}>
                     <Accordion regionControl="variant-ghost">
                         <AccordionItem>
                           <svelte:fragment slot="summary">View links</svelte:fragment>

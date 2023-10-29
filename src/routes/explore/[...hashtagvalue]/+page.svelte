@@ -1,6 +1,6 @@
 <script lang="ts">
   import ndk from "$lib/stores/provider";
-  import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags, sharePage } from "$lib/utils/helpers";
+  import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags } from "$lib/utils/helpers";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
@@ -12,15 +12,14 @@
   import { page } from "$app/stores";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-  import SearchWidget from "$lib/components/search-widget.svelte";
-    import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
-    import ClipboardButton from "$lib/components/clipboardButton.svelte";
+  import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
+  import ClipboardButton from "$lib/components/clipboard-button.svelte";
+  import SearchBar from "$lib/components/search-bar.svelte";
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
   let isSubscribe: boolean = false;
   let eventList: NDKEvent[] = [];
-  let isShared:boolean = false;
   let initialHashtagCount: number = 15;
   let showAllHashtags:boolean = false;
 
@@ -51,16 +50,6 @@ async function fetchEvents(filter: NDKFilter) {
         });
         isSubscribe = false;
 }
-async function handleShareClick(urlToShare: string) {
-    const shared = await sharePage(urlToShare);
-    
-    if (shared) {
-      isShared = true;
-      setTimeout(() => {
-        isShared = false;
-      }, toastTimeOut);
-    }
-  }
 
 function toggleHashtags() {
     showAllHashtags = !showAllHashtags;
@@ -100,15 +89,15 @@ function toggleHashtags() {
       {!showAllHashtags ? `Show more hashtags` : 'Collapse'}
     </button>
     {/if}
-    <SearchWidget searchHashtag={true} buttonText={"Search hastags"}/>
+    <SearchBar searchHashtag={true} buttonText={"Search hastags"}/>
   </div>
     {/key}
   </div>
-  {#if $page.params.hashtagvalue}
+  <!-- {#if $page.params.hashtagvalue}
   <h3>Exploring: #{$page.params.hashtagvalue} 
-    <ClipboardButton contentToCopy={$page.params.hashtagvalue} buttonIcon={"share"} />
+    <ClipboardButton contentToCopy={$page.url.href} buttonIcon={"share"} />
   </h3>
-  {/if}
+  {/if} -->
   <hr/>
   {#each eventList as event}
     <div class="common-container-content">
@@ -171,23 +160,4 @@ function toggleHashtags() {
     <hr/>
   {/each}
 {/await}
-
-
 {/key}
-
-<!-- <style>
-  .eventContentContainer {
-    margin: 0.3em 0;
-    word-wrap: break-word;
-    width: 92%;
-    margin: auto;
-  }
-
-  .infoBox {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-top: 0.1em;
-    gap: 0.5em;
-  }
-</style> -->

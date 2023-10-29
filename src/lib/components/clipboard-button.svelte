@@ -1,26 +1,25 @@
 <script lang="ts">
-    import CopyIcon from '$lib/elements/icons/copy-icon.svelte';
-    import IdIcon from '$lib/elements/icons/id-icon.svelte';
-    import LinkOut from '$lib/elements/icons/link-out.svelte';
-    import ShareIcon from '$lib/elements/icons/share-icon.svelte';
-    export let contentToCopy: string;
-    export let buttonIcon: string | undefined = "copy";
-    export let buttonText: string | undefined = "";
-    export let isButton: boolean = true;
-    import { clipboard } from '@skeletonlabs/skeleton';
-    import { sharePage } from '$lib/utils/helpers';
-  
-    let copied = false;
-  
-	function onClickHandler(): void {
+  import CopyIcon from '$lib/elements/icons/copy-icon.svelte';
+  import IdIcon from '$lib/elements/icons/id-icon.svelte';
+  import LinkOut from '$lib/elements/icons/link-out.svelte';
+  import ShareIcon from '$lib/elements/icons/share-icon.svelte';
+  export let contentToCopy: string;
+  export let buttonIcon: string | undefined = "copy";
+  export let buttonText: string | undefined = "";
+  export let isButton: boolean = true;
+  import { clipboard } from '@skeletonlabs/skeleton';
+  import { sharePage } from '$lib/utils/helpers';
+
+  let copied = false;
+  function onClickHandler(): void {
     if (buttonIcon == "share"){
       sharePage(contentToCopy);      
     }
-		copied = true;
-		setTimeout(() => {
-			copied = false;
-		}, 1500);
-	}
+    copied = true;
+    setTimeout(() => {
+      copied = false;
+    }, 1500);
+  }
 </script>
   
   <button 

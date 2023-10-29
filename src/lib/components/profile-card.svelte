@@ -17,14 +17,13 @@
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import { outNostrLinksUrl } from "$lib/utils/constants";
   import { Avatar } from '@skeletonlabs/skeleton';
-    import PlaceHolderLoading from "./placeHolderLoading.svelte";
-    import ClipboardButton from "./clipboardButton.svelte";
-    import ParseContent from "./parse-content.svelte";
+  import PlaceHolderLoading from "./placeHolderLoading.svelte";
+  import ClipboardButton from "./clipboard-button.svelte";
+  import ParseContent from "./parse-content.svelte";
     
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
-  let isShared: boolean = false;
 
   let user = $ndk.getUser({
     npub: userPub,

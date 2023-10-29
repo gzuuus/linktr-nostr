@@ -12,7 +12,7 @@
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import { Avatar } from "@skeletonlabs/skeleton";
-  import ClipboardButton from "./clipboardButton.svelte";
+  import ClipboardButton from "./clipboard-button.svelte";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;

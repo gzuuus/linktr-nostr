@@ -33,17 +33,12 @@
 			console.log("Error:", error);
 		})
 	}
-
-	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
-	const cHeader = 'text-2xl font-bold';
-	const cForm = 'border border-surface-500 p-6 space-y-4 rounded-container-token';
 </script>
 
 {#if $modalStore[0]}
-	<div class="{cBase}">
-		<header class={cHeader}>Share: {$modalStore[0].title ?? '(title missing)'}</header>
-
-		<form class="modal-form {cForm}">
+	<div class="common-modal-base">
+		<header class="common-2xl-header">Share: {$modalStore[0].title ?? '(title missing)'}</header>
+		<form class="border border-surface-500 p-6 space-y-4 rounded-container-token">
 			<label class="label">
 				<span>{$modalStore[0].body ?? '(body missing)'}</span>
 				<textarea class="textarea" rows="4" bind:value={formData.eventContent} placeholder="Enter some text..." />
@@ -57,7 +52,6 @@
 		{:else}
 		<Login doGoto={false}/>
 		{/if}
-        
     	</footer>
 	</div>
 {/if}

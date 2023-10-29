@@ -32,7 +32,7 @@
       <p>A Nostr-based application to create, manage and discover link lists, and other stuff.</p>
     </div>
     {#if !$ndkUser}
-      <Login  />
+      <Login mode="primary" />
     {:else}
       <button class="btn variant-filled" on:click={() => goto(`/${$ndkUser?.npub}`)}>Profile</button>
       <button class="btn variant-filled" on:click={() => goto("/new")}>Manage lists</button>
@@ -54,32 +54,3 @@
     </div>
 </div>
 </div>
-
-<!-- <style>
-  .homeContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    word-break: break-word;
-    background: var(--background-color);
-    border-radius: var(--agnostic-radius);
-    padding: 15px;
-  }
-  .logoContainer {
-    display: flex;
-    border: 1px solid var(--agnostic-focus-ring-color);
-    padding: 25px 20px;
-    border-radius: 100px;
-  }
-  button {
-    display: inline-flex;
-    padding: 0.2em;
-    margin: 0.2em;
-  }
-  .homeParentContainer {
-    background: var(--accent-color);
-    padding: 0;
-    border-radius: calc(var(--agnostic-radius) + 2px);
-  }
-</style> -->
