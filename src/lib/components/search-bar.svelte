@@ -1,34 +1,36 @@
 <script lang="ts">
-    export let searchHashtag:boolean=false;
-    export let isSearchBar:boolean=false;
-    export let buttonText:string | undefined = "";
-    import SearchIcon from "$lib/elements/icons/search-icon.svelte";
     import { goto } from "$app/navigation";
-    import { focusTrap } from "@skeletonlabs/skeleton";
-  
-    let searchQuery = "";
+    import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+    import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
+    import { RadioGroup, RadioItem, focusTrap } from "@skeletonlabs/skeleton";
+    export let searchDone: boolean = false;
+    export let searchQuery: string = "";
+    export let searchKind: string = "profile";
+    export let isAdvancedSearch: boolean = false;
     function submitQuery() {
     if (searchQuery.trim() !== "") {
-        if (searchHashtag) {
+      searchQuery = searchQuery.toLowerCase().trim();
+        if (searchKind == "hashtag") {
             goto(`/explore/${searchQuery}`);
         } else{
             goto(`/search/${searchQuery}`);
         }
     }
+    searchDone = true
   }
-  
   </script>
-    <button class="common-btn-sm-ghost" class:hidden={isSearchBar} on:click={() => isSearchBar = !isSearchBar}>
-        <span>{buttonText}</span>
-        <span><SearchIcon size={18}/></span>
-    </button>
-  <div class=" inline-flex gap-1" class:hidden={!isSearchBar} >
-    <form
-    class="border border-surface-500 p-6 space-y-4 rounded-container-token"
-    on:submit|preventDefault={submitQuery}
-    use:focusTrap={true}
-  >
-    <input class="input" type="text" bind:value={searchQuery} placeholder="What are you looking for?..." />
-    <button type="submit" class="common-btn-sm-filled">Search</button>
-  </form>
+  <div class="input-group input-group-divider grid-cols-[1fr_auto]">
+    <form 
+      use:focusTrap={true}
+      on:submit|preventDefault={submitQuery}
+      >
+        <input class="input" type="search" bind:value={searchQuery} placeholder="Search..." />
+    </form>
+    <button type="submit" class="variant-filled-secondary" on:click={submitQuery}>Search</button>
   </div>
+  {#if isAdvancedSearch}
+  <RadioGroup>
+    <RadioItem bind:group={searchKind} name="justify" value="profile"><ProfileIcon size={18} /></RadioItem>
+    <RadioItem bind:group={searchKind} name="justify" value="hashtag"><HashtagIconcopy size={18} /></RadioItem>
+  </RadioGroup>
+  {/if}

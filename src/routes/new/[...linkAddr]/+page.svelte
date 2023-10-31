@@ -14,6 +14,7 @@
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import { Accordion, AccordionItem, getToastStore } from "@skeletonlabs/skeleton";
+  import CreateNewListWidget from "$lib/components/create-new-list-widget.svelte";
 
   const toastStore = getToastStore();
   let events: NDKEvent[] = [];
@@ -114,101 +115,97 @@
   <meta property="og:title" content="Manage lists"/>
   <meta property="og:description" content="Manage your nostree lists" />
 </svelte:head>
-    {#if $ndkUser}
-      <div class:hidden={showCreateNewList} class="flex flex-col gap-2 flex-wrap">
-        <h2>Manage your lists</h2>
-        <button class="common-btn-filled" on:click={() => (showCreateNewList = !showCreateNewList)}>Create new list </button>
-      </div>
-      <div class:hidden={!showCreateNewList} class="flex flex-col gap-2 flex-wrap items-center">
-        <button class="common-btn-icon-ghost w-fit" on:click={() => (showCreateNewList = !showCreateNewList)}><CloseIcon size={20} /></button>
-        <CreateNewList eventToEdit={null} />
-      </div>
-    {:else}
-      <Login mode="primary" doGoto={false} />
-    {/if}
-
-    {#key events.length}
-      {#if events.length > 0 && !showCreateNewList}
-      <Accordion regionControl="variant-ghost">
-        <AccordionItem>
-          <svelte:fragment slot="summary">Show your all lists</svelte:fragment>
-          <svelte:fragment slot="content">
-          {#key fetchedEvents}
-              {#each events as event, i}
-                {#if !deletedEventsIds.includes(event.tagValue("d") ?? "")}
-                  <div class="common-container-content common-ring rounded-container-token p-2">
-                    <div class="flex flex-wrap gap-1 justify-center">  
-                    {#if !isEditMode}
-                        <button
-                          class="common-btn-icon-ghost"
-                          on:click={() => {
-                            isEditMode = true;
-                            editIndex = i;
-                          }}><EditIcon size={20} /></button
-                        >
-                      {:else if editIndex == i}
-                        <button
-                          class="common-btn-icon-ghost"
-                          on:click={() => {
-                            isEditMode = false;
-                          }}><CloseIcon size={20} /></button
-                        >
-                      {:else}
-                        <button
-                          class="common-btn-icon-ghost"
-                          on:click={() => {
-                            isEditMode = true;
-                            editIndex = i;
-                          }}><EditIcon size={20} /></button
-                        >
-                      {/if}
-                      <button
-                        class="common-btn-icon-ghost"
-                        class:firstEvent={i == 0}
-                        on:click={() => {
-                          handleSubmit(event);
-                        }}><PinIcon size={20} /></button
-                      >
-                      <button
-                        class="common-btn-icon-ghost hover:variant-filled-error"
-                        on:click={() => {
-                          handleSubmit(event, true);
-                        }}><BinIcon size={20} /></button
-                      >
-                    </div>
-                    <div class:hidden={isEditMode && editIndex == i}>
-                      <h3>{event.tagValue("title")}</h3>
-                    <div class="flex flex-wrap gap-1 justify-center">
-                    {#each findHashTags(event.tags) as { text }}
-                    <span class="common-badge-ghost">
-                      <HashtagIconcopy size={16}/>{text}
-                    </span>
-                    {/each}
-                    </div>
-                  </div>
-                    {#if isEditMode && editIndex == i}
-                      <CreateNewList eventToEdit={event} doGoto={true} />
-                    {/if}
-                    <div class:hidden={isEditMode && editIndex == i}>
-                    <Accordion regionControl="variant-ghost">
-                        <AccordionItem>
-                          <svelte:fragment slot="summary">View links</svelte:fragment>
-                          <svelte:fragment slot="content">
-                          <div class="flex flex-col flex-wrap gap-2">
-                            {#each findListTags(event.tags) as { url, text }}
-                              <a href={url} target="_blank" rel="noreferrer"><button class="common-list-btn-filled">{text}</button></a>
-                            {/each}
-                          </div>
-                          </svelte:fragment>
-                      </AccordionItem>
-                    </Accordion>
-                  </div>
-                  </div>
+{#if $ndkUser}
+  <div class:hidden={showCreateNewList} class="flex flex-col gap-2 flex-wrap">
+    <h2>Manage your lists</h2>
+  </div>
+  <CreateNewListWidget bind:showCreateNewList={showCreateNewList} />
+{:else}
+  <Login mode="primary" doGoto={false} />
+{/if}
+<!-- Other lists -->
+{#key events.length}
+  {#if events.length > 0 && !showCreateNewList}
+  <Accordion regionControl="variant-ghost">
+    <AccordionItem>
+      <svelte:fragment slot="summary">Show your all lists</svelte:fragment>
+      <svelte:fragment slot="content">
+      {#key fetchedEvents}
+          {#each events as event, i}
+            {#if !deletedEventsIds.includes(event.tagValue("d") ?? "")}
+              <div class="common-container-content common-ring rounded-container-token p-2">
+                <div class="flex flex-wrap gap-1 justify-center">  
+                {#if !isEditMode}
+                    <button
+                      class="common-btn-icon-ghost"
+                      on:click={() => {
+                        isEditMode = true;
+                        editIndex = i;
+                      }}><EditIcon size={20} /></button
+                    >
+                  {:else if editIndex == i}
+                    <button
+                      class="common-btn-icon-ghost"
+                      on:click={() => {
+                        isEditMode = false;
+                      }}><CloseIcon size={20} /></button
+                    >
+                  {:else}
+                    <button
+                      class="common-btn-icon-ghost"
+                      on:click={() => {
+                        isEditMode = true;
+                        editIndex = i;
+                      }}><EditIcon size={20} /></button
+                    >
+                  {/if}
+                  <button
+                    class="common-btn-icon-ghost"
+                    class:firstEvent={i == 0}
+                    on:click={() => {
+                      handleSubmit(event);
+                    }}><PinIcon size={20} /></button
+                  >
+                  <button
+                    class="common-btn-icon-ghost hover:variant-filled-error"
+                    on:click={() => {
+                      handleSubmit(event, true);
+                    }}><BinIcon size={20} /></button
+                  >
+                </div>
+                <div class:hidden={isEditMode && editIndex == i}>
+                  <h3>{event.tagValue("title")}</h3>
+                <div class="flex flex-wrap gap-1 justify-center">
+                {#each findHashTags(event.tags) as { text }}
+                <span class="common-badge-ghost">
+                  <HashtagIconcopy size={16}/>{text}
+                </span>
+                {/each}
+                </div>
+              </div>
+                {#if isEditMode && editIndex == i}
+                  <CreateNewList eventToEdit={event} doGoto={true} listTemplate={undefined} />
                 {/if}
-              {/each}
-          {/key}
-        </svelte:fragment>
-      </AccordionItem>
-      </Accordion>
-      {/if}
-    {/key}
+                <div class:hidden={isEditMode && editIndex == i}>
+                <Accordion regionControl="variant-ghost">
+                    <AccordionItem>
+                      <svelte:fragment slot="summary">View links</svelte:fragment>
+                      <svelte:fragment slot="content">
+                      <div class="flex flex-col flex-wrap gap-2">
+                        {#each findListTags(event.tags) as { url, text }}
+                          <a href={url} target="_blank" rel="noreferrer"><button class="common-list-btn-filled">{text}</button></a>
+                        {/each}
+                      </div>
+                      </svelte:fragment>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+              </div>
+            {/if}
+          {/each}
+      {/key}
+    </svelte:fragment>
+  </AccordionItem>
+  </Accordion>
+  {/if}
+{/key}

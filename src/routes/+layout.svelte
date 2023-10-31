@@ -8,10 +8,10 @@
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
   import { storePopup } from '@skeletonlabs/skeleton';
   import { initializeStores } from '@skeletonlabs/skeleton';
-  import PublishKind1Modal from "$lib/components/publish-kind1-modal.svelte";
-  import SearchWidget from "$lib/components/search-widget.svelte";
+  import PublishKind1Modal from "$lib/components/modals/publish-kind1-modal.svelte";
+  import SearchWidget from "$lib/components/modals/search-widget-modal.svelte";
   import Drawers from "$lib/components/drawers.svelte";
-    import NoExtensionModal from "$lib/components/no-extension-modal.svelte";
+  import NoExtensionModal from "$lib/components/modals/no-extension-modal.svelte";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });

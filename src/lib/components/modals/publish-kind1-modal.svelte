@@ -3,7 +3,7 @@
 	import ndk from "$lib/stores/provider";
 	import { getModalStore } from '@skeletonlabs/skeleton';
     import { ndkUser } from '$lib/stores/user';
-    import Login from './login.svelte';
+    import Login from '../login.svelte';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
 
@@ -39,7 +39,7 @@
 	<div class="common-modal-base">
 		<header class="common-2xl-header">Share: {$modalStore[0].title ?? '(title missing)'}</header>
 		<form class="border border-surface-500 p-6 space-y-4 rounded-container-token">
-			<label class="label">
+			<label class="label break-words">
 				<span>{$modalStore[0].body ?? '(body missing)'}</span>
 				<textarea class="textarea" rows="4" bind:value={formData.eventContent} placeholder="Enter some text..." />
 			</label>

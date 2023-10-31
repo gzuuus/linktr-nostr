@@ -4,7 +4,7 @@
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-  import { kindLinks, outNostrLinksUrl, toastTimeOut } from "$lib/utils/constants";
+  import { kindLinks, outNostrLinksUrl } from "$lib/utils/constants";
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import { nip19 } from "nostr-tools";
@@ -13,8 +13,8 @@
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
-  import ClipboardButton from "$lib/components/clipboard-button.svelte";
   import SearchBar from "$lib/components/search-bar.svelte";
+  import SearchIcon from "$lib/elements/icons/search-icon.svelte";
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
@@ -22,13 +22,12 @@
   let eventList: NDKEvent[] = [];
   let initialHashtagCount: number = 15;
   let showAllHashtags:boolean = false;
-
+  let showSearchBar: boolean = false;
   $: {
     ndkFilter = $page.params.hashtagvalue
     ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"]}
     : { kinds: [kindLinks], "#l": ["nostree"]};
   }
-
 async function fetchEvents(filter: NDKFilter) {
   isSubscribe = true;
   eventHashtags= [];
@@ -44,16 +43,12 @@ async function fetchEvents(filter: NDKFilter) {
           sortEventList(eventList);
           eventList.forEach((event) => {
             event.tags.forEach((tag) => {
-              if (tag[0] == "t" && !eventHashtags.includes(tag[1]) ) eventHashtags.push(tag[1]); 
+              if (tag[0] == "t" && !eventHashtags.includes(tag[1]) ) eventHashtags.push(tag[1]);
             });
           });
         });
         isSubscribe = false;
 }
-
-function toggleHashtags() {
-    showAllHashtags = !showAllHashtags;
-  }
 </script>
 <svelte:head>
   <title>{$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}</title>
@@ -61,7 +56,6 @@ function toggleHashtags() {
   <meta property="og:title" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}/>
   <meta property="og:description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
 </svelte:head>
-
 {#key $page.url.href}
 {#await fetchEvents(ndkFilter)}
   <div class="loading-global w-fit m-auto">
@@ -69,13 +63,18 @@ function toggleHashtags() {
   </div>
   <h2 class:hidden={!$page.params.hashtagvalue}> #{$page.params.hashtagvalue}</h2>
   <PlaceHolderLoading colCount={6} />
-{:then value } 
-  <h1 class="inline-flex justify-center"><button type="button" on:click={() => goto('/explore')}><ExploreIcon size={25} /></button>Explore</h1>
+{:then value }
+  <h1 class="inline-flex justify-center">
+    <button type="button" on:click={() => goto('/explore')}>
+      <ExploreIcon size={25} />
+    </button>Explore
+  </h1>
+  <h3 class:hidden={!$page.params.hashtagvalue}>#{$page.params.hashtagvalue}</h3>  
   <div class="flex flex-col gap-2">
     {#key isSubscribe}
     <div>
     {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag }
-    <button on:click={() => goto(`/explore/${eventHashtag}`)}>  
+    <button on:click={() => goto(`/explore/${eventHashtag}`)}>
     <span class="common-badge-soft m-1">
         <HashtagIconcopy size={16} />
         {eventHashtag}
@@ -85,19 +84,20 @@ function toggleHashtags() {
   </div>
   <div class=" flex flex-wrap justify-center gap-2">
     {#if eventHashtags.length > 10}
-    <button class="common-btn-sm-ghost" type="button" on:click={toggleHashtags}>
+    <button class="common-btn-sm-ghost" type="button" on:click={() => showAllHashtags = !showAllHashtags}>
       {!showAllHashtags ? `Show more hashtags` : 'Collapse'}
     </button>
     {/if}
-    <SearchBar searchHashtag={true} buttonText={"Search hastags"}/>
+    <button class="common-btn-sm-ghost" type="button" on:click={() => showSearchBar = !showSearchBar}>
+      <span>{!showSearchBar ? `Search hashtags` : 'Collapse search'}</span>
+      <span><SearchIcon size={16} /></span>
+    </button>
+    {#if showSearchBar}
+    <SearchBar searchKind={"hashtag"} />
+    {/if}
   </div>
     {/key}
   </div>
-  <!-- {#if $page.params.hashtagvalue}
-  <h3>Exploring: #{$page.params.hashtagvalue} 
-    <ClipboardButton contentToCopy={$page.url.href} buttonIcon={"share"} />
-  </h3>
-  {/if} -->
   <hr/>
   {#each eventList as event}
     <div class="common-container-content">
@@ -105,7 +105,7 @@ function toggleHashtags() {
       <div>
         <h3>{event.tagValue("title")}</h3>
         <span class="text-sm" class:hidden={!event.tagValue("summary")}>{event.tagValue("summary")}</span>
-        
+
         <div class="flex flex-col gap-2 pt-2">
         {#each findListTags(event.tags) as { url, text }}
           {#if url.startsWith("nostr:")}
@@ -121,7 +121,6 @@ function toggleHashtags() {
             <button class="btn variant-filled w-full whitespace-pre-wrap">{text}</button>
           </a>
         {/if}
-        
         {/each}
       </div>
         {#each findOtherTags(event.tags, "a") as label}
@@ -150,7 +149,9 @@ function toggleHashtags() {
       </div>
       <div class=" inline-flex gap-2 flex-wrap items-center justify-center">
         {#each findOtherTags(event.tags, "t") as hashtag}
-          <button class="common-badge-soft w-fit" on:click={() => goto (`/explore/${hashtag}`)}><HashtagIconcopy size={16}/>{hashtag}</button>
+          <button class="common-badge-soft w-fit" on:click={() => goto (`/explore/${hashtag}`)}>
+            <HashtagIconcopy size={16}/>{hashtag}
+          </button>
         {/each}
       </div>
       <div>

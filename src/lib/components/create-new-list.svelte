@@ -2,6 +2,7 @@
   export let isFormSent: boolean = false;
   export let doGoto: boolean = true;
   export let eventToEdit: NDKEvent | null = null;
+  export let listTemplate: string = "blank";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";
   import ResetIcon from "$lib/elements/icons/reset-icon.svelte";
@@ -15,7 +16,6 @@
   import { ndkUser } from "$lib/stores/user";
   import { kindLinks } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
-  // import InfoDialog from "$lib/components/info-dialog.svelte";
   import SlugIcon from "$lib/elements/icons/slug-icon.svelte";
   import { nip19 } from "nostr-tools";
   import InsertIcon from "$lib/elements/icons/insert-icon.svelte";
@@ -46,6 +46,17 @@
   let linkValidationStatus: boolean[] = [];
   let linkNameValidationStatus: boolean[] = [];
   let formData = new FormData();
+
+  if (listTemplate != "blank") {
+    formData = {
+      title: listTemplate,
+      summary: `A list about ${listTemplate}`,
+      links: [{ link: "", description: "" }],
+      labels: [{label: listTemplate }],
+      forkData: { forkPubKey: "", forkEventoPointer: "" },
+      hashtags: [`${listTemplate}`],
+    };
+  }
 
   if (eventToEdit) {
     let title = eventToEdit.tagValue("title");
@@ -123,7 +134,7 @@
       ];
       for (const labelData of formData.labels) {
         const { label } = labelData;
-        ndkEvent.tags.push(["l", encodeURIComponent(label.trim())]);
+        ndkEvent.tags.push(["l", encodeURIComponent(label.trim().toLowerCase())]);
       }
 
       if (formData.forkData && eventToEdit.author.npub == $ndkUser?.npub) {
@@ -145,7 +156,7 @@
         ["summary", formData.summary],
         ["d", newDTag],
         ["l", "nostree"],
-        ["l", formData.labels[0].label ? formData.labels[0].label : generateNanoId($ndkUser?.npub)],
+        ["l", formData.labels[0].label ? formData.labels[0].label.toLowerCase() : generateNanoId($ndkUser?.npub)],
       ];
     }
     for (const linkData of formData.links) {
@@ -225,7 +236,6 @@
         <span>Title</span>
         <input class="input" type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
       </label>
-
       <label class="label" for="summary">
         Description
         <input class="input" type="text" id="summary" placeholder="Brief description of your list" bind:value={formData.summary} maxlength="120"/>
@@ -247,7 +257,7 @@
             />
           </div>
           <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-            <div class="input-group-shim cursor-pointer" use:popup={{ event: 'click', target: 'popupSlug', placement: 'top' }}>
+            <div class="input-group-shim cursor-pointer" use:popup={{ event: 'click', target: 'popupPrefix', placement: 'top' }}>
               <LinkIcon size={18} />
             </div>
             <input
@@ -258,14 +268,28 @@
               on:input={validateAllURLs}
             />
           </div>
-          <div class="card p-4 variant-filled" data-popup="popupSlug">
-            <ol class="list">
+          <div class="card p-4 variant-filled max-w-lg" data-popup="popupSlug">
+            <p>Slugs are a memorable way to identify your Nostree lists. It gives you a link to your list like nostree.me/user/SLUG</p>
+            <ol class="list card p-4 bg-surface-backdrop-token">
               Allowed prefixes:
               {#each validPrefixes as prefix }
               <li>
                 <span class="flex-auto">{prefix}</span>
               </li>
-              <hr/>
+              <hr class=" opacity-50"/>
+              {/each}
+            </ol>
+            <div class="arrow variant-filled" />
+          </div>
+          <div class="card p-4 variant-filled max-w-lg" data-popup="popupPrefix">
+            <ol class="list">
+              Allowed prefixes:
+              <hr class="!border-t-2" />
+              {#each validPrefixes as prefix }
+              <li>
+                <span class="flex-auto">{prefix}</span>
+              </li>
+              <hr class=" opacity-50"/>
               {/each}
             </ol>
             <div class="arrow variant-filled" />
@@ -327,10 +351,6 @@
             <SlugIcon size={18} />
           </div>
           <input type="text" id={`slug-${index}`} placeholder="short-slug" bind:value={linkLabel.label} maxlength="24" />
-        </div>
-        <div class="card p-4 variant-filled" data-popup="popupSlug">
-          <p>Slugs are a memorable way to identify your Nostree lists. It gives you a link to your list like nostree.me/user/SLUG</p>
-          <div class="arrow variant-filled" />
         </div>
         </label>
         {/if}

@@ -1,17 +1,19 @@
 <script lang="ts">
-   import { page } from "$app/stores";
-   import ProfileCard from "$lib/components/profile-card.svelte";
-   import EventCard from "$lib/components/event-card.svelte";
+  import { page } from "$app/stores";
+  import ProfileCard from "$lib/components/profile-card.svelte";
+  import EventCard from "$lib/components/event-card.svelte";
   import PlusSmall from "$lib/elements/icons/plus-small.svelte";
   import { goto } from "$app/navigation";
   import { kindLinks} from "$lib/utils/constants";
-    import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
-    import { outNostrLinksUrl } from "$lib/utils/constants";
+  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+  import { outNostrLinksUrl } from "$lib/utils/constants";
+  import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
+  import LinkOut from "$lib/elements/icons/link-out.svelte";
 
   let isEditHappens: boolean;
   let linkListLength: number;
   let userProfile: NDKUserProfile;
-  $: user = $page.data.npub;
+  $: userPub = $page.data.npub;
   $: segments = $page.data.segments;
 </script>
 <svelte:head>
@@ -23,53 +25,32 @@
   {/if}
 </svelte:head>
 
-  {#key user}
-    <ProfileCard userPub={user} bind:userProfile />
+  {#key userPub}
+    <ProfileCard userPub={userPub} bind:userProfile />
     {#key $page.url.pathname.split("/").length > 2}
       {#key isEditHappens}
         <div>
           <EventCard
             bind:linkListLength
             bind:isEditHappens
-            userPub={user}
+            userPub={userPub}
             eventKind={kindLinks}
             listLabel={segments[0]}
           />
           {#if linkListLength == 0}
-            <button class="noEventsButton" on:click={() => goto(`/new`)}>
-              <div class="noEvents">
-                <div class="borderedSection">
-                  <PlusSmall size={30} />
-                </div>
-                <p>No links yet</p>
-              </div>
+          <div class=" flex flex-col gap-2 justify-center common-ring p-4 w-fit m-auto rounded-container-token card">
+            <button class="btn btn-icon variant-filled m-auto" on:click={() => goto(`/new`)}>
+              <PlusSmall size={30} />
             </button>
-            <p>See profile in nostr client</p>
-            <a href="{outNostrLinksUrl}/{user}" target="_blank" rel="noopener noreferrer"
-              ><button class="iconButton">See outside</button></a
-            >
+            <p class="text-xl">No links yet</p>
+            <hr/>
+            <div class="flex gap-2 flex-wrap justify-center">
+              <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>
+              <a href="nostr:{userPub}"><span class="common-badge-ghost gap-2">View profile in native client <OstrichIcon size={18} /></span></a>
+            </div>
+          </div>
           {/if}
         </div>
       {/key}
     {/key}
   {/key}
-
-<!-- <style>
-  .noEvents {
-    background: var(--background-color);
-    display: flex;
-    border-radius: var(--agnostic-radius);
-    height: 170px;
-    max-width: 300px;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    padding: 1em;
-    border: var(--common-border-style);
-    color: var(--text-color);
-  }
-  .noEventsButton {
-    padding: 0;
-    width: 80%;
-  }
-</style> -->

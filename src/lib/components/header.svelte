@@ -13,6 +13,7 @@
     import LogoutIcon from "$lib/elements/icons/logout-icon.svelte";
 	import { ndkUser } from "$lib/stores/user";
     import EditIcon from "$lib/elements/icons/edit-icon.svelte";
+    import SearchIcon from "$lib/elements/icons/search-icon.svelte";
 	const modalStore = getModalStore();
 	const drawerStore = getDrawerStore();
 
@@ -62,6 +63,9 @@
 			<div class="card p-4 w-60 shadow-xl" data-popup="theme">
 				<ThemeButton />
 			</div>
+			<button class="common-btn-icon-ghost " on:click={triggerSearch}>
+				<span><SearchIcon size={18} /></span>
+			</button>
 			{#if $ndkUser}
 			<button
 				class="common-btn-icon-ghost"
