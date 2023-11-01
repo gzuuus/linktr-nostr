@@ -21,12 +21,11 @@
   import InsertIcon from "$lib/elements/icons/insert-icon.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
-  import { InputChip } from '@skeletonlabs/skeleton';
   import { FormData } from "$lib/classes/list";
-	import { getToastStore, Accordion, AccordionItem, focusTrap } from '@skeletonlabs/skeleton';
+	import { getToastStore, Accordion, AccordionItem, focusTrap, InputChip, getModalStore, popup } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-  import { popup } from '@skeletonlabs/skeleton';
+  const modalStore = getModalStore();
 
   const validPrefixes: string[] = [
     "http://",
@@ -124,6 +123,7 @@
     linkNameValidationStatus.every((status) => status);
 
   function handleSubmit() {
+    modalStore.trigger({ type: 'component', component: 'modalLoading',});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
     if (eventToEdit) {
@@ -172,6 +172,7 @@
       .publish()
       .then(() => {
         isFormSent = true;
+        modalStore.close();
         toastStore.trigger(succesPublishToast);
       })
       .then(() => {
@@ -180,8 +181,9 @@
         }
       })
       .catch((error) => {
-        console.log("Error:", error);
+        modalStore.close();
         toastStore.trigger(errorPublishToast)
+        console.log("Error:", error);
       });
   }
 

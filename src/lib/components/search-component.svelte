@@ -20,7 +20,7 @@
     .fetchEvents(ndkFilter, {
       closeOnEose: true,
       groupable: true,
-      cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST,
+      cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
     })
     .then((fetchedEvent) => {
       eventList = Array.from(fetchedEvent).filter((event) => {

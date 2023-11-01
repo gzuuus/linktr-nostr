@@ -20,6 +20,7 @@
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import ClipboardButton from "./clipboard-button.svelte";
   import ParseContent from "./parse-content.svelte";
+  import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
     
   let qrImageUrl: string = "";
   let showQR: boolean = false;
@@ -32,7 +33,7 @@
     await user
       .fetchProfile({
         closeOnEose: true,
-        cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST,
+        cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
         groupable: false,
       })
       .then(() => {
@@ -108,18 +109,18 @@
             isButton={false}
             buttonIcon="none"
             />
-          <button on:click={() => showAbout = !showAbout}><InfoIcon size={16} /></button>
+          <button on:click={() => showAbout = !showAbout}><ChevronIconVertical flipVertical={!showAbout} size={16} /></button>
           </span>
         </div>
         {#if showAbout}
-        <div class="flex flex-col gap-2 justify-center items-center">
+        <div class="flex flex-col gap-2 justify-center items-center card p-2">
           <span class="common-badge-soft w-fit">
             <ClipboardButton contentToCopy={userPub} buttonText={truncateString(userPub)}
               isButton={false}
               />
           </span>
           {#if userProfile.about }
-          <ParseContent content={userProfile.about} charLimit={300}/>
+            <ParseContent content={userProfile.about} charLimit={300}/>
           {/if}
           <div class="flex gap-2 flex-wrap justify-center">
             <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>

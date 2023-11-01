@@ -15,6 +15,7 @@
 		eventContent: $modalStore[0].meta.noteContent
 	};
 	function onFormSubmit(): void {
+		modalStore.trigger({ type: 'component', component: 'modalLoading'});
 		const ndkEvent = new NDKEvent($ndk);
 		ndkEvent.kind = 1;
 		ndkEvent.content = formData.eventContent;
@@ -24,11 +25,12 @@
 		ndkEvent
 		.publish()
 		.then(() => {
-				toastStore.trigger(succesPublishToast)
 				modalStore.close()
+				toastStore.trigger(succesPublishToast)
 			}
 		)
 		.catch((error) => {
+			modalStore.close()
 			toastStore.trigger(errorPublishToast)
 			console.log("Error:", error);
 		})

@@ -9,14 +9,15 @@
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
   import PinIcon from "$lib/elements/icons/pin-icon.svelte";
   import Login from "$lib/components/login.svelte";
-  import { kindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
+  import { errorPublishToast, kindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-  import { Accordion, AccordionItem, getToastStore } from "@skeletonlabs/skeleton";
+  import { Accordion, AccordionItem, getModalStore, getToastStore } from "@skeletonlabs/skeleton";
   import CreateNewListWidget from "$lib/components/create-new-list-widget.svelte";
 
   const toastStore = getToastStore();
+  const modalStore = getModalStore();
   let events: NDKEvent[] = [];
   let fetchedEvents: boolean = false;
   let showCreateNewList: boolean = false;
@@ -48,6 +49,7 @@
   }
 
   function handleSubmit(eventToPublish: NDKEvent, toDelete: boolean = false) {
+    modalStore.trigger({ type: 'component', component: 'modalLoading'});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
     let title = eventToPublish.tagValue("title");
@@ -96,6 +98,7 @@
       .then(() => {
         events = [];
         fetchedEvents = false;
+        modalStore.close();
         if (toDelete) {
           deletedEventsIds.push(eventToPublish.tagValue("d")!);
           toastStore.trigger(succesDeletingToast);
@@ -105,6 +108,8 @@
           showEvents();
       })
       .catch((error) => {
+        modalStore.close();
+        toastStore.trigger(errorPublishToast);
         console.log("Error:", error);
       });
   }

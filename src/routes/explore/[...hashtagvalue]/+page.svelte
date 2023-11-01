@@ -34,7 +34,7 @@ async function fetchEvents(filter: NDKFilter) {
   await $ndk
         .fetchEvents(ndkFilter, {
           closeOnEose: false,
-          cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST,
+          cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
           groupable: false,
         })
         .then((fetchedEvent) => {

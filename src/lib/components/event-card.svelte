@@ -32,11 +32,10 @@
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
-  import PublishKind1 from "./publish-kind1.svelte";
-    import { outNostrLinksUrl } from "../utils/constants";
-    import PlaceHolderLoading from "./placeHolderLoading.svelte";
-    import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
-    import ClipboardButton from "./clipboard-button.svelte";
+  import { outNostrLinksUrl } from "../utils/constants";
+  import PlaceHolderLoading from "./placeHolderLoading.svelte";
+  import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+  import ClipboardButton from "./clipboard-button.svelte";
 
   const modalStore = getModalStore();
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
@@ -60,7 +59,7 @@
       $ndk
         .fetchEvents(ndkFilter, {
           closeOnEose: false,
-          cacheUsage: NDKSubscriptionCacheUsage.CACHE_FIRST,
+          cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
         })
         .then((fetchedEvent) => {
           eventList = Array.from(fetchedEvent);
@@ -89,7 +88,7 @@
     const modal: ModalSettings = {
       type: 'component',
       title: modalTitle,
-      body: `Share this nostree list '${modalTitle}' from ${$isNip05ValidStore.UserIdentifier} with everyone`,
+      body: `Share this nostree list '${modalTitle}'`,
       component: 'modalPublishKind1',
       meta: {
         noteContent: `Look this cool nostree list '${modalTitle}' from nostr:${$isNip05ValidStore.UserNpub}\n${modalContent}`
@@ -116,14 +115,6 @@
     }
   }
 </script>
-<!-- <Toasts portalRootSelector="body" horizontalPosition="center" verticalPosition="top">
-  <Toast isOpen={isShared} type="success">
-    <p>Copied to clipboard</p>
-  </Toast>
-  <Toast isOpen={isKink1Published} type="success">
-    <p>Note published</p>
-  </Toast>
-</Toasts> -->
 {#await fetchCurrentEvents()}
 <PlaceHolderLoading colCount={6} />
 {:then value}
@@ -216,20 +207,6 @@
               
             </div>
               </div>
-                  {#if showShareModal && !isKink1Published}
-                  <div class="modal">
-                    <div class="modal-content">
-                      <PublishKind1 
-                      listTitle={eventList[currentIndex].tagValue("title")} 
-                      listURL={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`}
-                      bind:isPublished={isKink1Published}
-                      />
-                      <div class="closeModal">
-                        <button type="button" class="iconButton" on:click={() => (showShareModal = false)}><CloseIcon size={18} /></button>
-                      </div>
-                    </div>
-                  </div>
-                  {/if}
                 </div>
                 {/if}
               {/each}
