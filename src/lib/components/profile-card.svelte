@@ -11,11 +11,11 @@
   import { page } from "$app/stores";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import { isNip05Valid } from "$lib/utils/helpers";
-  import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
+  import { isNip05Valid as isNip05ValidStore, userCustomTheme } from "$lib/stores/user";
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import { defaulTheme, kindCSSAsset, outNostrLinksUrl } from "$lib/utils/constants";
+  import { kindCSSAsset, outNostrLinksUrl } from "$lib/utils/constants";
   import { Avatar } from '@skeletonlabs/skeleton';
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import ClipboardButton from "./clipboard-button.svelte";
@@ -60,12 +60,16 @@
         userCssAsset = fetchedEvent;
       });
   }
+
   $: {
-    if (userCssAsset && userPub == $ndkUser?.npub){
-      console.log("match")
-      storeTheme.set(userCssAsset.tagValue('l')!);
-      document.body.setAttribute('data-theme', userCssAsset.tagValue('l')! );
-    } else if (userCssAsset){
+    if (userCssAsset){
+      if(userPub == $ndkUser?.npub){
+        userCustomTheme.set({
+          UserTheme: userCssAsset?.tagValue('l')!,
+          themeIdentifier: userCssAsset?.tagValue('d')!
+        })
+        storeTheme.set(userCssAsset.tagValue('l')!);
+      }
       document.body.setAttribute('data-theme', userCssAsset.tagValue('l')! );
     }
   }

@@ -50,7 +50,7 @@
 	}
 </script>
 <svelte:window on:keydown|stopPropagation={onWindowKeydown} />
-<AppBar background="bg-transparent" slotTrail="!space-x-2">
+<AppBar background="backdrop-blur" border="border-b border-opacity-50 border-surface-500" slotTrail="!space-x-2">
 <svelte:fragment slot="lead">
 	<div class="flex items-center space-x-4">
 		<a class="lg:!ml-0 w-fit lg:w-auto overflow-hidden" href="/" title="Go to Homepage">

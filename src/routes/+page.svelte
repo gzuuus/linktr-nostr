@@ -58,7 +58,7 @@
       on:click={() => goto("/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5ds")}
       ><HeartIcon size={16} /></button
     >
-    <a href="https://github.com/gzuuus/linkr-nostr" target="_blank" rel="noopener noreferrer"
+    <a href="https://github.com/gzuuus/linktr-nostr" target="_blank" rel="noopener noreferrer"
     ><button class="common-btn-icon-ghost"><GhIcon size={16} /></button></a
     >
     </div>

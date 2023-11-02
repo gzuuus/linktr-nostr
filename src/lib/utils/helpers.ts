@@ -1,7 +1,6 @@
 import { nip19 } from "nostr-tools";
 import { NDKUser, NDKEvent, type NDKTag } from "@nostr-dev-kit/ndk";
 import { ndkUser } from "$lib/stores/user";
-import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
@@ -242,7 +241,6 @@ export async function sharePage(urlToShare: string) {
 
 export function logout() {
   ndkUser.set(null);
-  lengthStore.set({});
   isNip05ValidStore.set({
     isNip05Valid: null,
     Nip05address: undefined,

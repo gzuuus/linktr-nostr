@@ -6,16 +6,17 @@
 	import { getModalStore } from '@skeletonlabs/skeleton';
     import { ndkUser } from '$lib/stores/user';
     import { v4 as uuidv4 } from "uuid";
+	import { userCustomTheme } from '$lib/stores/user';
     const modalStore = getModalStore();
 	const toastStore = getToastStore();
-
+	$: eventIdentifier = $userCustomTheme.themeIdentifier ? $userCustomTheme.themeIdentifier : `nostree-theme-${uuidv4()}`
     function EventSubmit(): void {
 		modalStore.trigger({ type: 'component', component: 'modalLoading'});
 		const ndkEvent = new NDKEvent($ndk);
 		ndkEvent.kind = kindCSSAsset;
 		ndkEvent.content = "";
 		ndkEvent.tags=[
-        ["d", `nostree-theme-${uuidv4()}`],
+        ["d", eventIdentifier],
 		["L", "nostree-theme"],
         ["l", document.body.getAttribute('data-theme')!],
 		]
@@ -32,10 +33,8 @@
 			console.log("Error:", error);
 		})
 	}
-    // document.body.setAttribute('data-theme', theme)
-    
 </script>
-{#if ndkUser}
+{#if $ndkUser}
 <button class="btn variant-filled w-full" on:click={EventSubmit}>
     <span>Use theme in profile</span>
 </button>

@@ -48,8 +48,8 @@
 <Modal components={modalRegistry} />
 <Toast position="t" />
 <Drawers />
-<AppShell regionPage="scroll-smooth">
-	<svelte:fragment slot="header">
+<AppShell slotPageHeader="sticky top-0 z-10" regionPage="scroll-smooth">
+	<svelte:fragment slot="pageHeader">
     <Header />
   </svelte:fragment>
   <div class="grid place-content-center h-full sm:py-6">
