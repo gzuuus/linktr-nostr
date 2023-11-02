@@ -66,6 +66,7 @@
     const tTags = findHashTags(eventToEdit.tags);
     const hashtags = tTags.map((tag) => tag.text);
     const forkedFrom = eventToEdit.tagValue("p");
+    
     const ForkData = {
       forkedPubkey: forkedFrom,
       forkedEventoPointer: buildATags(

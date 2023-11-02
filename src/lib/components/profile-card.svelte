@@ -2,26 +2,29 @@
   export let userPub: string;
   export let userProfile: NDKUserProfile | null;
   import ndk from "$lib/stores/provider";
-  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+  import type { NDKEvent, NDKFilter, NDKKind, NDKUserProfile } from "@nostr-dev-kit/ndk";
+  import { ndkUser } from "$lib/stores/user";
   import { truncateString, sharePage } from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
   import { page } from "$app/stores";
-  import InfoIcon from "$lib/elements/icons/info-icon.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import { isNip05Valid } from "$lib/utils/helpers";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import { outNostrLinksUrl } from "$lib/utils/constants";
+  import { defaulTheme, kindCSSAsset, outNostrLinksUrl } from "$lib/utils/constants";
   import { Avatar } from '@skeletonlabs/skeleton';
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import ClipboardButton from "./clipboard-button.svelte";
   import ParseContent from "./parse-content.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
+  import { storeTheme } from '$lib/stores/stores';
+  import { onDestroy } from "svelte";
     
+  let userCssAsset: NDKEvent | null = null;
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
@@ -42,7 +45,29 @@
         if (userProfile.image == undefined) {
           generateQRCode(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`);
         }
+      }).finally(() => fetchCssAsset());
+  }
+
+  async function fetchCssAsset() {
+    let ndkFilter: NDKFilter = {authors: [user.hexpubkey()], kinds: [kindCSSAsset as NDKKind], "#L": ["nostree-theme"]}
+    await $ndk
+      .fetchEvent(ndkFilter, {
+        closeOnEose: true,
+        groupable: true,
+        cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
+      })
+      .then((fetchedEvent) => {
+        userCssAsset = fetchedEvent;
       });
+  }
+  $: {
+    if (userCssAsset && userPub == $ndkUser?.npub){
+      console.log("match")
+      storeTheme.set(userCssAsset.tagValue('l')!);
+      document.body.setAttribute('data-theme', userCssAsset.tagValue('l')! );
+    } else if (userCssAsset){
+      document.body.setAttribute('data-theme', userCssAsset.tagValue('l')! );
+    }
   }
 
   function generateQRCode(value: string) {
@@ -57,6 +82,9 @@
     const shared = await sharePage(urlToShare);
   }
 
+  onDestroy(() => {
+    document.body.setAttribute('data-theme', $storeTheme );
+  })
 </script>
 {#await fetchUserProfile()}
 <div class="w-fit m-auto">

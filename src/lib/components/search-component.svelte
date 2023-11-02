@@ -7,7 +7,7 @@
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
 
   let eventList: NDKEvent[] = [];
-  let ndkFilter: NDKFilter
+  let ndkFilter: NDKFilter;
   
   $: {
     ndkFilter = { kinds: [0], search: searchQuery}

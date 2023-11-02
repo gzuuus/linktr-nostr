@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import { storeTheme } from '$lib/stores/stores';
+    import SetProfileTheme from './set-profile-theme.svelte';
     export let widgetLayout: string = 'max-h-64 lg:max-h-[500px]';
 	const themes = [
 		{ type: 'skeleton', name: 'Skeleton', icon: '💀' },
@@ -45,11 +46,8 @@
                         {/each}
                     </ul>
             </nav>
-            <!-- <hr />
+            <hr />
              <div>
-                <a class="btn variant-filled w-full" href="/docs/generator">
-                    <i class="fa-solid fa-palette" />
-                    <span>Create a Theme</span>
-                </a>
-            </div> -->
+                <SetProfileTheme/>
+            </div>
         </div>

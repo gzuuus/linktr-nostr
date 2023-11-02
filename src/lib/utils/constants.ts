@@ -7,9 +7,11 @@ export const ogLogoImg =
 export const kindLinks = 30001;
 export const kindNotes = 1;
 export const kindArticles = 30023;
+export const kindCSSAsset = 35393;
 export const toastTimeOut = 3500;
 export const outNostrLinksUrl = "https://njump.me";
 export const CORSproxyUrl = "https://corsproxy.io/?";
+export const defaulTheme = "skeleton";
 
 export const succesPublishToast: ToastSettings = {
   message: "Published successfully!",

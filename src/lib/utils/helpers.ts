@@ -5,7 +5,8 @@ import { lengthStore } from "$lib/stores/eventListsLengths";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
-import { outNostrLinksUrl } from "./constants";
+import { defaulTheme, outNostrLinksUrl } from "./constants";
+import { storeTheme } from "$lib/stores/stores";
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
@@ -249,6 +250,8 @@ export function logout() {
     Vanity: undefined,
     UserIdentifier: undefined,
   });
+  storeTheme.set(defaulTheme);
+  document.body.setAttribute("data-theme", defaulTheme);
   goto("/");
 }
 

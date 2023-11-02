@@ -5,8 +5,15 @@
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
   import HeartIcon from "$lib/elements/icons/heart-icon.svelte";
   import Login from "$lib/components/login.svelte";
-    import { ogImageUrl } from "$lib/utils/constants";
-    import GhIcon from "$lib/elements/icons/gh-icon.svelte";
+  import { ogImageUrl } from "$lib/utils/constants";
+  import GhIcon from "$lib/elements/icons/gh-icon.svelte";
+  import { browser } from "$app/environment";
+  
+  let isOsMac = false;
+	if (browser) {
+		let os = navigator.userAgent;
+		isOsMac = os.search('Mac') !== -1;
+	}
 </script>
 <svelte:head>
 <title>Nostree</title>
@@ -37,7 +44,10 @@
       <button class="btn variant-filled" on:click={() => goto(`/${$ndkUser?.npub}`)}>Profile</button>
       <button class="btn variant-filled" on:click={() => goto("/new")}>Manage lists</button>
     {/if}
-    <button class="btn variant-filled" on:click={() => goto("/search")}>Search</button>
+    <button class="btn variant-filled" on:click={() => goto("/search")}>
+      <span>Search</span>
+      <small class="hidden sm2:inline-block sm2:badge sm2:variant-glass opacity-50">{isOsMac ? '⌘' : 'Ctrl'}+K</small>
+    </button>
     <button class="btn variant-filled" on:click={() => goto("/explore")}>Explore</button>
     <button class="btn variant-filled" on:click={() => goto("/docs")}>Docs</button>
   <div>
