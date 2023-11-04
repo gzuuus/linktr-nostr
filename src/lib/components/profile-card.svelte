@@ -2,7 +2,7 @@
   export let userPub: string;
   export let userProfile: NDKUserProfile | null;
   import ndk from "$lib/stores/provider";
-  import type { NDKEvent, NDKFilter, NDKKind, NDKUserProfile } from "@nostr-dev-kit/ndk";
+  import type { NDKFilter, NDKKind, NDKUserProfile } from "@nostr-dev-kit/ndk";
   import { ndkUser } from "$lib/stores/user";
   import { truncateString, sharePage } from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
@@ -15,7 +15,7 @@
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import { kindCSSAsset, outNostrLinksUrl } from "$lib/utils/constants";
+  import { defaulTheme, kindCSSAsset, outNostrLinksUrl } from "$lib/utils/constants";
   import { Avatar } from '@skeletonlabs/skeleton';
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import ClipboardButton from "./clipboard-button.svelte";
@@ -23,8 +23,7 @@
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { storeTheme } from '$lib/stores/stores';
   import { onDestroy } from "svelte";
-    
-  let userCssAsset: NDKEvent | null = null;
+
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
@@ -49,7 +48,11 @@
   }
 
   async function fetchCssAsset() {
-    let ndkFilter: NDKFilter = {authors: [user.hexpubkey()], kinds: [kindCSSAsset as NDKKind], "#L": ["nostree-theme"]}
+    let ndkFilter: NDKFilter = {
+      authors: [user.hexpubkey()], 
+      kinds: [kindCSSAsset as NDKKind], 
+      "#L": ["nostree-theme"]
+    };
     await $ndk
       .fetchEvent(ndkFilter, {
         closeOnEose: true,
@@ -57,21 +60,26 @@
         cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
       })
       .then((fetchedEvent) => {
-        userCssAsset = fetchedEvent;
+          if (fetchedEvent){
+          if(userPub == $ndkUser?.npub){
+            userCustomTheme.set({
+              UserTheme: fetchedEvent?.tagValue('l')!,
+              themeIdentifier: fetchedEvent?.tagValue('d')!
+            })
+            storeTheme.set(fetchedEvent?.tagValue('l')!);
+          }
+          if (fetchedEvent?.content){
+            setCustomStyles(fetchedEvent.content);
+          }
+          storeTheme.set(fetchedEvent?.tagValue('l')!);
+        }
       });
   }
-
-  $: {
-    if (userCssAsset){
-      if(userPub == $ndkUser?.npub){
-        userCustomTheme.set({
-          UserTheme: userCssAsset?.tagValue('l')!,
-          themeIdentifier: userCssAsset?.tagValue('d')!
-        })
-        storeTheme.set(userCssAsset.tagValue('l')!);
-      }
-      document.body.setAttribute('data-theme', userCssAsset.tagValue('l')! );
-    }
+  function setCustomStyles(cssTheme: string) {
+    let styleTag = document.createElement('style');
+    styleTag.id = "custom-style";
+    styleTag.textContent =`${cssTheme}`;
+    document.head.appendChild(styleTag);
   }
 
   function generateQRCode(value: string) {
@@ -82,13 +90,13 @@
     return (qrImageUrl = qr.createDataURL());
   }
 
-    async function handleShareClick(urlToShare: string) {
+  async function handleShareClick(urlToShare: string) {
     const shared = await sharePage(urlToShare);
   }
 
   onDestroy(() => {
-    document.body.setAttribute('data-theme', $storeTheme );
-  })
+	storeTheme.set($userCustomTheme.UserTheme ? $userCustomTheme.UserTheme : defaulTheme);
+});
 </script>
 {#await fetchUserProfile()}
 <div class="w-fit m-auto">

@@ -50,6 +50,7 @@
     </button>
     <button class="btn variant-filled" on:click={() => goto("/explore")}>Explore</button>
     <button class="btn variant-filled" on:click={() => goto("/docs")}>Docs</button>
+    <button class="btn variant-filled" on:click={() => goto("/theming")}>Theming</button>
   <div>
     <a href="lightning:gzuuus@getalby.com"
       ><button class="common-btn-icon-ghost"><LnIcon size={16} /></button></a

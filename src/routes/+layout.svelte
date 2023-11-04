@@ -4,7 +4,7 @@
   import { onMount } from "svelte";
   import ndk from "$lib/stores/provider";
   import { ogImageUrl } from "$lib/utils/constants";
-  import { AppShell, Modal, Toast, type ModalComponent, Drawer } from '@skeletonlabs/skeleton';
+  import { AppShell, Modal, Toast, type ModalComponent} from '@skeletonlabs/skeleton';
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
   import { storePopup } from '@skeletonlabs/skeleton';
   import { initializeStores } from '@skeletonlabs/skeleton';
@@ -13,6 +13,8 @@
   import Drawers from "$lib/components/drawers.svelte";
   import NoExtensionModal from "$lib/components/modals/no-extension-modal.svelte";
   import LoadingBackdropModal from "$lib/components/modals/loading-backdrop-modal.svelte";
+  import { storePreview, storeTheme } from "$lib/stores/stores";
+  import { browser } from "$app/environment";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -20,9 +22,15 @@
 	modalPublishKind1: { ref: PublishKind1Modal},
   modalSearch: { ref: SearchWidget },
   modalNoNip07: { ref: NoExtensionModal},
-  modalLoading: { ref: LoadingBackdropModal}
+  modalLoading: { ref: LoadingBackdropModal},
 };
-
+  
+	storePreview.subscribe(setBodyThemeAttribute);
+	storeTheme.subscribe(setBodyThemeAttribute);
+	function setBodyThemeAttribute(): void {
+		if (!browser) return;
+		document.body.setAttribute('data-theme', $storePreview ? 'customTheme' : $storeTheme);
+	}
   onMount(async () => {
     try {
       $ndk.connect().then(() => console.log("ndk connected successfully"));

@@ -249,7 +249,6 @@ export function logout() {
     UserIdentifier: undefined,
   });
   storeTheme.set(defaulTheme);
-  document.body.setAttribute("data-theme", defaulTheme);
   goto("/");
 }
 

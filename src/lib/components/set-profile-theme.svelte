@@ -1,4 +1,7 @@
 <script lang="ts">
+	export let cssOutput: string | undefined = "";
+	export let isNewCustomTheme: boolean = false;
+	export let themeName: string | undefined = "";
     import { getToastStore } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast, kindCSSAsset } from '$lib/utils/constants';
     import { NDKEvent } from '@nostr-dev-kit/ndk';
@@ -7,18 +10,31 @@
     import { ndkUser } from '$lib/stores/user';
     import { v4 as uuidv4 } from "uuid";
 	import { userCustomTheme } from '$lib/stores/user';
+    import { storeTheme } from '$lib/stores/stores';
+
     const modalStore = getModalStore();
 	const toastStore = getToastStore();
+	let customStyleSheet: string;
+	$:{
+		if (typeof document != "undefined") {
+			if ($storeTheme == 'customTheme'){
+				customStyleSheet = document.querySelector(`style#custom-style`)?.innerHTML!;
+			} else {
+				customStyleSheet = cssOutput!;
+			}	
+		}
+	}
 	$: eventIdentifier = $userCustomTheme.themeIdentifier ? $userCustomTheme.themeIdentifier : `nostree-theme-${uuidv4()}`
     function EventSubmit(): void {
 		modalStore.trigger({ type: 'component', component: 'modalLoading'});
 		const ndkEvent = new NDKEvent($ndk);
 		ndkEvent.kind = kindCSSAsset;
-		ndkEvent.content = "";
+		ndkEvent.content = customStyleSheet;
 		ndkEvent.tags=[
-        ["d", eventIdentifier],
+        ["d", isNewCustomTheme ? `nostree-theme-${uuidv4()}` : eventIdentifier],
+		["title", themeName ? themeName : "Custom Theme"],
 		["L", "nostree-theme"],
-        ["l", document.body.getAttribute('data-theme')!],
+        ["l", $storeTheme],
 		]
 		ndkEvent
 		.publish()

@@ -98,7 +98,7 @@
 			<span><LogoutIcon size={20} /></span>
 		</button>
 		{:else}
-		<Login mode={"primary-sm"}/>
+		<Login mode={"primary-sm"} doGoto={false}/>
 		{/if}
 	</div>
 <!-- Hamburger Menu -->

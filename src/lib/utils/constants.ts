@@ -31,3 +31,16 @@ export const succesDeletingToast: ToastSettings = {
   hoverable: true,
   background: "variant-filled-success",
 };
+ export const defaultThemes = [
+  { type: 'skeleton', name: 'Skeleton', icon: '💀' },
+  { type: 'wintry', name: 'Wintry', icon: '🌨️' },
+  { type: 'modern', name: 'Modern', icon: '🤖' },
+  { type: 'rocket', name: 'Rocket', icon: '🚀' },
+  { type: 'seafoam', name: 'Seafoam', icon: '🧜‍♀️' },
+  { type: 'vintage', name: 'Vintage', icon: '📺' },
+  { type: 'sahara', name: 'Sahara', icon: '🏜️' },
+  { type: 'hamlindigo', name: 'Hamlindigo', icon: '👔' },
+  { type: 'gold-nouveau', name: 'Gold Nouveau', icon: '💫' },
+  { type: 'crimson', name: 'Crimson', icon: '⭕' },
+  { type: 'customTheme', name: 'Custom', icon: '🎨' }
+];

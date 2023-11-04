@@ -3,23 +3,8 @@
 	import { storeTheme } from '$lib/stores/stores';
     import SetProfileTheme from './set-profile-theme.svelte';
     export let widgetLayout: string = 'max-h-64 lg:max-h-[500px]';
-	const themes = [
-		{ type: 'skeleton', name: 'Skeleton', icon: '💀' },
-		{ type: 'wintry', name: 'Wintry', icon: '🌨️' },
-		{ type: 'modern', name: 'Modern', icon: '🤖' },
-		{ type: 'rocket', name: 'Rocket', icon: '🚀' },
-		{ type: 'seafoam', name: 'Seafoam', icon: '🧜‍♀️' },
-		{ type: 'vintage', name: 'Vintage', icon: '📺' },
-		{ type: 'sahara', name: 'Sahara', icon: '🏜️' },
-		{ type: 'hamlindigo', name: 'Hamlindigo', icon: '👔' },
-		{ type: 'gold-nouveau', name: 'Gold Nouveau', icon: '💫' },
-		{ type: 'crimson', name: 'Crimson', icon: '⭕' }
-	];
-
-	function setTheme(theme:string) {
-        storeTheme.set(theme);
-		document.body.setAttribute('data-theme', theme);
-	};
+	import { defaultThemes } from '$lib/utils/constants';
+    import { userCustomTheme } from '$lib/stores/user';
 </script>
         <div class="space-y-4">
             <section class="flex justify-between items-center">
@@ -29,20 +14,22 @@
             <hr />
             <nav class="list-nav p-4 -m-4 {widgetLayout} overflow-y-auto">
                     <ul>
-                        {#each themes as { icon, name, type }}
-                            <li>
-                                <button
-                                    class="option w-full h-full"
-                                    type="submit"
-                                    name="theme"
-                                    on:click={() => setTheme(type)}
-                                    value={type}
-                                    class:bg-primary-active-token={$storeTheme === type}
-                                >
-                                    <span>{icon}</span>
-                                    <span class="flex-auto text-left">{name}</span>
-                                </button>
-                            </li>
+                        {#each defaultThemes as { icon, name, type }}
+                            {#if $userCustomTheme || type != 'customTheme'}
+                                <li>
+                                    <button
+                                        class="option w-full h-full"
+                                        type="submit"
+                                        name="theme"
+                                        on:click={() => storeTheme.set(type)}
+                                        value={type}
+                                        class:bg-primary-active-token={$storeTheme === type}
+                                    >
+                                        <span>{icon}</span>
+                                        <span class="flex-auto text-left">{name}</span>
+                                    </button>
+                                </li>
+                            {/if}
                         {/each}
                     </ul>
             </nav>
