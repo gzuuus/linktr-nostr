@@ -4,7 +4,7 @@
   import ndk from "$lib/stores/provider";
   import type { NDKFilter, NDKKind, NDKUserProfile } from "@nostr-dev-kit/ndk";
   import { ndkUser } from "$lib/stores/user";
-  import { truncateString, sharePage } from "$lib/utils/helpers";
+  import { truncateString, sharePage, setCustomStyles } from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
@@ -44,7 +44,11 @@
         if (userProfile.image == undefined) {
           generateQRCode(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`);
         }
-      }).finally(() => fetchCssAsset());
+      }).finally(() => {
+      if (user.npub != $ndkUser?.npub){
+        fetchCssAsset()
+      }}
+      );
   }
 
   async function fetchCssAsset() {
@@ -60,26 +64,14 @@
         cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
       })
       .then((fetchedEvent) => {
+          const userTheme = fetchedEvent?.tagValue('l');
           if (fetchedEvent){
-          if(userPub == $ndkUser?.npub){
-            userCustomTheme.set({
-              UserTheme: fetchedEvent?.tagValue('l')!,
-              themeIdentifier: fetchedEvent?.tagValue('d')!
-            })
-            storeTheme.set(fetchedEvent?.tagValue('l')!);
-          }
           if (fetchedEvent?.content){
             setCustomStyles(fetchedEvent.content);
           }
-          storeTheme.set(fetchedEvent?.tagValue('l')!);
+          storeTheme.set(userTheme || '');
         }
       });
-  }
-  function setCustomStyles(cssTheme: string) {
-    let styleTag = document.createElement('style');
-    styleTag.id = "custom-style";
-    styleTag.textContent =`${cssTheme}`;
-    document.head.appendChild(styleTag);
   }
 
   function generateQRCode(value: string) {

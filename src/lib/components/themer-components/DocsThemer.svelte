@@ -19,6 +19,8 @@
     import SetProfileTheme from '../set-profile-theme.svelte';
     import { defaulTheme } from '$lib/utils/constants';
 
+	import { userCustomTheme } from '$lib/stores/user';
+
 	// Stores
 	const storeThemGenForm: Writable<FormTheme> = localStorageStore('storeThemGenForm', {
 		colors: [
@@ -83,13 +85,10 @@
 		// Loop store colors
 		$storeThemGenForm.colors.forEach((color: ColorSettings, i: number) => {
 			const colorKey = color.key;
-			// Generate the new color palette hex/rgb/on values
 			newPalette[color.key] = generatePalette($storeThemGenForm.colors[i].hex);
-			// The color set comment
-			newCSS += `/* ${colorKey} | ${newPalette[colorKey][500].hex} */\n\t`;
 			// CSS props for shade 50-900 per each color
 			for (let [k, v] of Object.entries(newPalette[colorKey])) {
-				newCSS += `--color-${colorKey}-${k}: ${v.rgb}; /* ⬅ ${v.hex} */\n\t`;
+				newCSS += `--color-${colorKey}-${k}: ${v.rgb};\n\t`;
 			}
 		});
 		return newCSS;
@@ -152,7 +151,6 @@
 		// CSS output (for live preview)
 		cssOutput = `
 :root {
-	/* =~= Theme Properties =~= */
 	--theme-font-family-base: ${fontSettings[$storeThemGenForm.fontBase]};
 	--theme-font-family-heading: ${fontSettings[$storeThemGenForm.fontHeadings]};
 	--theme-font-color-base: ${$storeThemGenForm.textColorLight};
@@ -160,7 +158,6 @@
 	--theme-rounded-base: ${$storeThemGenForm.roundedBase};
 	--theme-rounded-container: ${$storeThemGenForm.roundedContainer};
 	--theme-border-base: ${$storeThemGenForm.borderBase};
-	/* =~= Theme On-X Colors =~= */
 	--on-primary: ${$storeThemGenForm.colors[0]?.on};
 	--on-secondary: ${$storeThemGenForm.colors[1]?.on};
 	--on-tertiary: ${$storeThemGenForm.colors[2]?.on};
@@ -168,9 +165,7 @@
 	--on-warning: ${$storeThemGenForm.colors[4]?.on};
 	--on-error: ${$storeThemGenForm.colors[5]?.on};
 	--on-surface: ${$storeThemGenForm.colors[6]?.on};
-	/* =~= Theme Colors  =~= */
-	${generateColorCSS()}
-}`;
+	${generateColorCSS()}}`;
 		// CSS-in-JS output (for theme file)
 		cssInJsOutput = `
 import type { CustomThemeConfig } from '@skeletonlabs/tw-plugin';\n
@@ -197,14 +192,13 @@ export const myCustomTheme: CustomThemeConfig = {
 		${generateColorCssInJS()}
 	}
 }`;
-console.log(cssOutput);
 	}
 
-	$: livePreviewStylesheet = $storePreview ? `\<style\>${cssOutput}\</style\>` : '';
+	$: livePreviewStylesheet = $storePreview ? `\<style\>${cssOutput.replace(/(\r\n|\n|\r|\t| {2,})/gm, '')}\</style\>` : '';
 	onDestroy(() => {
 		$storePreview = false;
 		localStorage.removeItem('storeThemGenForm');
-	    storeTheme.set(defaulTheme);
+	    storeTheme.set($userCustomTheme.UserTheme ? $userCustomTheme.UserTheme : defaulTheme);
 	})
 
 </script>
@@ -387,8 +381,7 @@ console.log(cssOutput);
 					{!showThemeCSS ? 'Show' : 'Hide'} Theme Source
 				</button>
 			</div>
-			
 		</footer>
-		<SetProfileTheme cssOutput={$storePreview ? cssOutput : ''} isNewCustomTheme={true} />
+		<SetProfileTheme cssOutput={$storePreview ? cssOutput.replace(/(\r\n|\n|\r|\t| {2,})/gm, '') : ''} isNewCustomTheme={true} />
 	</div>
 </div>

@@ -17,8 +17,8 @@ export default {
         sans: ["Inter"],
       },
       screens: {
-        sm: "408px",
-        sm2: "780px",
+        sm: "464px",
+        sm2: "842px",
       },
     },
   },

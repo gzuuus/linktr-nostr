@@ -287,7 +287,7 @@
             </button>
           {/each}
         </div>
-        <div class:hidden={!showForkInfo}>
+        <div class:hidden={!showForkInfo} class="card p-2">
           {#each findOtherTags(eventList[currentIndex].tags, "a") as label}
             <button
               class="inline-flex"

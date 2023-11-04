@@ -15,6 +15,7 @@
 	import EditIcon from "$lib/elements/icons/edit-icon.svelte";
 	import SearchIcon from "$lib/elements/icons/search-icon.svelte";
     import { browser } from "$app/environment";
+    import PlusSmall from "$lib/elements/icons/plus-small.svelte";
 	const modalStore = getModalStore();
 	const drawerStore = getDrawerStore();
 
@@ -50,7 +51,7 @@
 	}
 </script>
 <svelte:window on:keydown|stopPropagation={onWindowKeydown} />
-<AppBar background="backdrop-blur" border="border-b border-opacity-50 border-surface-500" slotTrail="!space-x-2">
+<AppBar background="backdrop-blur" border="border-b border-opacity-20 border-surface-500" slotTrail="!space-x-2">
 <svelte:fragment slot="lead">
 	<div class="flex items-center space-x-4">
 		<a class="lg:!ml-0 w-fit lg:w-auto overflow-hidden" href="/" title="Go to Homepage">
@@ -77,19 +78,29 @@
 			<small class="hidden sm2:inline-block sm2:badge sm2:variant-glass opacity-50">{isOsMac ? '⌘' : 'Ctrl'}+K</small>
 		</button>
 		{#if $ndkUser}
+		<div class="btn-group variant-ghost grid grid-cols-[1fr_auto] ">
+			<button 
+				class="!text-sm hover:variant-filled hover:!text-surface-50-900-token" 
+				type="button"
+				on:click={() => goto("/new")}
+				>
+				<span><EditIcon size={20} /></span>
+				<span class="hidden sm2:inline-flex">Manage Lists</span>
+			</button>
+			<button 
+				class="!text-sm hover:variant-filled hover:!text-surface-50-900-token" 
+				type="button"
+				on:click={() => modalStore.trigger({ type: 'component', component: 'modalCreateList',})}
+				>
+				<PlusSmall size={18} />
+			</button>
+		</div>
 		<button
-			class="common-btn-sm-ghost"
-			on:click={() => goto(`/${$ndkUser?.npub}`)}
+		class="common-btn-sm-ghost"
+		on:click={() => goto(`/${$ndkUser?.npub}`)}
 		>
 			<span><ProfileIcon size={20} /></span>
 			<span class="hidden sm2:inline-flex">Profile</span>
-		</button>
-		<button
-			class="common-btn-sm-ghost"
-			on:click={() => goto("/new")}
-		>
-			<span><EditIcon size={20} /></span>
-			<span class="hidden sm2:inline-flex">Manage Lists</span>
 		</button>
 		<button
 			class="common-btn-sm-ghost-error"

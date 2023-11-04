@@ -30,15 +30,15 @@ function resetFields(): void {
     showCreateNewList = false;
 }		
 </script>
-
+<div class="card p-4">
 {#if selectedTemplate}
 <div>
 <button class="common-btn-icon-ghost w-fit" on:click={resetFields}>
     <CloseIcon size={20} />
 </button>
 </div>
+<CreateNewList listTemplate={selectedTemplate} />
 {/if}
-
 <div class:hidden={selectedTemplate} class="btn-group variant-filled grid grid-cols-[1fr_auto] w-full">
     <button on:click={() => selectedTemplate = "blank"} type="button">Create new list</button>
     <button on:click={() => showOptions = !showOptions} type="button">
@@ -46,11 +46,8 @@ function resetFields(): void {
     </button>
 </div>
 
-{#if selectedTemplate }
-<CreateNewList listTemplate={selectedTemplate} />
-{/if}
-<div class:hidden={selectedTemplate || !showOptions} class="flex flex-col gap-2" >
-    <span>Create new list from a template</span>
+<div class:hidden={selectedTemplate || !showOptions} class="flex flex-col gap-2 pt-2" >
+    <span class="font-semibold">Create new list from a template</span>
     <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
         <Autocomplete bind:input={selectedTemplate} options={templateOptions} on:selection={onFlavorSelection} />
     </div>
@@ -60,4 +57,5 @@ function resetFields(): void {
             <button type="submit" on:click={() => selectedTemplate = customTemplate} class="variant-soft">Create</button>
         </div>
     </form>
+</div>
 </div>

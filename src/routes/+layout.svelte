@@ -13,6 +13,7 @@
   import Drawers from "$lib/components/drawers.svelte";
   import NoExtensionModal from "$lib/components/modals/no-extension-modal.svelte";
   import LoadingBackdropModal from "$lib/components/modals/loading-backdrop-modal.svelte";
+  import CreateNewListWidget from "$lib/components/create-new-list-widget.svelte";
   import { storePreview, storeTheme } from "$lib/stores/stores";
   import { browser } from "$app/environment";
 
@@ -23,6 +24,7 @@
   modalSearch: { ref: SearchWidget },
   modalNoNip07: { ref: NoExtensionModal},
   modalLoading: { ref: LoadingBackdropModal},
+  modalCreateList: { ref: CreateNewListWidget},
 };
   
 	storePreview.subscribe(setBodyThemeAttribute);

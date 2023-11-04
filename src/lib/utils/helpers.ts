@@ -1,6 +1,6 @@
 import { nip19 } from "nostr-tools";
 import { NDKUser, NDKEvent, type NDKTag } from "@nostr-dev-kit/ndk";
-import { ndkUser } from "$lib/stores/user";
+import { ndkUser, userCustomTheme } from "$lib/stores/user";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
@@ -248,6 +248,10 @@ export function logout() {
     Vanity: undefined,
     UserIdentifier: undefined,
   });
+  userCustomTheme.set({
+    UserTheme: undefined,
+    themeIdentifier: undefined,
+  })
   storeTheme.set(defaulTheme);
   goto("/");
 }
@@ -261,3 +265,11 @@ export function generateNanoId(seed: string | undefined = unixTimeNow().toString
   const id = nanoid(6);
   return userID + id;
 }
+
+export function setCustomStyles(cssTheme: string) {
+  let styleTag = document.createElement('style');
+  styleTag.id = "custom-style";
+  styleTag.textContent =`${cssTheme}`;
+  document.head.appendChild(styleTag);
+}
+

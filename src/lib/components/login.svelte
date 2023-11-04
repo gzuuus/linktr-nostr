@@ -1,14 +1,17 @@
 <script lang="ts">
   export let mode: string | undefined = 'primary';
   export let doGoto: boolean = true;
-  import { NDKNip07Signer } from "@nostr-dev-kit/ndk";
+  import { NDKNip07Signer, type NDKFilter, NDKKind, NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";
-  import { ndkUser } from "$lib/stores/user";
+  import { ndkUser, userCustomTheme } from "$lib/stores/user";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
   import type { ModalSettings } from "@skeletonlabs/skeleton";
   import { getModalStore } from '@skeletonlabs/skeleton';
+  import { kindCSSAsset } from "$lib/utils/constants";
+  import { setCustomStyles } from "$lib/utils/helpers";
+  import { storeTheme } from "$lib/stores/stores";
 			
   const modalStore = getModalStore();
 	const modal: ModalSettings = {
@@ -25,6 +28,7 @@
         npub: ndkCurrentUser.npub,
       });
       ndkUser.set(user);
+      fetchCssAsset(user.hexpubkey());
       if (doGoto) {
         goto(`/${ndkCurrentUser.npub}`);
       }
@@ -42,6 +46,37 @@
         console.error("Error on login:", error);
       }
     }
+  }
+  async function fetchCssAsset(user:string) {
+    let ndkFilter: NDKFilter = {
+      authors: [user], 
+      kinds: [kindCSSAsset as NDKKind], 
+      "#L": ["nostree-theme"]
+    };
+    await $ndk
+      .fetchEvent(ndkFilter, {
+        closeOnEose: true,
+        groupable: true,
+        cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
+      })
+      .then((fetchedEvent) => {
+        if (fetchedEvent) {
+          const userTheme = fetchedEvent.tagValue('l');
+          const themeIdentifier = fetchedEvent.tagValue('d');
+          
+          userCustomTheme.set({
+            UserTheme: userTheme || '',
+            themeIdentifier: themeIdentifier || ''
+          });
+
+          storeTheme.set(userTheme || '');
+
+          if (fetchedEvent.content) {
+            setCustomStyles(fetchedEvent.content);
+          }
+        }
+      });
+
   }
   $: buttonClass =
     mode === 'primary-sm' && $page.url.href !== `${$page.url.origin}/`
