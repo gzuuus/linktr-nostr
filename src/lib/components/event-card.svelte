@@ -36,8 +36,8 @@
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
   import ClipboardButton from "./clipboard-button.svelte";
-
   const modalStore = getModalStore();
+
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   let showDialog: boolean = false;
@@ -50,21 +50,30 @@
   let eventTitles: string[] = [];
   let eventHashtags: string[] = [];
   let showShareModal:boolean = false;
+  let retryCounter = 0;
   const ndkFilter: NDKFilter = dValue
     ? { kinds: [eventKind], authors: [userPubDecoded], "#d": [`${dValue}`] }
     : { kinds: [eventKind], authors: [userPubDecoded], "#l": [`${listLabel}`] };
-
+  
   async function fetchCurrentEvents() {
     if (eventKind == kindLinks) {
       $ndk
         .fetchEvents(ndkFilter, {
-          closeOnEose: false,
+          closeOnEose: true,
           cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
         })
         .then((fetchedEvent) => {
           eventList = Array.from(fetchedEvent);
           linkListLength = eventList.length;
-
+          if (linkListLength == 0) {
+            retryCounter += 1;
+            if (retryCounter >= 10) {
+              return;
+            }
+            console.log("No links", retryCounter);
+            fetchCurrentEvents();
+            return;
+          }
           sortEventList(eventList);
           eventList.forEach((event) => {
             event.tags.forEach((tag) => {

@@ -1,20 +1,21 @@
 <script lang="ts">
     import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
+    import SetProfileTheme from "$lib/components/set-profile-theme.svelte";
     import DocsThemer from "$lib/components/themer-components/DocsThemer.svelte";
     import ChevronIconHorizontal from "$lib/elements/icons/chevron-icon-horizontal.svelte";
     import ndk from "$lib/stores/provider";
     import { storeTheme } from "$lib/stores/stores";
     import { ndkUser } from '$lib/stores/user';
-    import { kindCSSAsset } from "$lib/utils/constants";
-    import { setCustomStyles } from "$lib/utils/helpers";
+    import { kindCSSReplaceableAsset } from "$lib/utils/constants";
+    import DeleteEventData from "$lib/utils/deleteEventData.svelte";
+    import { setCustomStyles, sortEventList, unixToDate } from "$lib/utils/helpers";
     import { NDKSubscriptionCacheUsage, type NDKFilter, type NDKKind, type NDKUserProfile, NDKEvent } from "@nostr-dev-kit/ndk";
 
     let eventList: NDKEvent[] = [];
-    let linkListLength: number;
     let themesCarrousel: HTMLDivElement;
 
     async function fetchCssAsset() {
-    let ndkFilter: NDKFilter = {authors: [$ndkUser!.hexpubkey()], kinds: [kindCSSAsset as NDKKind], "#L": ["nostree-theme"]}
+    let ndkFilter: NDKFilter = {authors: [$ndkUser!.hexpubkey()], kinds: [kindCSSReplaceableAsset as NDKKind], "#L": ["nostree-theme"]}
     await $ndk
       .fetchEvents(ndkFilter, {
         closeOnEose: true,
@@ -23,7 +24,7 @@
       })
       .then((fetchedEvent) => {
         eventList = Array.from(fetchedEvent);
-        linkListLength = eventList.length;
+        sortEventList(eventList);
       });
   }
 
@@ -51,7 +52,7 @@
       <div bind:this={themesCarrousel} class="snap-x snap-mandatory scroll-smooth flex gap-2 pb-2 overflow-x-auto">
         {#each eventList as event}
           <div class="snap-start shrink-0 card py-20 w-40 md:w-80 text-center flex flex-col items-center">
-              {event.tagValue('l')}
+              {event.tagValue('title')}
               <button 
                 class="common-btn-sm-ghost w-fit" 
                 on:click={() => {
@@ -63,6 +64,11 @@
               >
               Try theme
               </button>
+              <DeleteEventData
+                eventToPublish={event}
+              />
+              <SetProfileTheme cssOutput={event.content || ''} isNewCustomTheme={false} themeName={event.tagValue('l') || ''} themeLabel={event.tagValue('l') || ''}/>
+              {unixToDate(event.created_at)}
           </div>
         {/each}
       </div>

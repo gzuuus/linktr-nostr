@@ -251,6 +251,7 @@ export function logout() {
   userCustomTheme.set({
     UserTheme: undefined,
     themeIdentifier: undefined,
+    themeCustomCss: undefined,
   })
   storeTheme.set(defaulTheme);
   goto("/");

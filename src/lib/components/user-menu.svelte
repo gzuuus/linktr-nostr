@@ -7,12 +7,13 @@
   import Login from "./login.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-  import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+  import { Accordion, AccordionItem, getModalStore } from '@skeletonlabs/skeleton';
   import ThemeButton from "./theme-button.svelte";
   import ThemesIcon from "$lib/elements/icons/themes-icon.svelte";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
   import { getDrawerStore } from "@skeletonlabs/skeleton";
-
+  import PlusSmall from "$lib/elements/icons/plus-small.svelte";
+  const modalStore = getModalStore();
   const drawerStore = getDrawerStore();
 </script>
 <div class="flex flex-col justify-between h-full">
@@ -31,16 +32,25 @@
         </button>
       </li>
       <li>
-        <button
-          class="option w-full h-full variant-soft"
-          on:click={() => {
-            goto("/new")
-            drawerStore.close();
-            }}
-        >
-          <span><EditIcon size={20} /></span>
-          <span class="flex-auto text-left">Manage Lists</span>
-        </button>
+        <div class="option btn-group variant-soft grid grid-cols-[1fr_auto] ">
+          <button 
+            class="justify-self-start" 
+            on:click={() => {
+              goto("/new")
+              drawerStore.close()}}
+            >
+            <span><EditIcon size={20} /></span>
+            <span>Manage Lists</span>
+          </button>
+          <button 
+            class="!text-sm hover:variant-filled hover:!text-surface-50-900-token" 
+            on:click={() => {
+              modalStore.trigger({ type: 'component', component: 'modalCreateList',})
+              drawerStore.close()}}
+            >
+            <PlusSmall size={18} />
+          </button>
+        </div>
       </li>
       {/if}
       </ul>

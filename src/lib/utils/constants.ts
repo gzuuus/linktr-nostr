@@ -7,11 +7,12 @@ export const ogLogoImg =
 export const kindLinks = 30001;
 export const kindNotes = 1;
 export const kindArticles = 30023;
-export const kindCSSAsset = 35393;
+export const kindCSSReplaceableAsset = 35393;
+export const kindCSSAsset = 5393;
 export const toastTimeOut = 3500;
 export const outNostrLinksUrl = "https://njump.me";
 export const CORSproxyUrl = "https://corsproxy.io/?";
-export const defaulTheme = "skeleton";
+export const defaulTheme = "nostree-theme";
 
 export const succesPublishToast: ToastSettings = {
   message: "Published successfully!",
@@ -32,6 +33,7 @@ export const succesDeletingToast: ToastSettings = {
   background: "variant-filled-success",
 };
  export const defaultThemes = [
+  { type: 'nostree-theme', name: 'Nostree', icon: '🦩' },
   { type: 'skeleton', name: 'Skeleton', icon: '💀' },
   { type: 'wintry', name: 'Wintry', icon: '🌨️' },
   { type: 'modern', name: 'Modern', icon: '🤖' },

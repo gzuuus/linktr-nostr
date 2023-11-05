@@ -33,6 +33,7 @@
 		if (!browser) return;
 		document.body.setAttribute('data-theme', $storePreview ? 'customTheme' : $storeTheme);
 	}
+
   onMount(async () => {
     try {
       $ndk.connect().then(() => console.log("ndk connected successfully"));
@@ -58,7 +59,7 @@
 <Modal components={modalRegistry} />
 <Toast position="t" />
 <Drawers />
-<AppShell slotPageHeader="sticky top-0 z-10" regionPage="scroll-smooth">
+<AppShell slotPageHeader="fixed sm:sticky top-0 z-10 w-full" regionPage="scroll-smooth">
 	<svelte:fragment slot="pageHeader">
     <Header />
   </svelte:fragment>

@@ -2,7 +2,7 @@ import { join } from "path";
 import type { Config } from "tailwindcss";
 import { skeleton } from "@skeletonlabs/tw-plugin";
 import forms from "@tailwindcss/forms";
-
+import { nostreeTheme } from "./nostree-theme";
 /** @type {import('tailwindcss').Config} */
 
 export default {
@@ -26,6 +26,9 @@ export default {
     forms,
     skeleton({
       themes: {
+        custom: [
+          nostreeTheme,
+        ],
         preset: [
           { name: "crimson", enhancements: true },
           { name: "gold-nouveau", enhancements: true },

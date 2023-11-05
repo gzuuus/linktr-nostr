@@ -9,14 +9,16 @@
 </script>
 
 <Drawer class="{classesDrawer}">
-	<section class="absolute top-2 right-2">
-		<button class="common-btn-icon-ghost" on:click={() => drawerStore.close()}>
-	<CloseIcon size={18} />
-	</button>
-	</section>
+	<div class="flex flex-col h-full">
+		<section class="flex justify-end p-2">
+			<button class="common-btn-icon-ghost" on:click={() => drawerStore.close()}>
+		<CloseIcon size={18} />
+		</button>
+		</section>
 		{#if $drawerStore.id === 'side-nav'}
- 	<div class="grid h-full p-4">
-		<UserMenu />
-    </div>
-	{/if}
+			<div class="grid h-full py-2 px-2">
+				<UserMenu />
+			</div>
+		{/if}
+	</div>
 </Drawer>

@@ -33,9 +33,8 @@ async function fetchEvents(filter: NDKFilter) {
   eventHashtags= [];
   await $ndk
         .fetchEvents(ndkFilter, {
-          closeOnEose: false,
+          closeOnEose: true,
           cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-          groupable: false,
         })
         .then((fetchedEvent) => {
           eventList = Array.from(fetchedEvent);

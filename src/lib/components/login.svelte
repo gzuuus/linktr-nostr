@@ -9,7 +9,7 @@
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
   import type { ModalSettings } from "@skeletonlabs/skeleton";
   import { getModalStore } from '@skeletonlabs/skeleton';
-  import { kindCSSAsset } from "$lib/utils/constants";
+  import { kindCSSReplaceableAsset } from "$lib/utils/constants";
   import { setCustomStyles } from "$lib/utils/helpers";
   import { storeTheme } from "$lib/stores/stores";
 			
@@ -50,7 +50,7 @@
   async function fetchCssAsset(user:string) {
     let ndkFilter: NDKFilter = {
       authors: [user], 
-      kinds: [kindCSSAsset as NDKKind], 
+      kinds: [kindCSSReplaceableAsset as NDKKind], 
       "#L": ["nostree-theme"]
     };
     await $ndk
@@ -63,10 +63,12 @@
         if (fetchedEvent) {
           const userTheme = fetchedEvent.tagValue('l');
           const themeIdentifier = fetchedEvent.tagValue('d');
+          const themeCustomCss = fetchedEvent.content;
           
           userCustomTheme.set({
-            UserTheme: userTheme || '',
-            themeIdentifier: themeIdentifier || ''
+            UserTheme: userTheme || undefined,
+            themeIdentifier: themeIdentifier || undefined,
+            themeCustomCss: themeCustomCss || undefined,
           });
 
           storeTheme.set(userTheme || '');

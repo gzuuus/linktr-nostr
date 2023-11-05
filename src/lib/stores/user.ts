@@ -18,7 +18,9 @@ export const isNip05Valid = writable<{
 export const userCustomTheme = writable<{
   UserTheme: string | undefined;
   themeIdentifier: string | undefined;
+  themeCustomCss: string | undefined;
 }>({
   UserTheme: undefined,
   themeIdentifier: undefined,
+  themeCustomCss: undefined,
 });

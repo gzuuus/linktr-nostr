@@ -15,7 +15,7 @@
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import { defaulTheme, kindCSSAsset, outNostrLinksUrl } from "$lib/utils/constants";
+  import { defaulTheme, kindCSSReplaceableAsset, outNostrLinksUrl } from "$lib/utils/constants";
   import { Avatar } from '@skeletonlabs/skeleton';
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import ClipboardButton from "./clipboard-button.svelte";
@@ -35,8 +35,9 @@
     await user
       .fetchProfile({
         closeOnEose: true,
+        groupable: true,
+        groupableDelay: 100,
         cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-        groupable: false,
       })
       .then(() => {
         userProfile = user.profile as NDKUserProfile;
@@ -54,7 +55,7 @@
   async function fetchCssAsset() {
     let ndkFilter: NDKFilter = {
       authors: [user.hexpubkey()], 
-      kinds: [kindCSSAsset as NDKKind], 
+      kinds: [kindCSSReplaceableAsset as NDKKind], 
       "#L": ["nostree-theme"]
     };
     await $ndk

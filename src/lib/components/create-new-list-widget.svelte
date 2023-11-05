@@ -30,10 +30,10 @@ function resetFields(): void {
     showCreateNewList = false;
 }		
 </script>
-<div class="card p-4">
+<div class="card p-4 flex flex-col w-full items-center">
 {#if selectedTemplate}
-<div>
-<button class="common-btn-icon-ghost w-fit" on:click={resetFields}>
+<div class="text-end w-full">
+<button class="common-btn-icon-ghost" on:click={resetFields}>
     <CloseIcon size={20} />
 </button>
 </div>

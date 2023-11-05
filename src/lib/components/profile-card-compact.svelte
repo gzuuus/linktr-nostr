@@ -28,7 +28,7 @@
   }
 </script>
 
-  {#await user?.fetchProfile( { closeOnEose: true, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL, groupable: true } )}
+  {#await user?.fetchProfile( { closeOnEose: true, groupable:true} )}
   <div class="flex gap-2">
     <PlaceHolderLoading layoutKind={"avatar"} logoSize={40} />
     <PlaceHolderLoading colCount={2} listItemPadding={"py-2"} />

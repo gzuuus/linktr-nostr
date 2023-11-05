@@ -2,8 +2,9 @@
 	export let cssOutput: string | undefined = "";
 	export let isNewCustomTheme: boolean = false;
 	export let themeName: string | undefined = "";
+	export let themeLabel: string | undefined = "";
     import { getToastStore } from '@skeletonlabs/skeleton';
-	import { succesPublishToast, errorPublishToast, kindCSSAsset } from '$lib/utils/constants';
+	import { succesPublishToast, errorPublishToast, kindCSSReplaceableAsset, kindCSSAsset } from '$lib/utils/constants';
     import { NDKEvent } from '@nostr-dev-kit/ndk';
 	import ndk from "$lib/stores/provider";
 	import { getModalStore } from '@skeletonlabs/skeleton';
@@ -11,6 +12,7 @@
     import { v4 as uuidv4 } from "uuid";
 	import { userCustomTheme } from '$lib/stores/user';
     import { storeTheme } from '$lib/stores/stores';
+    import { setCustomStyles } from '$lib/utils/helpers';
 
     const modalStore = getModalStore();
 	const toastStore = getToastStore();
@@ -28,21 +30,35 @@
     function EventSubmit(): void {
 		modalStore.trigger({ type: 'component', component: 'modalLoading'});
 		const ndkEvent = new NDKEvent($ndk);
-		ndkEvent.kind = kindCSSAsset;
+		ndkEvent.kind = kindCSSReplaceableAsset;
 		ndkEvent.content = customStyleSheet;
 		ndkEvent.tags=[
-        ["d", isNewCustomTheme ? `nostree-theme-${uuidv4()}` : eventIdentifier],
-		["title", themeName ? themeName : "Custom Theme"],
+        ["d", isNewCustomTheme ? `nostree-theme-${uuidv4()}` : $userCustomTheme.themeIdentifier || `nostree-theme-${uuidv4()}`],
+		["title", themeName ? themeName : $storeTheme],
 		["L", "nostree-theme"],
-        ["l", $storeTheme],
+        ["l", themeLabel ? themeLabel : $storeTheme],
 		]
 		ndkEvent
 		.publish()
 		.then(() => {
-				modalStore.close()
-				toastStore.trigger(succesPublishToast)
+			modalStore.close()
+			toastStore.trigger(succesPublishToast)
+			const userTheme = ndkEvent.tagValue('l');
+			const themeIdentifier = ndkEvent.tagValue('d');
+			const themeCustomCss = ndkEvent.content;
+			
+			userCustomTheme.set({
+				UserTheme: userTheme || undefined,
+				themeIdentifier: themeIdentifier || undefined,
+				themeCustomCss: themeCustomCss || undefined,
+			});
+
+			storeTheme.set(userTheme || '');
+
+			if (ndkEvent.content) {
+				setCustomStyles(ndkEvent.content);
 			}
-		)
+		})
 		.catch((error) => {
 			modalStore.close()
 			toastStore.trigger(errorPublishToast)
@@ -52,6 +68,6 @@
 </script>
 {#if $ndkUser}
 <button class="btn variant-filled w-full" on:click={EventSubmit}>
-    <span>Use theme in profile</span>
+    <span>{isNewCustomTheme ? 'Publish theme' : 'Use theme in profile'}</span>
 </button>
 {/if}

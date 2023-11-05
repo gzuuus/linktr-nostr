@@ -20,6 +20,9 @@
     import { defaulTheme } from '$lib/utils/constants';
 
 	import { userCustomTheme } from '$lib/stores/user';
+    import { setCustomStyles } from '$lib/utils/helpers';
+
+	let inputThemeName: string = 'Custom Theme';
 
 	// Stores
 	const storeThemGenForm: Writable<FormTheme> = localStorageStore('storeThemGenForm', {
@@ -199,6 +202,9 @@ export const myCustomTheme: CustomThemeConfig = {
 		$storePreview = false;
 		localStorage.removeItem('storeThemGenForm');
 	    storeTheme.set($userCustomTheme.UserTheme ? $userCustomTheme.UserTheme : defaulTheme);
+		if ($userCustomTheme.themeCustomCss) {
+			setCustomStyles($userCustomTheme.themeCustomCss)
+		}
 	})
 
 </script>
@@ -382,6 +388,7 @@ export const myCustomTheme: CustomThemeConfig = {
 				</button>
 			</div>
 		</footer>
-		<SetProfileTheme cssOutput={$storePreview ? cssOutput.replace(/(\r\n|\n|\r|\t| {2,})/gm, '') : ''} isNewCustomTheme={true} />
+		<input class="input" type="text" placeholder="Theme Name" bind:value={inputThemeName} />
+		<SetProfileTheme cssOutput={$storePreview ? cssOutput.replace(/(\r\n|\n|\r|\t| {2,})/gm, '') : ''} isNewCustomTheme={true} themeName={inputThemeName} themeLabel={'customTheme'}/>
 	</div>
 </div>
