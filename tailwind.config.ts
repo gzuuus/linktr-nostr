@@ -26,9 +26,7 @@ export default {
     forms,
     skeleton({
       themes: {
-        custom: [
-          nostreeTheme,
-        ],
+        custom: [nostreeTheme],
         preset: [
           { name: "crimson", enhancements: true },
           { name: "gold-nouveau", enhancements: true },

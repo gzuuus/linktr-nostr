@@ -32,17 +32,17 @@ export const succesDeletingToast: ToastSettings = {
   hoverable: true,
   background: "variant-filled-success",
 };
- export const defaultThemes = [
-  { type: 'nostree-theme', name: 'Nostree', icon: '🦩' },
-  { type: 'skeleton', name: 'Skeleton', icon: '💀' },
-  { type: 'crimson', name: 'Crimson', icon: '⭕' },
-  { type: 'modern', name: 'Modern', icon: '🤖' },
-  { type: 'rocket', name: 'Rocket', icon: '🚀' },
-  { type: 'sahara', name: 'Sahara', icon: '🏜️' },
-  { type: 'wintry', name: 'Wintry', icon: '🌨️' },
-  { type: 'seafoam', name: 'Seafoam', icon: '🧜‍♀️' },
-  { type: 'vintage', name: 'Vintage', icon: '📺' },
-  { type: 'hamlindigo', name: 'Hamlindigo', icon: '👔' },
-  { type: 'gold-nouveau', name: 'Gold Nouveau', icon: '💫' },
-  { type: 'customTheme', name: 'Custom', icon: '🎨' }
+export const defaultThemes = [
+  { type: "nostree-theme", name: "Nostree", icon: "🦩" },
+  { type: "skeleton", name: "Skeleton", icon: "💀" },
+  { type: "crimson", name: "Crimson", icon: "⭕" },
+  { type: "modern", name: "Modern", icon: "🤖" },
+  { type: "rocket", name: "Rocket", icon: "🚀" },
+  { type: "sahara", name: "Sahara", icon: "🏜️" },
+  { type: "wintry", name: "Wintry", icon: "🌨️" },
+  { type: "seafoam", name: "Seafoam", icon: "🧜‍♀️" },
+  { type: "vintage", name: "Vintage", icon: "📺" },
+  { type: "hamlindigo", name: "Hamlindigo", icon: "👔" },
+  { type: "gold-nouveau", name: "Gold Nouveau", icon: "💫" },
+  { type: "customTheme", name: "Custom", icon: "🎨" },
 ];

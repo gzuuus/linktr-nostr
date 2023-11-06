@@ -252,7 +252,7 @@ export function logout() {
     UserTheme: undefined,
     themeIdentifier: undefined,
     themeCustomCss: undefined,
-  })
+  });
   storeTheme.set(defaulTheme);
   goto("/");
 }
@@ -268,9 +268,8 @@ export function generateNanoId(seed: string | undefined = unixTimeNow().toString
 }
 
 export function setCustomStyles(cssTheme: string) {
-  let styleTag = document.createElement('style');
+  let styleTag = document.createElement("style");
   styleTag.id = "custom-style";
-  styleTag.textContent =`${cssTheme}`;
+  styleTag.textContent = `${cssTheme}`;
   document.head.appendChild(styleTag);
 }
-
