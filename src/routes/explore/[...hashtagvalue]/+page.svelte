@@ -15,6 +15,7 @@
   import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
   import SearchBar from "$lib/components/search-bar.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
+    import { onDestroy } from "svelte";
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
@@ -23,6 +24,7 @@
   let initialHashtagCount: number = 15;
   let showAllHashtags:boolean = false;
   let showSearchBar: boolean = false;
+  let retryCounter = 0;
   $: {
     ndkFilter = $page.params.hashtagvalue
     ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"]}
@@ -38,7 +40,12 @@ async function fetchEvents(filter: NDKFilter) {
         })
         .then((fetchedEvent) => {
           eventList = Array.from(fetchedEvent);
-
+          if (eventList.length == 0) {
+            if (retryCounter <= 10) { 
+              retryCounter += 1;
+              setTimeout(fetchEvents, 150);
+            }
+          }
           sortEventList(eventList);
           eventList.forEach((event) => {
             event.tags.forEach((tag) => {
@@ -48,6 +55,9 @@ async function fetchEvents(filter: NDKFilter) {
         });
         isSubscribe = false;
 }
+onDestroy(() => {
+  retryCounter = 10
+})
 </script>
 <svelte:head>
   <title>{$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}</title>
@@ -61,7 +71,7 @@ async function fetchEvents(filter: NDKFilter) {
     <PlaceHolderLoading layoutKind={"avatar"} />
   </div>
   <h2 class:hidden={!$page.params.hashtagvalue}> #{$page.params.hashtagvalue}</h2>
-  <PlaceHolderLoading colCount={6} />
+  <PlaceHolderLoading colCount={5} />
 {:then value }
   <h1 class="inline-flex justify-center">
     <button type="button" on:click={() => goto('/explore')}>
@@ -159,5 +169,8 @@ async function fetchEvents(filter: NDKFilter) {
     </div>
     <hr/>
   {/each}
+  {#if eventList.length == 0}
+    <PlaceHolderLoading colCount={5} />
+  {/if}  
 {/await}
 {/key}

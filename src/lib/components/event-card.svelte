@@ -5,7 +5,7 @@
   export let dValue: string = "";
   export let isEditHappens: boolean = false;
   export let isFork: boolean = false;
-  export let linkListLength: number;
+  export let linkListLength: number | undefined = 0;
   
   import { nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
@@ -18,7 +18,7 @@
     naddrEncodeATags,
   } from "$lib/utils/helpers";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-  import { kindLinks, toastTimeOut } from "$lib/utils/constants";
+  import { kindLinks } from "$lib/utils/constants";
   import { page } from "$app/stores";
   import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
   import { goto } from "$app/navigation";
@@ -36,6 +36,7 @@
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
   import ClipboardButton from "./clipboard-button.svelte";
+  import { onDestroy } from "svelte";
   const modalStore = getModalStore();
 
   let userPubDecoded: string = nip19.decode(userPub).data.toString();
@@ -46,10 +47,8 @@
   let showForkInfo: boolean = false;
   let isEditMode: boolean = false;
   let isFormSent: boolean = false;
-  let isKink1Published: boolean = false;
   let eventTitles: string[] = [];
   let eventHashtags: string[] = [];
-  let showShareModal:boolean = false;
   let retryCounter = 0;
   const ndkFilter: NDKFilter = dValue
     ? { kinds: [eventKind], authors: [userPubDecoded], "#d": [`${dValue}`] }
@@ -64,15 +63,15 @@
         })
         .then((fetchedEvent) => {
           eventList = Array.from(fetchedEvent);
-          linkListLength = eventList.length;
-          if (linkListLength == 0) {
-            retryCounter += 1;
+          if (eventList.length == 0) {
             if (retryCounter >= 10) {
-              return;
+              linkListLength = undefined;
+            } else {
+              retryCounter += 1;
+              setTimeout(fetchCurrentEvents, 150);
             }
-            console.log("No links", retryCounter);
-            fetchCurrentEvents();
-            return;
+          } else {
+              linkListLength = eventList.length;
           }
           sortEventList(eventList);
           eventList.forEach((event) => {
@@ -101,8 +100,8 @@
       component: 'modalPublishKind1',
       meta: {
         noteContent: `Look this cool nostree list '${modalTitle}' from nostr:${$isNip05ValidStore.UserNpub}\n${modalContent}`
-    }
-};
+      }
+    };
     modalStore.trigger(modal);
   }
 
@@ -116,17 +115,17 @@
       isEditMode = false;
       isEditHappens = !isEditHappens;
     }
-    if (isKink1Published) {
-      showShareModal = false
-      setTimeout(() => {
-        isKink1Published = false     
-      }, toastTimeOut)
-    }
   }
+  onDestroy(() => {
+    retryCounter = 10;
+  })
 </script>
 {#await fetchCurrentEvents()}
-<PlaceHolderLoading colCount={6} />
+<PlaceHolderLoading colCount={5} />
 {:then value}
+    {#if retryCounter <= 9 && eventList.length == 0}
+    <PlaceHolderLoading colCount={5} />
+    {/if}
     {#if eventList.length > 0}
         <div >
           <div class:justify-between={eventList.length > 1} class="flex justify-center">
@@ -311,5 +310,6 @@
           {/each}
         </div>
         </div>
-    {/if}
+
+        {/if}
 {/await}

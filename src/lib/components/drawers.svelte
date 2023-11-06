@@ -9,12 +9,7 @@
 </script>
 
 <Drawer class="{classesDrawer}">
-	<div class="flex flex-col h-full">
-		<section class="flex justify-end p-2">
-			<button class="common-btn-icon-ghost" on:click={() => drawerStore.close()}>
-		<CloseIcon size={18} />
-		</button>
-		</section>
+	<div class="flex flex-col h-full overflow-hidden">
 		{#if $drawerStore.id === 'side-nav'}
 			<div class="grid h-full py-2 px-2">
 				<UserMenu />

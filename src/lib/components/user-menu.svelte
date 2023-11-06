@@ -15,7 +15,10 @@
   import PlusSmall from "$lib/elements/icons/plus-small.svelte";
   const modalStore = getModalStore();
   const drawerStore = getDrawerStore();
+
+	$: innerHeight = 0
 </script>
+<svelte:window bind:innerHeight/>
 <div class="flex flex-col justify-between h-full">
   <nav class="list-nav p-4 -m-4 overflow-y-auto">        
     <ul>
@@ -97,14 +100,14 @@
             <span><LogoutIcon size={20} /></span>
             <span class="flex-auto text-left">LogOut</span>
           </button>
-      </li>
+      </li>      
       <li>
         <Accordion>
           <AccordionItem>
             <svelte:fragment slot="lead"><ThemesIcon size={18} /></svelte:fragment>
             <svelte:fragment slot="summary">Theming</svelte:fragment>
             <svelte:fragment slot="content">
-              <ThemeButton />
+              <ThemeButton widgetLayout={innerHeight > 740 ? "max-h-72" : innerHeight > 640 ? "max-h-48" : innerHeight > 570 ? "max-h-32" : "max-h-24"} />
             </svelte:fragment>
           </AccordionItem>
         </Accordion>

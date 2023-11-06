@@ -30,7 +30,7 @@ function resetFields(): void {
     showCreateNewList = false;
 }		
 </script>
-<div class="card p-4 flex flex-col w-full items-center">
+<div class="card p-4 flex flex-col items-center">
 {#if selectedTemplate}
 <div class="text-end w-full">
 <button class="common-btn-icon-ghost" on:click={resetFields}>

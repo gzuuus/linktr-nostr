@@ -9,7 +9,7 @@
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
   import type { ModalSettings } from "@skeletonlabs/skeleton";
   import { getModalStore } from '@skeletonlabs/skeleton';
-  import { kindCSSReplaceableAsset } from "$lib/utils/constants";
+  import { defaulTheme, kindCSSReplaceableAsset } from "$lib/utils/constants";
   import { setCustomStyles } from "$lib/utils/helpers";
   import { storeTheme } from "$lib/stores/stores";
 			
@@ -71,7 +71,7 @@
             themeCustomCss: themeCustomCss || undefined,
           });
 
-          storeTheme.set(userTheme || '');
+          storeTheme.set($storeTheme == defaulTheme ? userTheme! : $storeTheme);
 
           if (fetchedEvent.content) {
             setCustomStyles(fetchedEvent.content);

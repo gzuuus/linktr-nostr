@@ -31,13 +31,13 @@
       {#key isEditHappens}
         <div>
           <EventCard
-            bind:linkListLength
+            bind:linkListLength 
             bind:isEditHappens
             userPub={userPub}
             eventKind={kindLinks}
             listLabel={segments[0]}
           />
-          {#if linkListLength == 0}
+          {#if linkListLength == undefined}
           <div class=" flex flex-col gap-2 justify-center common-ring p-4 w-fit m-auto rounded-container-token card">
             <button class="btn btn-icon variant-filled m-auto" on:click={() => goto(`/new`)}>
               <PlusSmall size={30} />

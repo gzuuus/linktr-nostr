@@ -273,15 +273,6 @@
           </div>
           <div class="card p-4 variant-filled max-w-lg" data-popup="popupSlug">
             <p>Slugs are a memorable way to identify your Nostree lists. It gives you a link to your list like nostree.me/user/SLUG</p>
-            <ol class="list card p-4 bg-surface-backdrop-token">
-              Allowed prefixes:
-              {#each validPrefixes as prefix }
-              <li>
-                <span class="flex-auto">{prefix}</span>
-              </li>
-              <hr class=" opacity-50"/>
-              {/each}
-            </ol>
             <div class="arrow variant-filled" />
           </div>
           <div class="card p-4 variant-filled max-w-lg" data-popup="popupPrefix">
@@ -367,7 +358,7 @@
         </span>
       <InputChip bind:value={formData.hashtags} name="chips" placeholder="Enter any value...(press intro)"/>
       <div class="card p-4 variant-filled" data-popup="popupHashtag">
-        <p>Hashtags are a way to categorize your nostree list in order to increase discoverability. 💡 Press 'intro' to add hashtags</p>
+        <p>Hashtags are a way to categorize your nostree list in order to increase discoverability.</p>
         <div class="arrow variant-filled" />
       </div>
       </label>
