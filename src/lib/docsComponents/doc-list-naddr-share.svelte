@@ -1,5 +1,5 @@
 <script>
-  import LinktOut from "$lib/elements/icons/linkt-out.svelte";
+  import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OpenDrawerIcon from "$lib/elements/icons/open-drawer-icon.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
 </script>
@@ -17,7 +17,7 @@
   <hr />
   <p>Unlike slugs, Naddr links are unique for each list.</p>
   <p>Sharing your list through a Naddr link will always point to the same list and display only that list.</p>
-  <p>><LinktOut size={18} /> This will open a new tab with the Naddr page.</p>
+  <p>><LinkOut size={18} /> This will open a new tab with the Naddr page.</p>
   <p>
     ><ShareIcon size={18} /> This will open a dialog menu to share the Naddr (only available on mobile).
   </p>

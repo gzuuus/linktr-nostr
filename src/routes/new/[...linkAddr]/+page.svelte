@@ -3,28 +3,23 @@
   import ndk from "$lib/stores/provider";
   import CreateNewList from "$lib/components/create-new-list.svelte";
   import { ndkUser } from "$lib/stores/user";
-  import { Button, Tag } from "agnostic-svelte";
   import { nip19 } from "nostr-tools";
   import { findHashTags, findListTags, findOtherTags, sortEventList } from "$lib/utils/helpers";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
-  import { Disclose } from "agnostic-svelte";
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
-  import { Spinner } from "agnostic-svelte";
   import PinIcon from "$lib/elements/icons/pin-icon.svelte";
   import Login from "$lib/components/login.svelte";
-  import { kindLinks } from "$lib/utils/constants";
+  import { errorPublishToast, kindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
-  import RepublishIcon from "$lib/elements/icons/republish-icon.svelte";
-  import InfoDialog from "$lib/components/info-dialog.svelte";
-  import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+  import { Accordion, AccordionItem, getModalStore, getToastStore } from "@skeletonlabs/skeleton";
+  import CreateNewListWidget from "$lib/components/create-new-list-widget.svelte";
 
+  const toastStore = getToastStore();
+  const modalStore = getModalStore();
   let events: NDKEvent[] = [];
-  let oldEvents: NDKEvent[] = [];
-  let showSpinner: boolean = false;
-  let fetchedOldEvents: boolean = false;
-  let fetchedMigratedEvents: boolean = false;
+  let fetchedEvents: boolean = false;
   let showCreateNewList: boolean = false;
   let deletedEventsIds: string[] = [];
   let isEditMode: boolean = false;
@@ -39,11 +34,6 @@
   function showEvents() {
     if ($ndkUser) {
       let userPubDecoded: string = nip19.decode($ndkUser.npub).data.toString();
-      $ndk.fetchEvents({ kinds: [30303 as number], authors: [userPubDecoded] }).then((fetchedEvent) => {
-        oldEvents = Array.from(fetchedEvent).filter((event) => event.tagValue("title"));
-        fetchedOldEvents = true;
-        sortEventList(events);
-      });
       $ndk
         .fetchEvents({
           kinds: [kindLinks],
@@ -52,13 +42,14 @@
         })
         .then((fetchedEvent) => {
           events = Array.from(fetchedEvent);
-          fetchedMigratedEvents = true;
+          fetchedEvents = true;
           sortEventList(events);
         });
     }
   }
 
   function handleSubmit(eventToPublish: NDKEvent, toDelete: boolean = false) {
+    modalStore.trigger({ type: 'component', component: 'modalLoading'});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
     let title = eventToPublish.tagValue("title");
@@ -106,31 +97,21 @@
       .publish()
       .then(() => {
         events = [];
-        oldEvents = [];
-        fetchedOldEvents = false;
-        fetchedMigratedEvents = false;
-        showSpinner = false;
+        fetchedEvents = false;
+        modalStore.clear();
         if (toDelete) {
           deletedEventsIds.push(eventToPublish.tagValue("d")!);
+          toastStore.trigger(succesDeletingToast);
+        } else {
+          toastStore.trigger(succesPublishToast);
         }
-        setTimeout(() => {
           showEvents();
-        }, 1100);
       })
       .catch((error) => {
+        modalStore.clear();
+        toastStore.trigger(errorPublishToast);
         console.log("Error:", error);
-        showSpinner = false;
       });
-  }
-  function checkBetwList(event: NDKEvent): boolean {
-    let eventDtag = event.tagValue("d");
-    for (const oldEvent of events) {
-      const oldEventDtag = oldEvent.tagValue("d");
-      if (eventDtag === oldEventDtag && oldEvent.kind != event.kind) {
-        return true;
-      }
-    }
-    return false;
   }
 </script>
 <svelte:head>
@@ -139,172 +120,97 @@
   <meta property="og:title" content="Manage lists"/>
   <meta property="og:description" content="Manage your nostree lists" />
 </svelte:head>
-{#if showSpinner}
-  <div class="spinnerContainer">
-    <Spinner size="xlarge" />
+{#if $ndkUser}
+  <div class:hidden={showCreateNewList} class="flex flex-col gap-2 flex-wrap">
+    <h2>Manage your lists</h2>
   </div>
+  <CreateNewListWidget bind:showCreateNewList={showCreateNewList} />
+{:else}
+  <Login mode="primary" doGoto={false} />
 {/if}
-<div class="listContainer commonContainerStyle">
-  <div>
-    {#if $ndkUser}
-      <div class:hidden={showCreateNewList}>
-        <h2>Manage your lists</h2>
-        <button class="isBlock" on:click={() => (showCreateNewList = !showCreateNewList)}>Create new list </button>
-      </div>
-      <div class:hidden={!showCreateNewList}>
-        <CreateNewList eventToEdit={undefined} />
-      </div>
-    {:else}
-      <Login mode="primary" doGoto={false} />
-    {/if}
-    {#key events.length}
-      {#if events.length > 0}
-        <div class="allListsContainer">
-          {#key fetchedMigratedEvents}
-            <Disclose isBackground title="All your lists">
-              {#each events as event, i}
-                {#if !deletedEventsIds.includes(event.tagValue("d") ?? "")}
-                  <div class="commonBorderStyle commonPadding">
-                    <div class="eventContainer noBorder">
-                      {#if !isEditMode}
-                        <button
-                          class="iconButton"
-                          on:click={() => {
-                            isEditMode = true;
-                            editIndex = i;
-                          }}><EditIcon size={20} /></button
-                        >
-                      {:else if editIndex == i}
-                        <button
-                          class="iconButton"
-                          on:click={() => {
-                            isEditMode = false;
-                          }}><CloseIcon size={20} /></button
-                        >
-                      {:else}
-                        <button
-                          class="iconButton"
-                          on:click={() => {
-                            isEditMode = true;
-                            editIndex = i;
-                          }}><EditIcon size={20} /></button
-                        >
-                      {/if}
-                      <button
-                        class="iconButton"
-                        class:firstEvent={i == 0}
-                        on:click={() => {
-                          handleSubmit(event);
-                          showSpinner = true;
-                        }}><PinIcon size={20} /></button
-                      >
-                      <button
-                        class="iconButton"
-                        on:click={() => {
-                          handleSubmit(event, true);
-                          showSpinner = true;
-                        }}><BinIcon size={20} /></button
-                      >
-                      <h3>{event.tagValue("title")}</h3>
-                      
-                    </div>
-                    <div>
-                    {#each findHashTags(event.tags) as { text }}
-                    <Tag><HashtagIconcopy size={16}/>{text}</Tag>
-                    {/each}
-                    </div>
-                    {#if isEditMode && editIndex == i}
-                      <CreateNewList eventToEdit={event} doGoto={true} />
-                    {/if}
-
-                    <details class="showLinksDetails">
-                      <summary><ChevronIconVertical size={20} flipVertical={true} /></summary>
-                      {#each findListTags(event.tags) as { url, text }}
-                        <a href={url} target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
-                      {/each}
-                    </details>
-                  </div>
+<!-- Other lists -->
+{#key events.length}
+  {#if events.length > 0 && !showCreateNewList}
+  <Accordion regionControl="variant-ghost">
+    <AccordionItem>
+      <svelte:fragment slot="summary">Show your all lists</svelte:fragment>
+      <svelte:fragment slot="content">
+      {#key fetchedEvents}
+          {#each events as event, i}
+            {#if !deletedEventsIds.includes(event.tagValue("d") ?? "")}
+              <div class="common-container-content common-ring rounded-container-token p-2">
+                <div class="flex flex-wrap gap-1 justify-center">  
+                {#if !isEditMode}
+                    <button
+                      class="common-btn-icon-ghost"
+                      on:click={() => {
+                        isEditMode = true;
+                        editIndex = i;
+                      }}><EditIcon size={20} /></button
+                    >
+                  {:else if editIndex == i}
+                    <button
+                      class="common-btn-icon-ghost"
+                      on:click={() => {
+                        isEditMode = false;
+                      }}><CloseIcon size={20} /></button
+                    >
+                  {:else}
+                    <button
+                      class="common-btn-icon-ghost"
+                      on:click={() => {
+                        isEditMode = true;
+                        editIndex = i;
+                      }}><EditIcon size={20} /></button
+                    >
+                  {/if}
+                  <button
+                    class="common-btn-icon-ghost"
+                    class:firstEvent={i == 0}
+                    on:click={() => {
+                      handleSubmit(event);
+                    }}><PinIcon size={20} /></button
+                  >
+                  <button
+                    class="common-btn-icon-ghost hover:variant-filled-error"
+                    on:click={() => {
+                      handleSubmit(event, true);
+                    }}><BinIcon size={20} /></button
+                  >
+                </div>
+                <div class:hidden={isEditMode && editIndex == i}>
+                  <h3>{event.tagValue("title")}</h3>
+                <div class="flex flex-wrap gap-1 justify-center">
+                {#each findHashTags(event.tags) as { text }}
+                <span class="common-badge-ghost">
+                  <HashtagIconcopy size={16}/>{text}
+                </span>
+                {/each}
+                </div>
+              </div>
+                {#if isEditMode && editIndex == i}
+                  <CreateNewList eventToEdit={event} doGoto={true} listTemplate={undefined} />
                 {/if}
-              {/each}
-            </Disclose>
-          {/key}
-        </div>
-      {/if}
-      {#if oldEvents.length > 0}
-        <div class="allListsContainer">
-          {#key fetchedOldEvents}
-            {#each oldEvents as event, i}
-              {#if fetchedMigratedEvents && fetchedOldEvents}
-                {#if !checkBetwList(event)}
-                  <hr />
-                  <div class="alertContainer">
-                    <h3>
-                      🔺 List in the old format <span class="inline-span"
-                        ><InfoDialog whatInfo="list-old-format-migrate" /></span
-                      >
-                    </h3>
-                    <div class="eventContainer">
-                      <button
-                        class="iconButton"
-                        on:click={() => {
-                          handleSubmit(event);
-                          showSpinner = true;
-                        }}><RepublishIcon size={20} /></button
-                      >
-                      <button
-                        class="iconButton"
-                        on:click={() => {
-                          handleSubmit(event, true);
-                          showSpinner = true;
-                        }}><BinIcon size={20} /></button
-                      >
-                      <h3>{event.tagValue("title")}</h3>
-                      {#each findListTags(event.tags) as { url, text }}
-                        <a href={url} target="_blank" rel="noreferrer"><Button isBlock>{text}</Button></a>
-                      {/each}
-                    </div>
-                  </div>
-                {/if}
-              {/if}
-            {/each}
-          {/key}
-        </div>
-      {/if}
-    {/key}
-  </div>
-</div>
-
-<style>
-  button:hover {
-    color: var(--hover-color);
-  }
-  .firstEvent {
-    color: var(--hover-color);
-  }
-  .listContainer {
-    display: block;
-    word-break: break-word;
-  }
-
-  .allListsContainer {
-    margin-top: 0.5em;
-  }
-  .alertContainer {
-    opacity: 0.6;
-    transition: all 0.2s ease-in-out;
-  }
-  .alertContainer:hover {
-    opacity: 1;
-  }
-  .eventContainer.noBorder {
-    display: flex;
-    align-items: center;
-    justify-content: start;
-    gap: 0.5em;
-    padding: 0;
-    margin: 0 0.5em;
-  }
-  .showLinksDetails {
-    padding: 0.5em;
-  }
-</style>
+                <div class:hidden={isEditMode && editIndex == i}>
+                <Accordion regionControl="variant-ghost">
+                    <AccordionItem>
+                      <svelte:fragment slot="summary">View links</svelte:fragment>
+                      <svelte:fragment slot="content">
+                      <div class="flex flex-col flex-wrap gap-2">
+                        {#each findListTags(event.tags) as { url, text }}
+                          <a href={url} target="_blank" rel="noreferrer"><button class="common-list-btn-filled">{text}</button></a>
+                        {/each}
+                      </div>
+                      </svelte:fragment>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+              </div>
+            {/if}
+          {/each}
+      {/key}
+    </svelte:fragment>
+  </AccordionItem>
+  </Accordion>
+  {/if}
+{/key}

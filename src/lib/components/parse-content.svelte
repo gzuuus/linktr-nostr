@@ -56,12 +56,10 @@
     return parsedContent.length > charLimit ? parsedContent.slice(0, charLimit) + "..." : parsedContent;
   }
 </script>
-
-<div class="parsedContentContainer">
   {@html showMore ? parsedContent : getTruncatedContent()}
 
   {#if parsedContent.length > charLimit}
-    <button class="showMoreButton" on:click={toggleShowMore}>
+    <button class="common-btn-icon-ghost" on:click={toggleShowMore}>
       {#if showMore}
         <MinusSmall size={20} />
       {:else}
@@ -69,9 +67,8 @@
       {/if}
     </button>
   {/if}
-</div>
 
-<style>
+<!-- <style>
   .showMoreButton {
     display: flex;
     background: var(--elements-b-color);
@@ -88,4 +85,4 @@
   .showMoreButton:hover {
     background: var(--hover-b-color);
   }
-</style>
+</style> -->

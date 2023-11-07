@@ -2,9 +2,9 @@
   export let isFormSent: boolean = false;
   export let doGoto: boolean = true;
   export let eventToEdit: NDKEvent | null = null;
+  export let listTemplate: string = "blank";
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";
-  import { Button, Disclose, Spinner, Tag } from "agnostic-svelte";
   import ResetIcon from "$lib/elements/icons/reset-icon.svelte";
   import LinkIcon from "$lib/elements/icons/link-icon.svelte";
   import TextIcon from "$lib/elements/icons/text-icon.svelte";
@@ -16,21 +16,16 @@
   import { ndkUser } from "$lib/stores/user";
   import { kindLinks } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
-  import InfoDialog from "$lib/components/info-dialog.svelte";
   import SlugIcon from "$lib/elements/icons/slug-icon.svelte";
   import { nip19 } from "nostr-tools";
   import InsertIcon from "$lib/elements/icons/insert-icon.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
+  import { FormData } from "$lib/classes/list";
+	import { getToastStore, Accordion, AccordionItem, focusTrap, InputChip, getModalStore, popup } from '@skeletonlabs/skeleton';
+	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-  import CloseIcon from "$lib/elements/icons/close-icon.svelte";
-  import PublishKind1 from "./publish-kind1.svelte";
-  import { page } from "$app/stores";
 
-  let showSpinner: boolean = false;
-  let publishKind1: boolean = false;
-  let isKind1Published:boolean=false
-  const newDTag = `nostree-${uuidv4()}`;
   const validPrefixes: string[] = [
     "http://",
     "https://",
@@ -44,18 +39,23 @@
     "irc://",
     "magnet:",
   ];
-
+  const modalStore = getModalStore();
+  const toastStore = getToastStore();
+  const newDTag = `nostree-${uuidv4()}`;
   let linkValidationStatus: boolean[] = [];
   let linkNameValidationStatus: boolean[] = [];
+  let formData = new FormData();
 
-  let formData = {
-    title: "",
-    summary: "",
-    links: [{ link: "", description: "" }],
-    labels: [{ label: "" }],
-    forkData: { forkPubKey: "", forkEventoPointer: "" },
-    hashtags: [{ hashtags: "" }],
-  };
+  if (listTemplate != "blank") {
+    formData = {
+      title: listTemplate,
+      summary: `A list about ${listTemplate}`,
+      links: [{ link: "", description: "" }],
+      labels: [{label: listTemplate }],
+      forkData: { forkPubKey: "", forkEventoPointer: "" },
+      hashtags: [`${listTemplate}`],
+    };
+  }
 
   if (eventToEdit) {
     let title = eventToEdit.tagValue("title");
@@ -64,9 +64,9 @@
     const links = rTags.map((tag) => ({ link: tag.url, description: tag.text }));
     const labels = findOtherTags(eventToEdit.tags, "l").map((tag) => ({ label: tag }));
     const tTags = findHashTags(eventToEdit.tags);
-    const hashtags = tTags.map((tag) => ({ hashtags: tag.text }));
-
+    const hashtags = tTags.map((tag) => tag.text);
     const forkedFrom = eventToEdit.tagValue("p");
+    
     const ForkData = {
       forkedPubkey: forkedFrom,
       forkedEventoPointer: buildATags(
@@ -124,7 +124,7 @@
     linkNameValidationStatus.every((status) => status);
 
   function handleSubmit() {
-    showSpinner = true;
+    modalStore.trigger({ type: 'component', component: 'modalLoading',});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
     if (eventToEdit) {
@@ -135,7 +135,7 @@
       ];
       for (const labelData of formData.labels) {
         const { label } = labelData;
-        ndkEvent.tags.push(["l", encodeURIComponent(label.trim())]);
+        ndkEvent.tags.push(["l", encodeURIComponent(label.trim().toLowerCase())]);
       }
 
       if (formData.forkData && eventToEdit.author.npub == $ndkUser?.npub) {
@@ -157,28 +157,24 @@
         ["summary", formData.summary],
         ["d", newDTag],
         ["l", "nostree"],
-        ["l", formData.labels[0].label ? formData.labels[0].label : generateNanoId($ndkUser?.npub)],
+        ["l", formData.labels[0].label.trim() ? formData.labels[0].label.toLowerCase().trim() : generateNanoId($ndkUser?.npub)],
       ];
     }
     for (const linkData of formData.links) {
       const { link, description } = linkData;
       ndkEvent.tags.push(["r", link.trim(), description.trim()]);
     }
-    for (const hashTagData of formData.hashtags) {
-      const { hashtags } = hashTagData;
-      if (hashtags.trim()!== "") {
-        ndkEvent.tags.push(["t", hashtags.trim().toLowerCase()]);
+    for (const hashtag of formData.hashtags) {
+      if (hashtag.trim() !== "") {
+        ndkEvent.tags.push(["t", hashtag.trim().toLowerCase()]);
       }
-    }
-
+  }
     ndkEvent
       .publish()
       .then(() => {
-        showSpinner = false;
         isFormSent = true;
-        // if (!eventToEdit){
-        //   publishKind1 = true;
-        // }
+        modalStore.clear();
+        toastStore.trigger(succesPublishToast);
       })
       .then(() => {
       if (doGoto) {
@@ -186,8 +182,9 @@
         }
       })
       .catch((error) => {
+        modalStore.clear();
+        toastStore.trigger(errorPublishToast)
         console.log("Error:", error);
-        showSpinner = false;
       });
   }
 
@@ -197,43 +194,21 @@
     } else {
       formData.links = [...formData.links, { link: "", description: "" }];
     }
-
     validateAllURLs();
     validateAllURLNames();
   }
-  function addHashtagField() {
-    formData.hashtags = [...formData.hashtags, { hashtags: "" }];
-  }
 
-  function removeLinkField(index: number) {
+  function handleRemoveLink(index: number) {
     formData.links = formData.links.filter((_, i) => i !== index);
     linkValidationStatus.splice(index, 1);
     linkNameValidationStatus.splice(index, 1);
   }
 
-  function removeHashTagField(index: number) {
-    formData.hashtags = formData.hashtags.filter((_, i) => i !== index);
-  }
-
   function handleReset() {
-    formData = {
-      title: "",
-      summary: "",
-      links: [{ link: "", description: "" }],
-      labels: [{ label: "" }],
-      forkData: { forkPubKey: "", forkEventoPointer: "" },
-      hashtags: [{ hashtags: "" }],
-    };
+    formData = new FormData();
     linkValidationStatus = [];
     linkNameValidationStatus = [];
     eventToEdit = null;
-  }
-
-  function handleRemoveLink(index: number) {
-    removeLinkField(index);
-  }
-  function handleRemoveHashTag(index: number) {
-    removeHashTagField(index);
   }
 
   function handleMoveLink(index: number, direction: string) {
@@ -252,45 +227,28 @@
   function handleBlur() {
     focusedIndex = -1;
   }
-
-  function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === ",") {
-      addHashtagField();
-    }
-  }
+  $: isFormValid = areAllLinksValid && formData.title.trim() != ""
 </script>
-{#if publishKind1}
-<div class="modal">
-  <div class="modal-content">
-    <PublishKind1 listTitle={formData.title} listURL={`${$page.url.origin}/${$ndkUser?.npub}`} bind:isPublished={isKind1Published}/>
-    <div class="closeModal">
-      <button class="iconButton" on:click={() => (publishKind1 = false)}><CloseIcon size={18} /></button>
-    </div>
-  </div>
-</div>
-{/if}
-{#if showSpinner}
-  <div class="spinnerContainer">
-    <Spinner size="xlarge" />
-  </div>
-{/if}
-<main>
-  <h2>{titleText}<span class="inline-span"><InfoDialog whatInfo="new-list" /></span></h2>
-
-  <form on:submit|preventDefault={handleSubmit}>
-    <div class="formFieldsContainer text-align-start">
-      <h4><label for="title">Title <span style="color: red;">*</span></label></h4>
-      <input type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
-
-      <h4><label for="title">Summary</label></h4>
-      <input type="text" id="summary" placeholder="Brief description of your list" bind:value={formData.summary} maxlength="120"/>
-      <h4>Links <span style="color: red;">*</span></h4>
-      {#each formData.links as linkData, index}
-        <div class="linkField" class:commonBorderStyle={focusedIndex === index}>
-          <div class="inputWithIcon">
-            <label for={`description-${index}`}><TextIcon size={18} /></label>
+  <h2>{titleText}</h2>
+  <form use:focusTrap={true} on:submit|preventDefault={handleSubmit}>
+    <div class=" flex flex-col gap-2 text-start">
+      <label class="label" for="title">
+        <span>Title</span>
+        <input class="input" type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
+      </label>
+      <label class="label" for="summary">
+        Description
+        <input class="input" type="text" id="summary" placeholder="Brief description of your list" bind:value={formData.summary} maxlength="120"/>
+      </label>
+      <label class="label" for="links">
+        Links
+        {#each formData.links as linkData, index}
+        <div class="flex flex-col gap-2 pb-2 rounded-container-token" class:variant-soft-surface={focusedIndex == index}>
+          <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
+            <div class="input-group-shim">
+              <TextIcon size={18} />
+            </div>
             <input
-              class="inputLinkDescription"
               type="text"
               id={`description-${index}`}
               placeholder="Link name"
@@ -298,9 +256,10 @@
               on:input={validateAllURLNames}
             />
           </div>
-
-          <div class="inputWithIcon">
-            <label for={`link-${index}`}><LinkIcon size={18} /></label>
+          <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
+            <div class="input-group-shim cursor-pointer" use:popup={{ event: 'click', target: 'popupPrefix', placement: 'top' }}>
+              <LinkIcon size={18} />
+            </div>
             <input
               type="text"
               id={`link-${index}`}
@@ -309,22 +268,41 @@
               on:input={validateAllURLs}
             />
           </div>
+          <div class="card p-4 variant-filled max-w-lg" data-popup="popupSlug">
+            <p>Slugs are a memorable way to identify your Nostree lists. It gives you a link to your list like nostree.me/user/SLUG</p>
+            <div class="arrow variant-filled" />
+          </div>
+          <div class="card p-4 variant-filled max-w-lg" data-popup="popupPrefix">
+            <ol class="list">
+              Allowed prefixes:
+              <hr class="!border-t-2" />
+              {#each validPrefixes as prefix }
+              <li>
+                <span class="flex-auto">{prefix}</span>
+              </li>
+              <hr class=" opacity-50"/>
+              {/each}
+            </ol>
+            <div class="arrow variant-filled" />
+          </div>
 
           {#if !linkValidationStatus[index] && linkData.link.trim()}
-            <span class:hidden={linkData.link.trim() && linkValidationStatus[index]}
-              ><Tag><InfoIcon size={18} /> Prefix needed <span style="color: red;">*</span></Tag></span
-            >
+            <span class="badge variant-ghost-error flex flex-row gap-1 w-fit m-auto" class:hidden={linkData.link.trim() && linkValidationStatus[index]}>
+              <InfoIcon size={18} /> Prefix needed
+            </span>
           {/if}
 
           {#if formData.links.length > 1}
             <div>
               <button
+                class="common-btn-icon-ghost"
                 type="button"
                 on:click={() => handleMoveLink(index, "up")}
                 on:focus={() => handleFocus(index - 1)}
                 on:blur={handleBlur}><ChevronIconVertical size={18} flipVertical={false} /></button
               >
               <button
+                class="common-btn-icon-ghost"
                 type="button"
                 on:click={() => handleMoveLink(index, "down")}
                 on:focus={() => handleFocus(index + 1)}
@@ -332,7 +310,7 @@
               >
               <button
                 type="button"
-                class="secondary-button"
+                class="common-btn-icon-ghost-error"
                 on:click={() => {
                   handleRemoveLink(index);
                   validateAllURLs();
@@ -343,138 +321,79 @@
           {/if}
         </div>
       {/each}
+      </label>
+      <Accordion regionControl=" variant-soft">
+        <AccordionItem>
+          <svelte:fragment slot="lead"><HashtagIconcopy size={18}/></svelte:fragment>
+          <svelte:fragment slot="summary">Slug - Hashtags</svelte:fragment>
+          <svelte:fragment slot="content">
       <hr/>
-      <Disclose isBackground title="Slug/hashtags">
       {#each formData.labels as linkLabel, index}
         {#if linkLabel.label.trim() != "nostree"}
-          <div class="linkField">
-            <h3 class="inputWithIcon">/ Slug <InfoDialog whatInfo="list-slug" /></h3>
-            <div class="inputWithIcon">
-              <label for={`slug-${index}`}><SlugIcon size={18} /></label>
-              <input type="text" id={`slug-${index}`} placeholder="short-slug" bind:value={linkLabel.label} />
-            </div>
+        <label class="label" for={`slug-${index}`}>
+          <span class=" inline-flex gap-1">Slug
+            <button type="button" 
+            use:popup={{ event: 'click', target: 'popupSlug', placement: 'top' }}>
+            <InfoIcon size={18} />
+            </button>
+          </span>
+        <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]" >
+          <div class="input-group-shim">
+            <SlugIcon size={18} />
           </div>
+          <input type="text" id={`slug-${index}`} placeholder="short-slug" bind:value={linkLabel.label} maxlength="24" />
+        </div>
+        </label>
         {/if}
       {/each}
-      {#if formData.hashtags.length > 0}
-      <h3 class="inputWithIcon"><HashtagIconcopy size={18} />Hashtags <InfoDialog whatInfo="list-hashtags" /></h3>
-      {#each formData.hashtags as hashTagData, index}
-        <div class="hashtagField" class:commonBorderStyle={focusedIndex === index}>
-          <div class="inputWithIcon">
-            <label for={`hashtag-${index}`}><HashtagIconcopy size={16} /></label>
-            <input
-              class="inputLinkDescription"
-              type="text"
-              id={`hashtag-${index}`}
-              placeholder="hashtag"
-              bind:value={hashTagData.hashtags}
-              on:input={validateAllURLNames}
-              on:keydown={handleKeyDown}
-            />
-          </div>
-
-          <div>
-            <button
-              type="button"
-              class="secondary-button removeHashtagButton"
-              on:click={() => {
-                handleRemoveHashTag(index);
-              }}><BinIcon size={18} /></button
-            >
-          </div>
-        </div>
-      {/each}
-      {/if}
-      <button type="button" class="secondary-button" on:click={() => addHashtagField()}><HashtagIconcopy size={18}/> Add hashtag</button>
-    </Disclose>
-      <div class="formButtons">
-        {#if areAllLinksValid && formData.title.trim() != ""}
-        <div>
-          <div class="insertButtons">
-            <Button type="button" isRounded on:click={() => addLinkField(true)}><InsertIcon size={18} /></Button>
-            <Button type="button" isRounded on:click={() => addLinkField(false)}><InsertIcon size={18} flipVertical={true} /></Button>
-          </div>
-          <div class="formButtons">
-            <Button isBlock type="submit">Publish</Button>
-            <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
-          </div>
-        </div>
-        {:else}
-        <div>
-          <div class="insertButtons">
-            <Button type="button" disabled isRounded on:click={() => addLinkField(true)}><InsertIcon size={18} /></Button>
-            <Button type="button" isRounded disabled on:click={() => addLinkField(false)}><InsertIcon size={18} flipVertical={true} /></Button>
-          </div>
-          <div class="formButtons">
-            <Button isBlock type="submit" disabled>Publish</Button>
-            <Button type="button" isRounded on:click={handleReset}><ResetIcon size={18} /></Button>
-          </div>
-        </div>
-        {/if}
+      <label class="label" for="hashtags">
+        <span class=" inline-flex gap-1">Hashtags 
+          <button type="button" 
+          use:popup={{ event: 'click', target: 'popupHashtag', placement: 'top' }}>
+          <InfoIcon size={18} />
+          </button>
+        </span>
+      <InputChip bind:value={formData.hashtags} name="chips" placeholder="Enter any value...(intro to add)"/>
+      <div class="card p-4 variant-filled" data-popup="popupHashtag">
+        <p>Hashtags are a way to categorize your nostree list in order to increase discoverability.</p>
+        <div class="arrow variant-filled" />
       </div>
-    </div>
-  </form>
-</main>
-
-<style>
-  .formButtons {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.3em; 
-  }
-  .insertButtons{
-    display: grid;
-    grid-template-columns: auto auto; 
-    gap: 0.3em; 
-  }
-
-  button {
-    display: inline-flex;
-    line-height: normal;
-    padding: 0.3em;
-  }
-
-  form {
-    padding-top: 0.5em;
-  }
-
-  .formFieldsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3em;
-    width: 80%;
-    margin: auto;
-  }
-  @media screen and (max-width: 479px) {
-    .formFieldsContainer {
-      width: auto;
-    }
-  }
-
-  .linkField {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3em;
-    /* align-items: center; */
-    padding-top: 0.2em;
-  }
-
-  .hashtagField {
-    display: flex;
-    gap: 0.3em;
-    align-items: center;
-    padding-top: 0.2em;
-    position: relative;
-  }
-  .inputWithIcon label {
-    display: flex;
-    align-items: center;
-  }
-  .inputLinkDescription:focus {
-    background-color: var(--text-color);
-    color: var(--background-color);
-  }
-  .secondary-button {
-	width: fit-content;
-    }
-</style>
+      </label>
+    </svelte:fragment>
+  </AccordionItem>
+</Accordion>
+      <div class="flex flex-col gap-2">
+          <div class="btn-group variant-ghost grid grid-cols-[auto_auto]">
+            <button 
+              type="button" 
+              class:opacity-50={!isFormValid}  
+              disabled={!isFormValid} 
+              on:click={() => addLinkField(true)}
+              use:popup={{ event: 'hover', target: 'popupIsertTop', placement: 'top' }}
+              >
+              <InsertIcon size={18} />
+            </button>
+            <button 
+              type="button" 
+              class:opacity-50={!isFormValid}  
+              disabled={!isFormValid} on:click={() => addLinkField(false)}
+              use:popup={{ event: 'hover', target: 'popupIsertBottom', placement: 'top' }}
+              >
+              <InsertIcon size={18} flipVertical={true} />
+            </button>
+          </div>
+          <div class="card p-4 variant-filled" data-popup="popupIsertTop">
+            <p>Insert link at the top of the list</p>
+            <div class="arrow variant-filled" />
+          </div>
+          <div class="card p-4 variant-filled" data-popup="popupIsertBottom">
+            <p>Insert link at the bottom of the list</p>
+            <div class="arrow variant-filled" />
+          </div>
+          <div class="btn-group variant-filled grid grid-cols-[1fr_auto]">
+            <button class:opacity-50={!isFormValid}  disabled={!isFormValid} type="submit">Publish</button>
+            <button type="button" on:click={handleReset}><ResetIcon size={18} /></button>
+          </div>
+        </div>
+      </div>
+</form>

@@ -1,12 +1,11 @@
 import { nip19 } from "nostr-tools";
 import { NDKUser, NDKEvent, type NDKTag } from "@nostr-dev-kit/ndk";
-import { ndkUser } from "$lib/stores/user";
-import { lengthStore } from "$lib/stores/eventListsLengths";
+import { ndkUser, userCustomTheme } from "$lib/stores/user";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
-import { outNostrLinksUrl } from "./constants";
-
+import { defaulTheme, outNostrLinksUrl } from "./constants";
+import { storeTheme } from "$lib/stores/stores";
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
@@ -242,7 +241,6 @@ export async function sharePage(urlToShare: string) {
 
 export function logout() {
   ndkUser.set(null);
-  lengthStore.set({});
   isNip05ValidStore.set({
     isNip05Valid: null,
     Nip05address: undefined,
@@ -250,6 +248,12 @@ export function logout() {
     Vanity: undefined,
     UserIdentifier: undefined,
   });
+  userCustomTheme.set({
+    UserTheme: undefined,
+    themeIdentifier: undefined,
+    themeCustomCss: undefined,
+  });
+  storeTheme.set(defaulTheme);
   goto("/");
 }
 
@@ -261,4 +265,11 @@ export function generateNanoId(seed: string | undefined = unixTimeNow().toString
   const userID = seed.slice(-3);
   const id = nanoid(6);
   return userID + id;
+}
+
+export function setCustomStyles(cssTheme: string) {
+  let styleTag = document.createElement("style");
+  styleTag.id = "custom-style";
+  styleTag.textContent = `${cssTheme}`;
+  document.head.appendChild(styleTag);
 }

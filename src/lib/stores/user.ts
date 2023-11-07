@@ -15,3 +15,12 @@ export const isNip05Valid = writable<{
   Vanity: undefined,
   UserIdentifier: undefined,
 });
+export const userCustomTheme = writable<{
+  UserTheme: string | undefined;
+  themeIdentifier: string | undefined;
+  themeCustomCss: string | undefined;
+}>({
+  UserTheme: undefined,
+  themeIdentifier: undefined,
+  themeCustomCss: undefined,
+});

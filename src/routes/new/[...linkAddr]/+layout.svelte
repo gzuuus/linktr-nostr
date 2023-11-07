@@ -13,4 +13,8 @@
   />
   <meta property="og:image" content={ogImageUrl} />
 </svelte:head>
-<slot />
+<div class="common-container common-ring">
+  <div class="common-container-content">
+    <slot />
+  </div>
+</div>

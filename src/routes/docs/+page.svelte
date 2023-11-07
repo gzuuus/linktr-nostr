@@ -7,33 +7,8 @@
   import DocListSlug from "$lib/docsComponents/doc-list-slug.svelte";
   import DocNewList from "$lib/docsComponents/doc-new-list.svelte";
   import DocOldLists from "$lib/docsComponents/doc-old-lists.svelte";
-  import { Disclose } from "agnostic-svelte";
 </script>
 
 <div class="commonContainerStyle">
-  <h1>Docs</h1>
-  <Disclose isBackground title="Create New lists">
-    <DocNewList />
-    <Disclose isBackground title="What are slugs?">
-      <DocListSlug />
-      <Disclose isBackground title="Lists with same slug">
-        <DocListSlugSame />
-      </Disclose>
-    </Disclose>
-    <Disclose isBackground title="What are hashtags?">
-      <DocListHashtags />
-    </Disclose>
-  </Disclose>
-
-  <Disclose isBackground title="Sharing lists">
-    <DocListSlugShare />
-    <hr />
-    <DocListNaddrShare />
-  </Disclose>
-  <Disclose isBackground title="Migrate Old Lists">
-    <DocOldLists />
-  </Disclose>
+  <h1>Docs (WIP) <span class=" text-3xl">🏗️</span></h1>
 </div>
-
-<style>
-</style>
