@@ -6,11 +6,10 @@
 {#if $page}
 	<div class="w-full h-full flex justify-center items-center">
 		<div class="text-center space-y-4">
-			<Logo size={36} />
 			<h2 class="h2">
 				{$page.status}:{#if $page.error} {$page.error.message} {/if}
 			</h2>
-			<p>We're sorry, something went wrong.</p>
+			<p>We're sorry, something went wrong.😅</p>
 		</div>
 	</div>
 {/if}
