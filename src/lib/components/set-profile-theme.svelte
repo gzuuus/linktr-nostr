@@ -41,7 +41,7 @@
 		ndkEvent
 		.publish()
 		.then(() => {
-			modalStore.close()
+			modalStore.clear()
 			toastStore.trigger(succesPublishToast)
 			const userTheme = ndkEvent.tagValue('l');
 			const themeIdentifier = ndkEvent.tagValue('d');
@@ -60,7 +60,7 @@
 			}
 		})
 		.catch((error) => {
-			modalStore.close()
+			modalStore.clear()
 			toastStore.trigger(errorPublishToast)
 			console.log("Error:", error);
 		})

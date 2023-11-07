@@ -25,7 +25,6 @@
 	import { getToastStore, Accordion, AccordionItem, focusTrap, InputChip, getModalStore, popup } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-  const modalStore = getModalStore();
 
   const validPrefixes: string[] = [
     "http://",
@@ -40,6 +39,7 @@
     "irc://",
     "magnet:",
   ];
+  const modalStore = getModalStore();
   const toastStore = getToastStore();
   const newDTag = `nostree-${uuidv4()}`;
   let linkValidationStatus: boolean[] = [];
@@ -157,7 +157,7 @@
         ["summary", formData.summary],
         ["d", newDTag],
         ["l", "nostree"],
-        ["l", formData.labels[0].label ? formData.labels[0].label.toLowerCase() : generateNanoId($ndkUser?.npub)],
+        ["l", formData.labels[0].label.trim() ? formData.labels[0].label.toLowerCase().trim() : generateNanoId($ndkUser?.npub)],
       ];
     }
     for (const linkData of formData.links) {
@@ -173,7 +173,7 @@
       .publish()
       .then(() => {
         isFormSent = true;
-        modalStore.close();
+        modalStore.clear();
         toastStore.trigger(succesPublishToast);
       })
       .then(() => {
@@ -182,7 +182,7 @@
         }
       })
       .catch((error) => {
-        modalStore.close();
+        modalStore.clear();
         toastStore.trigger(errorPublishToast)
         console.log("Error:", error);
       });
@@ -229,10 +229,7 @@
   }
   $: isFormValid = areAllLinksValid && formData.title.trim() != ""
 </script>
-  <h2>{titleText}
-    <!-- <span class="inline-span"><InfoDialog whatInfo="new-list" /></span> -->
-  </h2>
-
+  <h2>{titleText}</h2>
   <form use:focusTrap={true} on:submit|preventDefault={handleSubmit}>
     <div class=" flex flex-col gap-2 text-start">
       <label class="label" for="title">
@@ -356,7 +353,7 @@
           <InfoIcon size={18} />
           </button>
         </span>
-      <InputChip bind:value={formData.hashtags} name="chips" placeholder="Enter any value...(press intro)"/>
+      <InputChip bind:value={formData.hashtags} name="chips" placeholder="Enter any value...(intro to add)"/>
       <div class="card p-4 variant-filled" data-popup="popupHashtag">
         <p>Hashtags are a way to categorize your nostree list in order to increase discoverability.</p>
         <div class="arrow variant-filled" />

@@ -60,7 +60,7 @@
 	</div>
 </svelte:fragment>
 <svelte:fragment slot="trail">
-	<div class="hidden gap-1 sm:inline-flex">
+	<div class="hidden gap-2 sm:inline-flex">
 		<button class="common-btn-sm-ghost" on:click={() => goto('/explore')}>
 			<span><ExploreIcon size={18} /></span>
 			<span class="hidden sm2:inline-flex">Explore</span>

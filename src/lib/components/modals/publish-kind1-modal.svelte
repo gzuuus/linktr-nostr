@@ -47,7 +47,7 @@
 				<textarea class="textarea" rows="4" bind:value={formData.eventContent} placeholder="Enter some text..." />
 			</label>
 			<footer class="modal-footer {parent.regionFooter}">
-				<button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
+				<button type="button" class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
 				{#if $ndkUser}
 				<button type="submit" class="btn {parent.buttonPositive}">Share</button>
 				{:else}

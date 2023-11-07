@@ -157,7 +157,7 @@
           <span class="text-sm" class:hidden={isEditMode || !eventList[currentIndex].tagValue("summary")}>
             {eventList[currentIndex].tagValue("summary")}
           </span>
-          <div class:hidden={isEditMode}>
+          <div class:hidden={isEditMode || eventKind != kindLinks}>
             <button on:click={() => (showListsIndex = !showListsIndex)}>
               {#if !showListsIndex}
                 <ChevronIconVertical size={22} flipVertical={true} />
@@ -199,7 +199,7 @@
                     >
                   {/if}
               {/if}
-              <ClipboardButton buttonIcon="link" contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`} />
+              <ClipboardButton buttonIcon="copy" contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`} />
               <ClipboardButton buttonIcon="id" contentToCopy={`${$page.url.origin}/a/${buildEventPointer(
                 undefined,
                 [],
@@ -218,7 +218,7 @@
                 </div>
                 {/if}
               {/each}
-              <hr/>            
+              <hr/>
               <div class="flex flex-col gap-2 items-center">
                 <p class=" font-bold ">Other lists</p>
                 {#each eventTitles as title, index}

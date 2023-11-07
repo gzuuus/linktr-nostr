@@ -100,9 +100,8 @@
       <div class="mx-auto w-fit flex flex-col gap-2">
       <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
         <Avatar class={showQR ? 'hidden' : 'common-ring'}
-        border="border-2 border-surface-300-600-token hover:!border-primary-500"
-        cursor="cursor-pointer"
-        initials={$isNip05ValidStore.UserIdentifier}
+        border="border-2 border-surface-300-600-token"
+        initials={userProfile.name ? userProfile.name : $isNip05ValidStore.UserIdentifier}
         src={userProfile.image} 
         width="w-32"
         fallback={qrImageUrl}

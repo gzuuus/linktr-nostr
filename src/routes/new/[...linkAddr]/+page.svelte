@@ -98,7 +98,7 @@
       .then(() => {
         events = [];
         fetchedEvents = false;
-        modalStore.close();
+        modalStore.clear();
         if (toDelete) {
           deletedEventsIds.push(eventToPublish.tagValue("d")!);
           toastStore.trigger(succesDeletingToast);
@@ -108,7 +108,7 @@
           showEvents();
       })
       .catch((error) => {
-        modalStore.close();
+        modalStore.clear();
         toastStore.trigger(errorPublishToast);
         console.log("Error:", error);
       });

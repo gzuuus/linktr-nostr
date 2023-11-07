@@ -19,11 +19,11 @@ function deleteEventData (eventToPublish: NDKEvent) {
     ndkEvent
     .publish()
     .then(() => {
-        modalStore.close();
+        modalStore.clear();
         toastStore.trigger(succesDeletingToast);
     })
     .catch((error) => {
-        modalStore.close();
+        modalStore.clear();
         toastStore.trigger(errorPublishToast);
         console.log("Error:", error);
     });
