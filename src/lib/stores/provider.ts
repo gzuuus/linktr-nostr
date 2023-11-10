@@ -26,6 +26,7 @@ export const defaulRelaysUrls: string[] = [
 const ndk = new NDK({
   explicitRelayUrls: defaulRelaysUrls,
   cacheAdapter,
+  enableOutboxModel: true,
 });
 
 const ndkStore = writable(ndk);
