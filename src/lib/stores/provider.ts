@@ -16,11 +16,8 @@ export const defaulRelaysUrls: string[] = [
   "wss://purplepag.es",
   "wss://relay.nostr.band",
   "wss://nos.lol",
-  "wss://e.nos.lol",
-  "wss://nostr.mom",
   "wss://offchain.pub/",
   "wss://nostr-pub.wellorder.net",
-  "wss://nostr.wine",
 ];
 
 const ndk = new NDK({

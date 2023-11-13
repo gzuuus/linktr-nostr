@@ -54,7 +54,7 @@
 
   async function fetchCssAsset() {
     let ndkFilter: NDKFilter = {
-      authors: [user.hexpubkey()], 
+      authors: [user.pubkey], 
       kinds: [kindCSSReplaceableAsset as NDKKind], 
       "#L": ["nostree-theme"]
     };

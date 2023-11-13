@@ -28,7 +28,8 @@
         npub: ndkCurrentUser.npub,
       });
       ndkUser.set(user);
-      fetchCssAsset(user.hexpubkey());
+      console.log(user.pubkey)
+      fetchCssAsset(user.pubkey);
       if (doGoto) {
         goto(`/${ndkCurrentUser.npub}`);
       }
