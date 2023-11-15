@@ -24,6 +24,7 @@
   import { storeTheme } from '$lib/stores/stores';
   import { onDestroy } from "svelte";
   import { nip19 } from "nostr-tools";
+    import { debounce } from "debounce";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
@@ -137,7 +138,7 @@
         {#if showAbout}
         <div class="flex flex-col gap-2 justify-center items-center card p-2">
           <span class="common-badge-soft w-fit">
-            <ClipboardButton contentToCopy={userPub} buttonText={truncateString(userPub)}
+            <ClipboardButton contentToCopy={userNpub} buttonText={truncateString(userNpub)}
               isButton={false}
               />
           </span>

@@ -25,6 +25,7 @@
 	import { getToastStore, Accordion, AccordionItem, focusTrap, InputChip, getModalStore, popup } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+  import { debounce } from "debounce";
 
   const validPrefixes: string[] = [
     "http://",
@@ -230,7 +231,7 @@
   $: isFormValid = areAllLinksValid && formData.title.trim() != ""
 </script>
   <h2>{titleText}</h2>
-  <form use:focusTrap={true} on:submit|preventDefault={handleSubmit}>
+  <form use:focusTrap={true} on:submit|preventDefault={debounce(handleSubmit, 200)}>
     <div class=" flex flex-col gap-2 text-start">
       <label class="label" for="title">
         <span>Title</span>

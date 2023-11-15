@@ -13,6 +13,7 @@
 	import { userCustomTheme } from '$lib/stores/user';
     import { storeTheme } from '$lib/stores/stores';
     import { setCustomStyles } from '$lib/utils/helpers';
+    import { debounce } from 'debounce';
 
     const modalStore = getModalStore();
 	const toastStore = getToastStore();
@@ -67,7 +68,7 @@
 	}
 </script>
 {#if $ndkUser}
-<button class="btn variant-filled w-full" on:click={EventSubmit}>
+<button class="btn variant-filled w-full" on:click={debounce(EventSubmit, 200)}>
     <span>{isNewCustomTheme ? 'Publish theme' : 'Use theme in profile'}</span>
 </button>
 {/if}

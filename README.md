@@ -28,6 +28,7 @@ This roadmap is only a draft of the direction of the project, it can be changed,
 - [x] Simple share button
 - [x] Migration to TailwindCSS
 - [x] Theming system with ability to set themes for users
+- [x] Cache system
 - [ ] Theme generator
 - [ ] Docs
 - [ ] Edit profile
@@ -35,7 +36,6 @@ This roadmap is only a draft of the direction of the project, it can be changed,
 - [ ] On boarding
 - [ ] Calendar events
 - [ ] Live streaming events
-- [ ] Cache system
 - [ ] Offline lists
 - [ ] Nip-15 market/stall integration
 - [ ] Autoplay music/media lists
