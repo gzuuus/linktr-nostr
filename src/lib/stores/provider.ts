@@ -8,7 +8,8 @@ let cacheAdapter: NDKCacheAdapter | undefined;
 
 if (browser) {
   cacheAdapter = new NDKCacheAdapterDexie({
-    dbName: "nostreeV01",
+    dbName: "nostreeV02",
+    expirationTime: 3600 * 24 * 2,
   });
 }
 
@@ -23,7 +24,7 @@ export const defaulRelaysUrls: string[] = [
 const ndk = new NDK({
   explicitRelayUrls: defaulRelaysUrls,
   cacheAdapter,
-  enableOutboxModel: true,
+  enableOutboxModel: false,
 });
 
 const ndkStore = writable(ndk);

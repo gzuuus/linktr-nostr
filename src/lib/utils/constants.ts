@@ -1,9 +1,7 @@
 import type { ToastSettings } from "@skeletonlabs/skeleton";
 
-export const ogImageUrl =
-  "/og-banner.jpg";
-export const ogLogoImg =
-  "/og-logo.png";
+export const ogImageUrl = "/og-banner.jpg";
+export const ogLogoImg = "/og-logo.png";
 export const kindLinks = 30001;
 export const kindNotes = 1;
 export const kindArticles = 30023;

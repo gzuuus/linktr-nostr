@@ -9,11 +9,13 @@
   import { outNostrLinksUrl } from "$lib/utils/constants";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import LinkOut from "$lib/elements/icons/link-out.svelte";
+  import { nip19 } from "nostr-tools";
 
   let isEditHappens: boolean;
   let linkListLength: number;
   let userProfile: NDKUserProfile;
-  $: userPub = $page.data.npub;
+  let userNpub = nip19.npubEncode($page.data.pubkey)
+  $: userPubKey = $page.data.pubkey;
   $: segments = $page.data.segments;
 </script>
 <svelte:head>
@@ -24,16 +26,15 @@
   <meta property="og:description" content={userProfile.about ? userProfile.about : ""} />
   {/if}
 </svelte:head>
-
-  {#key userPub}
-    <ProfileCard userPub={userPub} bind:userProfile />
+  {#key userPubKey}
+    <ProfileCard userPub={userPubKey} bind:userProfile />
     {#key $page.url.pathname.split("/").length > 2}
       {#key isEditHappens}
         <div>
           <EventCard
             bind:linkListLength 
             bind:isEditHappens
-            userPub={userPub}
+            userPub={userPubKey}
             eventKind={kindLinks}
             listLabel={segments[0]}
           />
@@ -45,8 +46,8 @@
             <p class="text-xl">No links yet</p>
             <hr/>
             <div class="flex gap-2 flex-wrap justify-center">
-              <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>
-              <a href="nostr:{userPub}"><span class="common-badge-ghost gap-2">View profile in native client <OstrichIcon size={18} /></span></a>
+              <a href="{outNostrLinksUrl}/{userNpub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>
+              <a href="nostr:{userNpub}"><span class="common-badge-ghost gap-2">View profile in native client <OstrichIcon size={18} /></span></a>
             </div>
           </div>
           {/if}

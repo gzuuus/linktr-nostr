@@ -1,11 +1,15 @@
 import { nip19 } from "nostr-tools";
-import { NDKUser, NDKEvent, type NDKTag } from "@nostr-dev-kit/ndk";
+import { NDKUser, NDKEvent, type NDKTag, type NDKUserProfile } from "@nostr-dev-kit/ndk";
 import { ndkUser, userCustomTheme } from "$lib/stores/user";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
 import { defaulTheme, outNostrLinksUrl } from "./constants";
 import { storeTheme } from "$lib/stores/stores";
+import { browser } from "$app/environment";
+import { db } from "@nostr-dev-kit/ndk-cache-dexie";
+import { get as getStore } from "svelte/store";
+import ndkStore from "$lib/stores/provider";
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
@@ -272,4 +276,30 @@ export function setCustomStyles(cssTheme: string) {
   styleTag.id = "custom-style";
   styleTag.textContent = `${cssTheme}`;
   document.head.appendChild(styleTag);
+}
+
+export async function fetchUserProfile(opts: string): Promise<NDKUserProfile | undefined> {
+  try {
+    if (browser) {
+      const user = await db.users.where({ pubkey: opts }).first();
+      if (!user) {
+        const ndk = getStore(ndkStore);
+        const ndkUser = ndk.getUser({ pubkey: opts });
+
+        await ndkUser.fetchProfile({
+          closeOnEose: true,
+          groupable: true,
+          groupableDelay: 100,
+        });
+        return ndkUser.profile as NDKUserProfile;
+      } else {
+        return user.profile as NDKUserProfile;
+      }
+    } else {
+      return undefined;
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }

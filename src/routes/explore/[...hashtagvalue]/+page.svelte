@@ -27,35 +27,30 @@
   let retryCounter = 0;
   $: {
     ndkFilter = $page.params.hashtagvalue
-    ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"]}
-    : { kinds: [kindLinks], "#l": ["nostree"]};
+    ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 100 }
+    : { kinds: [kindLinks], "#l": ["nostree"], limit: 100 };
   }
 async function fetchEvents(filter: NDKFilter) {
+  eventList = [];
   isSubscribe = true;
   eventHashtags= [];
-  await $ndk
-        .fetchEvents(ndkFilter, {
-          closeOnEose: true,
-          cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-        })
-        .then((fetchedEvent) => {
-          eventList = Array.from(fetchedEvent);
-          if (eventList.length == 0) {
-            if (retryCounter <= 10) { 
-              retryCounter += 1;
-              setTimeout(fetchEvents, 150);
-            }
-          }
-          sortEventList(eventList);
-          eventList.forEach((event) => {
-            event.tags.forEach((tag) => {
-              if (tag[0] == "t" && !eventHashtags.includes(tag[1]) ) eventHashtags.push(tag[1]);
-            });
-          });
-        });
-        isSubscribe = false;
+  const sub = $ndk.subscribe(filter, { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL })
+  sub.on("event", (event) => {
+    eventList = [...eventList, event];
+    event.tags.forEach((tag: string[]) => {
+      if (tag[0] == "t" && !eventHashtags.includes(tag[1]) ) eventHashtags.push(tag[1]);
+    });
+    sortEventList(eventList);
+  })
+  sub.on("eose", () => {
+    isSubscribe = false;
+  })
+  sub.on("notice", (notice) => {
+    console.log(notice);
+  })
 }
 onDestroy(() => {
+  eventList = [];
   retryCounter = 10
 })
 </script>
@@ -80,7 +75,10 @@ onDestroy(() => {
   </h1>
   <h3 class:hidden={!$page.params.hashtagvalue}>#{$page.params.hashtagvalue}</h3>  
   <div class="flex flex-col gap-2">
-    {#key isSubscribe}
+
+    {#if isSubscribe }
+      <PlaceHolderLoading colCount={3} listItemPadding="p-4" />
+    {:else} 
     <div>
     {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag }
     <button on:click={() => goto(`/explore/${eventHashtag}`)}>
@@ -105,7 +103,7 @@ onDestroy(() => {
     <SearchBar searchKind={"hashtag"} />
     {/if}
   </div>
-    {/key}
+    {/if}
   </div>
   <hr/>
   {#each eventList as event}

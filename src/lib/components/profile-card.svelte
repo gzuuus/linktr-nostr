@@ -1,10 +1,10 @@
 <script lang="ts">
   export let userPub: string;
-  export let userProfile: NDKUserProfile | null;
+  export let userProfile: NDKUserProfile | undefined = undefined;
   import ndk from "$lib/stores/provider";
   import type { NDKFilter, NDKKind, NDKUserProfile } from "@nostr-dev-kit/ndk";
   import { ndkUser } from "$lib/stores/user";
-  import { truncateString, sharePage, setCustomStyles } from "$lib/utils/helpers";
+  import { truncateString, sharePage, setCustomStyles, fetchUserProfile } from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
@@ -23,30 +23,20 @@
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { storeTheme } from '$lib/stores/stores';
   import { onDestroy } from "svelte";
+  import { nip19 } from "nostr-tools";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
+  let userNpub: string = nip19.npubEncode(userPub);
 
-  let user = $ndk.getUser({
-    npub: userPub,
-  });
-  async function fetchUserProfile() {
-    await user
-      .fetchProfile({
-        closeOnEose: true,
-        groupable: true,
-        groupableDelay: 100,
-        cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-      })
-      .then(() => {
-        userProfile = user.profile as NDKUserProfile;
-        isNip05Valid(user.profile?.nip05, user.npub);
-        if (userProfile.image == undefined) {
-          generateQRCode(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`);
-        }
+  async function fetchUser() {
+      fetchUserProfile(userPub)
+      .then((user) => {
+        userProfile = user;
+        isNip05Valid(user?.nip05, user?.npub);
       }).finally(() => {
-      if (user.npub != $ndkUser?.npub){
+      if (userPub != $ndkUser?.pubkey){
         fetchCssAsset()
       }}
       );
@@ -54,7 +44,7 @@
 
   async function fetchCssAsset() {
     let ndkFilter: NDKFilter = {
-      authors: [user.pubkey], 
+      authors: [userPub], 
       kinds: [kindCSSReplaceableAsset as NDKKind], 
       "#L": ["nostree-theme"]
     };
@@ -91,7 +81,7 @@
 	storeTheme.set($userCustomTheme.UserTheme ? $userCustomTheme.UserTheme : defaulTheme);
 });
 </script>
-{#await fetchUserProfile()}
+{#await fetchUser()}
 <div class="w-fit m-auto">
     <PlaceHolderLoading layoutKind={"avatar"} />
 </div>
@@ -155,8 +145,8 @@
             <ParseContent content={userProfile.about} charLimit={300}/>
           {/if}
           <div class="flex gap-2 flex-wrap justify-center">
-            <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>
-            <a href="nostr:{userPub}"><span class="common-badge-ghost gap-2">View profile in native client <OstrichIcon size={18} /></span></a>
+            <a href="{outNostrLinksUrl}/{userNpub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>
+            <a href="nostr:{userNpub}"><span class="common-badge-ghost gap-2">View profile in native client <OstrichIcon size={18} /></span></a>
           </div>
       </div>
         {/if}

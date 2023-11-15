@@ -37,9 +37,8 @@
   import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
   import ClipboardButton from "./clipboard-button.svelte";
   import { onDestroy } from "svelte";
+  
   const modalStore = getModalStore();
-
-  let userPubDecoded: string = nip19.decode(userPub).data.toString();
   let eventList: NDKEvent[] = [];
   let showDialog: boolean = false;
   let showListsIndex: boolean = false;
@@ -51,8 +50,8 @@
   let eventHashtags: string[] = [];
   let retryCounter = 0;
   const ndkFilter: NDKFilter = dValue
-    ? { kinds: [eventKind], authors: [userPubDecoded], "#d": [`${dValue}`] }
-    : { kinds: [eventKind], authors: [userPubDecoded], "#l": [`${listLabel}`] };
+    ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`] }
+    : { kinds: [eventKind], authors: [userPub], "#l": [`${listLabel}`] };
   
   async function fetchCurrentEvents() {
     if (eventKind == kindLinks) {
@@ -83,8 +82,8 @@
         });
     } else {
       const ndkFilter: NDKFilter = dValue
-        ? { kinds: [eventKind], authors: [userPubDecoded], "#d": [`${dValue}`], limit: 5 }
-        : { kinds: [eventKind], authors: [userPubDecoded], limit: 5 };
+        ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`], limit: 5 }
+        : { kinds: [eventKind], authors: [userPub], limit: 5 };
       $ndk.fetchEvents(ndkFilter, { closeOnEose: true, groupable: true }).then((fetchedEvent) => {
         eventList = Array.from(fetchedEvent);
         sortEventList(eventList);
@@ -203,7 +202,7 @@
               <ClipboardButton buttonIcon="id" contentToCopy={`${$page.url.origin}/a/${buildEventPointer(
                 undefined,
                 [],
-                userPubDecoded,
+                userPub,
                 eventList[currentIndex].kind,
                 eventList[currentIndex].tagValue("d")
               )}`}/>
