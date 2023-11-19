@@ -71,12 +71,10 @@
     const ForkData = {
       forkedPubkey: forkedFrom,
       forkedEventoPointer: buildATags(
-        undefined,
-        [],
         eventToEdit.author.pubkey,
-        eventToEdit.kind,
-        eventToEdit.tagValue("d")
-      )![0],
+        eventToEdit.kind!,
+        eventToEdit.tagValue("d")!
+      ),
     };
 
     formData = {
@@ -149,7 +147,7 @@
         ndkEvent.tags.push(["p", nip19.decode(eventToEdit.author.npub).data.toString()]);
         ndkEvent.tags.push([
           "a",
-          buildATags(undefined, [], eventToEdit.author.pubkey, eventToEdit.kind, eventToEdit.tagValue("d"))![0],
+          buildATags(eventToEdit.author.pubkey, eventToEdit.kind!, eventToEdit.tagValue("d")!),
         ]);
       }
     } else {

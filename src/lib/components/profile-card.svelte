@@ -24,7 +24,6 @@
   import { storeTheme } from '$lib/stores/stores';
   import { onDestroy } from "svelte";
   import { nip19 } from "nostr-tools";
-    import { debounce } from "debounce";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
@@ -143,7 +142,7 @@
               />
           </span>
           {#if userProfile.about }
-            <ParseContent content={userProfile.about} charLimit={300}/>
+              <ParseContent content={userProfile.about} charLimit={300}/>
           {/if}
           <div class="flex gap-2 flex-wrap justify-center">
             <a href="{outNostrLinksUrl}/{userNpub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>

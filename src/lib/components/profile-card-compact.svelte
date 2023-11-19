@@ -1,6 +1,5 @@
 <script lang="ts">
   export let userPub: string;
-  import ndk from "$lib/stores/provider";
   import { fade } from "svelte/transition";
   import { fetchUserProfile, truncateString} from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
@@ -17,7 +16,6 @@
   let qrImageUrl: string = "";
   let showQR: boolean = false;
 
-  $: user = $ndk.getUser({ npub: userPub });
   function generateQRCode(value: string) {
     let qr = QRcode(0, "L");
     qr.addData(value);

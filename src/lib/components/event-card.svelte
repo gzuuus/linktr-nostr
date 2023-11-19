@@ -49,6 +49,7 @@
   let eventTitles: string[] = [];
   let eventHashtags: string[] = [];
   let retryCounter = 0;
+  let userNpub = nip19.npubEncode(userPub);
   const ndkFilter: NDKFilter = dValue
     ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`] }
     : { kinds: [eventKind], authors: [userPub], "#l": [`${listLabel}`] };
@@ -199,13 +200,7 @@
                   {/if}
               {/if}
               <ClipboardButton buttonIcon="copy" contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`} />
-              <ClipboardButton buttonIcon="id" contentToCopy={`${$page.url.origin}/a/${buildEventPointer(
-                undefined,
-                [],
-                userPub,
-                eventList[currentIndex].kind,
-                eventList[currentIndex].tagValue("d")
-              )}`}/>
+              <ClipboardButton buttonIcon="id" contentToCopy={`${$page.url.origin}/a/${buildEventPointer(eventList[currentIndex])}`}/>
               <button
               class="common-btn-sm-ghost gap-1"
               on:click={() => craftModal(eventList[currentIndex].tagValue("title"),`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}
@@ -276,7 +271,7 @@
         </div>
         <div class="inline-flex justify-center">
           {#each findOtherTags(eventList[currentIndex].tags, "l") as label}
-            {#if label !== "nostree" && !label.startsWith(userPub.slice(-3))}
+            {#if label !== "nostree" && !label.startsWith(userNpub.slice(-3)) && label.trim() !== ""}
               <button
                 class="common-btn-sm-ghost"
                 on:click={() => goto(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}

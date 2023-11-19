@@ -4,12 +4,13 @@ import { ndkUser, userCustomTheme } from "$lib/stores/user";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
-import { defaulTheme, outNostrLinksUrl } from "./constants";
+import { defaulTheme, kindArticles, kindLinks, kindNotes, outNostrLinksUrl } from "./constants";
 import { storeTheme } from "$lib/stores/stores";
 import { browser } from "$app/environment";
 import { db } from "@nostr-dev-kit/ndk-cache-dexie";
 import { get as getStore } from "svelte/store";
 import ndkStore from "$lib/stores/provider";
+import type { AddressPointer, EventPointer } from "nostr-tools/lib/types/nip19";
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
@@ -95,53 +96,55 @@ export function unixToDate(unixTimestamp: number | undefined) {
   return new Date(unixTimestamp * 1000).toLocaleString("en-US", options);
 }
 
-export function buildEventPointer(
+
+export function propsBuildPointer(
   id: string | undefined = "",
   relays: string[] | undefined = [],
   author: string,
   kind?: number,
   identifier: string | undefined = ""
-) {
-  let objPointer: any;
+): string {
+  const objPointer: EventPointer | AddressPointer = kind === kindNotes
+    ? { id, relays, author, kind }
+    : { identifier, pubkey: author, kind: kind || 0, relays };
+
+  return kind === kindNotes
+    ? nip19.neventEncode(objPointer as EventPointer)
+    : nip19.naddrEncode(objPointer as AddressPointer);
+}
+
+export function buildEventPointer(event:NDKEvent) {
+  console.log(event)
+  let objPointer: EventPointer | AddressPointer;
   let encodedPointer: string = "";
-  if (kind === 1) {
+  if (event.kind == kindNotes) {
     objPointer = {
-      id: id,
-      relays: relays,
-      author: author,
+      id: event.id,
+      relays: [event.relay?.url ?? ""],
+      author: event.author.pubkey,
     };
     return (encodedPointer = nip19.neventEncode(objPointer));
-  } else if (kind === 30023 || kind === 30001) {
+  } else if (event.kind == kindLinks || event.kind == kindArticles) {
     objPointer = {
-      identifier: identifier,
-      pubkey: author,
-      kind: kind,
-      relays: relays,
+      identifier: event.tagValue('d')!,
+      pubkey: event.author.pubkey,
+      kind: event.kind,
+      relays: [event.relay?.url ?? ""],
     };
     return (encodedPointer = nip19.naddrEncode(objPointer));
   }
 }
 export function buildATags(
-  id: string | undefined = "",
-  relays: string[] | undefined = [],
   author: string,
-  kind?: number,
-  identifier: string | undefined = ""
-) {
-  let objPointer: any;
-  let encodedPointer: string[] = [""];
-  if (kind === 30023 || kind === 30001) {
-    objPointer = {
-      identifier: identifier,
-      pubkey: author,
-      kind: kind,
-      relays: relays,
-    };
-    return (encodedPointer = [
-      `${objPointer.kind}:${objPointer.pubkey}:${objPointer.identifier}`,
-      nip19.naddrEncode(objPointer),
-    ]);
-  }
+  kind: number,
+  identifier: string
+): string {
+  const objPointer: AddressPointer = {
+    identifier,
+    pubkey: author,
+    kind,
+  };
+  return `${objPointer.kind}:${objPointer.pubkey}:${objPointer.identifier}`;
 }
 
 export function naddrEncodeATags(EventPointer: string) {
@@ -150,7 +153,7 @@ export function naddrEncodeATags(EventPointer: string) {
   let eventAuthor: string = objPointer[1];
   let eventIdentifier: string = objPointer[2];
 
-  return buildEventPointer(undefined, [], eventAuthor, eventKind, eventIdentifier);
+  return propsBuildPointer(undefined, [], eventAuthor, eventKind, eventIdentifier);
 }
 
 export function decodeEventPointer(encodedPointer: string) {

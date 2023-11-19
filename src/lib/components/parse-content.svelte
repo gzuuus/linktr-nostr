@@ -67,22 +67,3 @@
       {/if}
     </button>
   {/if}
-
-<!-- <style>
-  .showMoreButton {
-    display: flex;
-    background: var(--elements-b-color);
-    border: 1px solid var(--hover-b-color);
-    border-radius: var(--agnostic-radius);
-    transition: all 0.2s ease-in-out;
-    position: absolute;
-    bottom: 0;
-    padding: 0;
-    right: 0;
-    margin: 0.4em;
-    color: white;
-  }
-  .showMoreButton:hover {
-    background: var(--hover-b-color);
-  }
-</style> -->
