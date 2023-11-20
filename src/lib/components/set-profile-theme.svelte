@@ -11,8 +11,8 @@
     import { ndkUser } from '$lib/stores/user';
     import { v4 as uuidv4 } from "uuid";
 	import { userCustomTheme } from '$lib/stores/user';
-    import { storeTheme } from '$lib/stores/stores';
-    import { setCustomStyles } from '$lib/utils/helpers';
+    import { localStore, storeTheme } from '$lib/stores/stores';
+    import { NDKlogin, setCustomStyles } from '$lib/utils/helpers';
     import { debounce } from 'debounce';
 
     const modalStore = getModalStore();
@@ -28,7 +28,8 @@
 		}
 	}
 	$: eventIdentifier = $userCustomTheme.themeIdentifier ? $userCustomTheme.themeIdentifier : `nostree-theme-${uuidv4()}`
-    function EventSubmit(): void {
+    async function EventSubmit(): Promise<void> {
+		!$ndk.signer && await NDKlogin();
 		modalStore.trigger({ type: 'component', component: 'modalLoading'});
 		const ndkEvent = new NDKEvent($ndk);
 		ndkEvent.kind = kindCSSReplaceableAsset;
@@ -53,7 +54,11 @@
 				themeIdentifier: themeIdentifier || undefined,
 				themeCustomCss: themeCustomCss || undefined,
 			});
-
+			localStore.update((currentState) => {
+			return {
+				lastUserLogged: currentState.lastUserLogged,
+				lastUserTheme: userTheme,
+			}});
 			storeTheme.set(userTheme || '');
 
 			if (ndkEvent.content) {

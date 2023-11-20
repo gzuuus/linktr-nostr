@@ -12,9 +12,8 @@
 
   let copied = false;
   function onClickHandler(): void {
-    if (buttonIcon == "share"){
-      sharePage(contentToCopy);      
-    }
+    buttonIcon == "share" ?? sharePage(contentToCopy);      
+    
     copied = true;
     setTimeout(() => {
       copied = false;

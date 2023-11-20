@@ -4,7 +4,7 @@
   import CreateNewList from "$lib/components/create-new-list.svelte";
   import { ndkUser } from "$lib/stores/user";
   import { nip19 } from "nostr-tools";
-  import { findHashTags, findListTags, findOtherTags, sortEventList } from "$lib/utils/helpers";
+  import { NDKlogin, findHashTags, findListTags, findOtherTags, sortEventList } from "$lib/utils/helpers";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
   import PinIcon from "$lib/elements/icons/pin-icon.svelte";
@@ -48,7 +48,7 @@
     }
   }
 
-  function handleSubmit(eventToPublish: NDKEvent, toDelete: boolean = false) {
+  async function handleSubmit(eventToPublish: NDKEvent, toDelete: boolean = false) {
     modalStore.trigger({ type: 'component', component: 'modalLoading'});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
@@ -93,25 +93,25 @@
         }
       }
     }
-    ndkEvent
-      .publish()
-      .then(() => {
-        events = [];
-        fetchedEvents = false;
-        modalStore.clear();
-        if (toDelete) {
-          deletedEventsIds.push(eventToPublish.tagValue("d")!);
-          toastStore.trigger(succesDeletingToast);
-        } else {
-          toastStore.trigger(succesPublishToast);
-        }
-          showEvents();
-      })
-      .catch((error) => {
-        modalStore.clear();
-        toastStore.trigger(errorPublishToast);
-        console.log("Error:", error);
-      });
+    !$ndk.signer && await NDKlogin();
+    try {
+      await ndkEvent.publish()
+      toDelete && await ndkEvent.delete()
+      events = [];
+      fetchedEvents = false;
+      modalStore.clear();
+      if (toDelete) {
+        deletedEventsIds.push(eventToPublish.tagValue("d")!);
+        toastStore.trigger(succesDeletingToast);
+      } else {
+        toastStore.trigger(succesPublishToast);
+      }
+        showEvents();
+    } catch (e) {
+      modalStore.clear();
+      toastStore.trigger(errorPublishToast);
+      console.log("Error:", e);
+    }
   }
 </script>
 <svelte:head>

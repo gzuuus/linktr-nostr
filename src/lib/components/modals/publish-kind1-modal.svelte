@@ -7,15 +7,16 @@
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
     import { debounce } from 'debounce';
+    import { NDKlogin } from '$lib/utils/helpers';
 
 	export let parent: any;
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
-
 	const formData = {
 		eventContent: $modalStore[0].meta.noteContent
 	};
-	function onFormSubmit(): void {
+	async function onFormSubmit(): Promise<void> {
+		!$ndk.signer && await NDKlogin();
 		modalStore.close();
 		modalStore.trigger({ type: 'component', component: 'modalLoading'});
 		const ndkEvent = new NDKEvent($ndk);

@@ -17,6 +17,8 @@
   import CreateNewListWidget from "$lib/components/create-new-list-widget.svelte";
   import { storePreview, storeTheme } from "$lib/stores/stores";
   import { browser } from "$app/environment";
+  import { localStore } from "$lib/stores/stores";
+  import { ndkUser } from "$lib/stores/user";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -28,15 +30,21 @@
   modalCreateList: { ref: CreateNewListWidget},
   modalRelayList: { ref: RelayListModal}
 };
-  
 	storePreview.subscribe(setBodyThemeAttribute);
 	storeTheme.subscribe(setBodyThemeAttribute);
 	function setBodyThemeAttribute(): void {
 		if (!browser) return;
 		document.body.setAttribute('data-theme', $storePreview ? 'customTheme' : $storeTheme);
 	}
-
+    if (browser && $localStore.lastUserLogged){
+      let user = $ndk.getUser({
+        npub: $localStore.lastUserLogged,
+      });
+      ndkUser.set(user);
+      $localStore.lastUserTheme && storeTheme.set($localStore.lastUserTheme);
+    }
   onMount(async () => {
+
     try {
       $ndk.connect().then(() => console.log("ndk connected successfully"));
     } catch (error) {

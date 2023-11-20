@@ -1,16 +1,34 @@
 import { nip19 } from "nostr-tools";
-import { NDKUser, NDKEvent, type NDKTag, type NDKUserProfile } from "@nostr-dev-kit/ndk";
+import {
+  NDKUser,
+  NDKEvent,
+  type NDKTag,
+  type NDKUserProfile,
+  type NDKFilter,
+  NDKKind,
+  NDKNip07Signer,
+} from "@nostr-dev-kit/ndk";
 import { ndkUser, userCustomTheme } from "$lib/stores/user";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
-import { defaulTheme, kindArticles, kindLinks, kindNotes, outNostrLinksUrl } from "./constants";
+import {
+  defaulTheme,
+  kindArticles,
+  kindCSSReplaceableAsset,
+  kindDelete,
+  kindLinks,
+  kindNotes,
+  outNostrLinksUrl,
+} from "./constants";
 import { storeTheme } from "$lib/stores/stores";
 import { browser } from "$app/environment";
 import { db } from "@nostr-dev-kit/ndk-cache-dexie";
 import { get as getStore } from "svelte/store";
 import ndkStore from "$lib/stores/provider";
 import type { AddressPointer, EventPointer } from "nostr-tools/lib/types/nip19";
+import { localStore } from "$lib/stores/stores";
+
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
@@ -68,7 +86,7 @@ export async function isNip05Valid(nip05: string | undefined = "", npub: string 
     }
 
     isNip05ValidStore.set({
-      isNip05Valid,
+      isNip05Valid: true,
       Nip05address,
       UserNpub,
       Vanity: undefined,
@@ -96,7 +114,6 @@ export function unixToDate(unixTimestamp: number | undefined) {
   return new Date(unixTimestamp * 1000).toLocaleString("en-US", options);
 }
 
-
 export function propsBuildPointer(
   id: string | undefined = "",
   relays: string[] | undefined = [],
@@ -104,17 +121,15 @@ export function propsBuildPointer(
   kind?: number,
   identifier: string | undefined = ""
 ): string {
-  const objPointer: EventPointer | AddressPointer = kind === kindNotes
-    ? { id, relays, author, kind }
-    : { identifier, pubkey: author, kind: kind || 0, relays };
+  const objPointer: EventPointer | AddressPointer =
+    kind === kindNotes ? { id, relays, author, kind } : { identifier, pubkey: author, kind: kind || 0, relays };
 
   return kind === kindNotes
     ? nip19.neventEncode(objPointer as EventPointer)
     : nip19.naddrEncode(objPointer as AddressPointer);
 }
 
-export function buildEventPointer(event:NDKEvent) {
-  console.log(event)
+export function buildEventPointer(event: NDKEvent) {
   let objPointer: EventPointer | AddressPointer;
   let encodedPointer: string = "";
   if (event.kind == kindNotes) {
@@ -126,7 +141,7 @@ export function buildEventPointer(event:NDKEvent) {
     return (encodedPointer = nip19.neventEncode(objPointer));
   } else if (event.kind == kindLinks || event.kind == kindArticles) {
     objPointer = {
-      identifier: event.tagValue('d')!,
+      identifier: event.tagValue("d")!,
       pubkey: event.author.pubkey,
       kind: event.kind,
       relays: [event.relay?.url ?? ""],
@@ -134,11 +149,7 @@ export function buildEventPointer(event:NDKEvent) {
     return (encodedPointer = nip19.naddrEncode(objPointer));
   }
 }
-export function buildATags(
-  author: string,
-  kind: number,
-  identifier: string
-): string {
+export function buildATags(author: string, kind: number, identifier: string): string {
   const objPointer: AddressPointer = {
     identifier,
     pubkey: author,
@@ -261,6 +272,12 @@ export function logout() {
     themeCustomCss: undefined,
   });
   storeTheme.set(defaulTheme);
+  localStore.update(() => {
+    return {
+      lastUserLogged: undefined,
+      lastUserTheme: undefined,
+    };
+  });
   goto("/");
 }
 
@@ -304,5 +321,86 @@ export async function fetchUserProfile(opts: string): Promise<NDKUserProfile | u
   } catch (error) {
     console.error(error);
     throw error;
+  }
+}
+
+export async function fetchCssAsset(user: string) {
+  const $ndk = getStore(ndkStore);
+  const $ndkUser = getStore(ndkUser);
+  const $storeTheme = getStore(storeTheme);
+  let ndkFilter: NDKFilter = {
+    authors: [user],
+    kinds: [kindCSSReplaceableAsset as NDKKind],
+    "#L": ["nostree-theme"],
+  };
+
+  try {
+    const fetchedEvent = await $ndk.fetchEvent(ndkFilter, {
+      closeOnEose: true,
+      groupable: true,
+    });
+
+    if (fetchedEvent) {
+      const userTheme = fetchedEvent.tagValue("l");
+      const themeIdentifier = fetchedEvent.tagValue("d");
+      const themeCustomCss = fetchedEvent.content;
+
+      if (user == $ndkUser?.pubkey) {
+        userCustomTheme.set({
+          UserTheme: userTheme || undefined,
+          themeIdentifier: themeIdentifier || undefined,
+          themeCustomCss: themeCustomCss || undefined,
+        });
+        localStore.update((currentState) => {
+          return {
+            lastUserLogged: currentState.lastUserLogged,
+            lastUserTheme: userTheme,
+          };
+        });
+
+        storeTheme.set($storeTheme == defaulTheme ? userTheme! : $storeTheme);
+      } else {
+        storeTheme.set(userTheme || "");
+      }
+
+      if (fetchedEvent.content) {
+        setCustomStyles(fetchedEvent.content);
+      }
+    } else {
+      if (user == $ndkUser?.pubkey) {
+        localStore.update((currentState) => {
+          return {
+            lastUserLogged: currentState.lastUserLogged,
+            lastUserTheme: undefined,
+          };
+        });
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function NDKlogin(): Promise<NDKUser | undefined> {
+  try {
+    const $ndk = getStore(ndkStore);
+    const signer = new NDKNip07Signer();
+    $ndk.signer = signer;
+    ndkStore.set($ndk);
+    const ndkCurrentUser = await signer.user();
+    let user = $ndk.getUser({
+      npub: ndkCurrentUser.npub,
+    });
+    ndkUser.set(user);
+    localStore.update((currentState) => {
+      return {
+        lastUserLogged: ndkCurrentUser.npub,
+        lastUserTheme: currentState.lastUserTheme,
+      };
+    });
+    await fetchCssAsset(user.pubkey);
+    return user;
+  } catch (error) {
+    return undefined;
   }
 }

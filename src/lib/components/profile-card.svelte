@@ -1,10 +1,8 @@
 <script lang="ts">
   export let userPub: string;
   export let userProfile: NDKUserProfile | undefined = undefined;
-  import ndk from "$lib/stores/provider";
-  import type { NDKFilter, NDKKind, NDKUserProfile } from "@nostr-dev-kit/ndk";
-  import { ndkUser } from "$lib/stores/user";
-  import { truncateString, sharePage, setCustomStyles, fetchUserProfile } from "$lib/utils/helpers";
+  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+  import { truncateString, sharePage, fetchUserProfile, fetchCssAsset } from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
@@ -14,8 +12,7 @@
   import { isNip05Valid as isNip05ValidStore, userCustomTheme } from "$lib/stores/user";
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
-  import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import { defaulTheme, kindCSSReplaceableAsset, outNostrLinksUrl } from "$lib/utils/constants";
+  import { defaulTheme, outNostrLinksUrl } from "$lib/utils/constants";
   import { Avatar } from '@skeletonlabs/skeleton';
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import ClipboardButton from "./clipboard-button.svelte";
@@ -31,38 +28,14 @@
   let userNpub: string = nip19.npubEncode(userPub);
 
   async function fetchUser() {
-      fetchUserProfile(userPub)
-      .then((user) => {
-        userProfile = user;
-        isNip05Valid(user?.nip05, user?.npub);
-      }).finally(() => {
-      if (userPub != $ndkUser?.pubkey){
-        fetchCssAsset()
-      }}
-      );
-  }
-
-  async function fetchCssAsset() {
-    let ndkFilter: NDKFilter = {
-      authors: [userPub], 
-      kinds: [kindCSSReplaceableAsset as NDKKind], 
-      "#L": ["nostree-theme"]
-    };
-    await $ndk
-      .fetchEvent(ndkFilter, {
-        closeOnEose: true,
-        groupable: true,
-        cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-      })
-      .then((fetchedEvent) => {
-          const userTheme = fetchedEvent?.tagValue('l');
-          if (fetchedEvent){
-          if (fetchedEvent?.content){
-            setCustomStyles(fetchedEvent.content);
-          }
-          storeTheme.set(userTheme || '');
-        }
-      });
+    try {
+      const user = await fetchUserProfile(userPub);
+      userProfile = user;
+      isNip05Valid(user?.nip05, user?.npub);
+      await fetchCssAsset(userPub);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   function generateQRCode(value: string) {
@@ -73,13 +46,9 @@
     return (qrImageUrl = qr.createDataURL());
   }
 
-  async function handleShareClick(urlToShare: string) {
-    const shared = await sharePage(urlToShare);
-  }
-
   onDestroy(() => {
-	storeTheme.set($userCustomTheme.UserTheme ? $userCustomTheme.UserTheme : defaulTheme);
-});
+	  storeTheme.set($userCustomTheme.UserTheme ? $userCustomTheme.UserTheme : defaulTheme);
+  });
 </script>
 {#await fetchUser()}
 <div class="w-fit m-auto">
@@ -109,7 +78,7 @@
         ><QrIcon size={16} /></button
       >
       <a href="lightning:{userProfile.lud16}"><button class="common-btn-icon-ghost"><LnIcon size={16} /></button></a>
-      <button class="common-btn-icon-ghost" on:click={() =>  handleShareClick(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
+      <button class="common-btn-icon-ghost" on:click={() => sharePage(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
         ><ShareIcon size={16} /></button
       >
     </div>
@@ -127,7 +96,7 @@
             ? userProfile.nip05
               ? userProfile.nip05
               : $isNip05ValidStore.Nip05address
-            : truncateString(userPub)} 
+            : truncateString(userNpub)} 
             isButton={false}
             buttonIcon="none"
             />

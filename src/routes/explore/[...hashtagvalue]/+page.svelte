@@ -30,25 +30,29 @@
     ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 100 }
     : { kinds: [kindLinks], "#l": ["nostree"], limit: 100 };
   }
-async function fetchEvents(filter: NDKFilter) {
-  eventList = [];
-  isSubscribe = true;
-  eventHashtags= [];
-  const sub = $ndk.subscribe(filter, { closeOnEose: false, groupable: false, cacheUsage: NDKSubscriptionCacheUsage.PARALLEL })
-  sub.on("event", (event) => {
-    eventList = [...eventList, event];
-    event.tags.forEach((tag: string[]) => {
-      if (tag[0] == "t" && !eventHashtags.includes(tag[1]) ) eventHashtags.push(tag[1]);
-    });
-    sortEventList(eventList);
-  })
-  sub.on("eose", () => {
-    isSubscribe = false;
-  })
-  sub.on("notice", (notice) => {
-    console.log(notice);
-  })
-}
+  async function fetchEvents(filter: NDKFilter) {
+    eventList = [];
+    isSubscribe = true;
+    const sub = $ndk.subscribe(filter, { closeOnEose: false, groupable: false})
+    sub.on("event", (event) => {
+      eventList = [...eventList, event];
+      const newHashtags = event.tags
+        .filter((tag: string[]) => tag[0] === "t" && !eventHashtags.includes(tag[1]))
+        .map((tag: string[]) => tag[1]);
+
+      if (newHashtags.length > 0) {
+        eventHashtags = [...eventHashtags, ...newHashtags];
+      }
+
+      sortEventList(eventList);
+    })
+    sub.on("eose", () => {
+      isSubscribe = false;
+    })
+    sub.on("notice", (notice) => {
+      console.log(notice);
+    })
+  }
 onDestroy(() => {
   eventList = [];
   retryCounter = 10
@@ -76,9 +80,6 @@ onDestroy(() => {
   <h3 class:hidden={!$page.params.hashtagvalue}>#{$page.params.hashtagvalue}</h3>  
   <div class="flex flex-col gap-2">
 
-    {#if isSubscribe }
-      <PlaceHolderLoading colCount={3} listItemPadding="p-4" />
-    {:else} 
     <div>
     {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag }
     <button on:click={() => goto(`/explore/${eventHashtag}`)}>
@@ -103,7 +104,6 @@ onDestroy(() => {
     <SearchBar searchKind={"hashtag"} />
     {/if}
   </div>
-    {/if}
   </div>
   <hr/>
   {#each eventList as event}
