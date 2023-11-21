@@ -16,9 +16,9 @@ import {
   defaulTheme,
   kindArticles,
   kindCSSReplaceableAsset,
-  kindDelete,
   kindLinks,
   kindNotes,
+  oldKindLinks,
   outNostrLinksUrl,
 } from "./constants";
 import { storeTheme } from "$lib/stores/stores";
@@ -139,7 +139,7 @@ export function buildEventPointer(event: NDKEvent) {
       author: event.author.pubkey,
     };
     return (encodedPointer = nip19.neventEncode(objPointer));
-  } else if (event.kind == kindLinks || event.kind == kindArticles) {
+  } else if (event.kind == kindLinks || event.kind == kindArticles || event.kind == oldKindLinks) {
     objPointer = {
       identifier: event.tagValue("d")!,
       pubkey: event.author.pubkey,

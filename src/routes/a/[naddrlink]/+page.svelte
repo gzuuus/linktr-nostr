@@ -2,9 +2,9 @@
   import { page } from "$app/stores";
   import ProfileCard from "$lib/components/profile-card.svelte";
   import EventCard from "$lib/components/event-card.svelte";
-  import { kindLinks, kindArticles, outNostrLinksUrl } from "$lib/utils/constants";
+  import { kindLinks, kindArticles, outNostrLinksUrl, oldKindLinks } from "$lib/utils/constants";
   import { nip19 } from "nostr-tools";
-    import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
   let naddrPointer: any;
   let Pubkey: string;
   let EventKind: number;
@@ -29,7 +29,7 @@
   {#key naddrPointer}
     <ProfileCard userPub={Pubkey} bind:userProfile />
     <div>
-      {#if EventKind == kindLinks}
+      {#if EventKind == kindLinks || oldKindLinks}
         <EventCard userPub={Pubkey} eventKind={EventKind} dValue={Identifier} />
       {:else if EventKind == kindArticles}
         <EventCard userPub={Pubkey} eventKind={EventKind} dValue={Identifier} />

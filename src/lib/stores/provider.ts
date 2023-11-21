@@ -19,6 +19,7 @@ export const defaulRelaysUrls: string[] = [
   "wss://nos.lol",
   "wss://offchain.pub/",
   "wss://nostr-pub.wellorder.net",
+  "wss://nostr.mutinywallet.com "
 ];
 
 const ndk = new NDK({

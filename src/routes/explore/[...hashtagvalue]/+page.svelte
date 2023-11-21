@@ -4,18 +4,17 @@
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-  import { kindLinks, outNostrLinksUrl } from "$lib/utils/constants";
+  import { kindLinks, oldKindLinks, outNostrLinksUrl } from "$lib/utils/constants";
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import { nip19 } from "nostr-tools";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
-  import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
   import SearchBar from "$lib/components/search-bar.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
-    import { onDestroy } from "svelte";
+  import { onDestroy } from "svelte";
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
@@ -24,11 +23,11 @@
   let initialHashtagCount: number = 15;
   let showAllHashtags:boolean = false;
   let showSearchBar: boolean = false;
-  let retryCounter = 0;
+
   $: {
     ndkFilter = $page.params.hashtagvalue
-    ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 100 }
-    : { kinds: [kindLinks], "#l": ["nostree"], limit: 100 };
+    ? { kinds: [kindLinks, oldKindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 100 }
+    : { kinds: [kindLinks, oldKindLinks], "#l": ["nostree"], limit: 100 };
   }
   async function fetchEvents(filter: NDKFilter) {
     eventList = [];
@@ -55,7 +54,6 @@
   }
 onDestroy(() => {
   eventList = [];
-  retryCounter = 10
 })
 </script>
 <svelte:head>

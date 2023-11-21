@@ -14,7 +14,7 @@
   import InfoIcon from "$lib/elements/icons/info-icon.svelte";
   import { goto } from "$app/navigation";
   import { ndkUser } from "$lib/stores/user";
-  import { kindLinks } from "$lib/utils/constants";
+  import { kindLinks, specialCharsRegex } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
   import SlugIcon from "$lib/elements/icons/slug-icon.svelte";
   import { nip19 } from "nostr-tools";
@@ -135,7 +135,7 @@
       ];
       for (const labelData of formData.labels) {
         const { label } = labelData;
-        ndkEvent.tags.push(["l", encodeURIComponent(label.trim().toLowerCase())]);
+        ndkEvent.tags.push(["l", label.trim().replace(specialCharsRegex, '-').toLowerCase()]);
       }
 
       if (formData.forkData && eventToEdit.author.npub == $ndkUser?.npub) {

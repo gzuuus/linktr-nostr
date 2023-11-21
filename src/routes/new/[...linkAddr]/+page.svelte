@@ -9,7 +9,7 @@
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
   import PinIcon from "$lib/elements/icons/pin-icon.svelte";
   import Login from "$lib/components/login.svelte";
-  import { errorPublishToast, kindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
+  import { errorPublishToast, kindLinks, oldKindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
@@ -31,20 +31,17 @@
     }
   }
 
-  function showEvents() {
+  async function showEvents() {
     if ($ndkUser) {
       let userPubDecoded: string = nip19.decode($ndkUser.npub).data.toString();
-      $ndk
-        .fetchEvents({
-          kinds: [kindLinks],
+      let fetchedEvent = await $ndk.fetchEvents({
+          kinds: [kindLinks, oldKindLinks],
           authors: [userPubDecoded],
           "#l": ["nostree"],
         })
-        .then((fetchedEvent) => {
           events = Array.from(fetchedEvent);
           fetchedEvents = true;
           sortEventList(events);
-        });
     }
   }
 

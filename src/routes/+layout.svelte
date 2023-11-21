@@ -18,7 +18,8 @@
   import { storePreview, storeTheme } from "$lib/stores/stores";
   import { browser } from "$app/environment";
   import { localStore } from "$lib/stores/stores";
-  import { ndkUser } from "$lib/stores/user";
+  import { ndkUser, userCustomTheme } from "$lib/stores/user";
+  import UpdateOldKindModal from "$lib/components/modals/update-old-kind-modal.svelte";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -28,7 +29,8 @@
   modalNoNip07: { ref: NoExtensionModal},
   modalLoading: { ref: LoadingBackdropModal},
   modalCreateList: { ref: CreateNewListWidget},
-  modalRelayList: { ref: RelayListModal}
+  modalRelayList: { ref: RelayListModal},
+  modalUpdateOldKind: { ref: UpdateOldKindModal}
 };
 	storePreview.subscribe(setBodyThemeAttribute);
 	storeTheme.subscribe(setBodyThemeAttribute);
@@ -41,7 +43,14 @@
         npub: $localStore.lastUserLogged,
       });
       ndkUser.set(user);
-      $localStore.lastUserTheme && storeTheme.set($localStore.lastUserTheme);
+    if ($localStore.lastUserTheme) {
+      storeTheme.set($localStore.lastUserTheme);
+      userCustomTheme.set({
+				UserTheme: $localStore.lastUserTheme,
+				themeIdentifier: undefined,
+				themeCustomCss: undefined,
+			});
+    } 
     }
   onMount(async () => {
 

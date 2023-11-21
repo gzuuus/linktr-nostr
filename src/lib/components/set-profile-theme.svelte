@@ -40,15 +40,13 @@
 		["L", "nostree-theme"],
         ["l", themeLabel ? themeLabel : $storeTheme],
 		]
-		ndkEvent
-		.publish()
-		.then(() => {
+		try {
+			await ndkEvent.publish()
 			modalStore.clear()
 			toastStore.trigger(succesPublishToast)
 			const userTheme = ndkEvent.tagValue('l');
 			const themeIdentifier = ndkEvent.tagValue('d');
 			const themeCustomCss = ndkEvent.content;
-			
 			userCustomTheme.set({
 				UserTheme: userTheme || undefined,
 				themeIdentifier: themeIdentifier || undefined,
@@ -64,12 +62,11 @@
 			if (ndkEvent.content) {
 				setCustomStyles(ndkEvent.content);
 			}
-		})
-		.catch((error) => {
+		} catch (error) { 
 			modalStore.clear()
 			toastStore.trigger(errorPublishToast)
 			console.log("Error:", error);
-		})
+		}
 	}
 </script>
 {#if $ndkUser}
