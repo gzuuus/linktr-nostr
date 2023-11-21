@@ -36,7 +36,7 @@
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import { getModalStore, getToastStore, type ModalSettings, type ToastSettings } from '@skeletonlabs/skeleton';
   import ClipboardButton from "./clipboard-button.svelte";
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   
   const modalStore = getModalStore();
   const toastStore = getToastStore();
@@ -158,13 +158,14 @@
     }
   }
 
+  onMount(() => {
+      fetchCurrentEvents();
+  });
+
   onDestroy(() => {
     retryCounter = 5;
   })
 </script>
-{#await fetchCurrentEvents()}
-<PlaceHolderLoading colCount={5} />
-{:then value}
     {#if retryCounter <= 4 && eventList.length == 0}
     <PlaceHolderLoading colCount={5} />
     {/if}
@@ -351,4 +352,3 @@
         </div>
 
         {/if}
-{/await}

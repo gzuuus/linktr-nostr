@@ -11,7 +11,7 @@
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import { nip19 } from "nostr-tools";
 
-  let isEditHappens: boolean;
+  let isEditHappens: boolean = false;
   let linkListLength: number;
   let userProfile: NDKUserProfile;
   let userNpub = nip19.npubEncode($page.data.pubkey)
