@@ -50,7 +50,7 @@
   if (listTemplate != "blank") {
     formData = {
       title: listTemplate,
-      summary: `A list about ${listTemplate}`,
+      description: `A list about ${listTemplate}`,
       links: [{ link: "", description: "" }],
       labels: [{label: listTemplate }],
       forkData: { forkPubKey: "", forkEventoPointer: "" },
@@ -60,7 +60,7 @@
 
   if (eventToEdit) {
     let title = eventToEdit.tagValue("title");
-    let summary = eventToEdit.tagValue("summary");
+    let description = eventToEdit.tagValue("summary") ? eventToEdit.tagValue("summary") : eventToEdit.tagValue("description");
     const rTags = findListTags(eventToEdit.tags);
     const links = rTags.map((tag) => ({ link: tag.url, description: tag.text }));
     const labels = findOtherTags(eventToEdit.tags, "l").map((tag) => ({ label: tag }));
@@ -79,7 +79,7 @@
 
     formData = {
       title: title!,
-      summary: summary ? summary : "",
+      description: description ? description : "",
       links: links,
       labels: labels,
       forkData: {
@@ -130,7 +130,7 @@
     if (eventToEdit) {
       ndkEvent.tags = [
         ["title", formData.title],
-        ["summary", formData.summary],
+        ["description", formData.description],
         ["d", eventToEdit.tagValue("d")!],
       ];
       for (const labelData of formData.labels) {
@@ -154,7 +154,7 @@
     } else {
       ndkEvent.tags = [
         ["title", formData.title],
-        ["summary", formData.summary],
+        ["description", formData.description],
         ["d", newDTag],
         ["l", "nostree"],
         ["l", formData.labels[0].label.trim() ? formData.labels[0].label.toLowerCase().trim() : generateNanoId($ndkUser?.npub)],
@@ -236,9 +236,9 @@
         <span>Title</span>
         <input class="input" type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
       </label>
-      <label class="label" for="summary">
+      <label class="label" for="description">
         Description
-        <input class="input" type="text" id="summary" placeholder="Brief description of your list" bind:value={formData.summary} maxlength="120"/>
+        <input class="input" type="text" id="description" placeholder="Brief description of your list" bind:value={formData.description} maxlength="120"/>
       </label>
       <label class="label" for="links">
         Links

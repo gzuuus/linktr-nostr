@@ -49,12 +49,12 @@ This roadmap is only a draft of the direction of the project, it can be changed,
 
 {
     ...
-    "kind": 30001,
+    "kind": 30003,
     "content": "",
     "tags": [
         ["d", "nostree-{uuidv4}"],
         ["title", "Link Title"],
-        ["summary", "List summary"]
+        ["description", "List description"]
         ["image", "https://nostr.build/i/518262ea28232ace1eee250038d7657d70a0a186bb05f73c7a715e948c499a3a.jpg"],
         ["r", "https://link1.com", "link1"],
         ["r", "mailto:email@example.com", "link2"],

@@ -13,9 +13,9 @@
   import { generateNanoId } from "$lib/utils/helpers";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-  import { Accordion, AccordionItem, getModalStore, getToastStore } from "@skeletonlabs/skeleton";
+  import { Accordion, AccordionItem, getModalStore, getToastStore, popup } from "@skeletonlabs/skeleton";
   import CreateNewListWidget from "$lib/components/create-new-list-widget.svelte";
-
+  
   const toastStore = getToastStore();
   const modalStore = getModalStore();
   let events: NDKEvent[] = [];
@@ -39,6 +39,7 @@
           authors: [userPubDecoded],
           "#l": ["nostree"],
         })
+        console.log(fetchedEvent)
           events = Array.from(fetchedEvent);
           fetchedEvents = true;
           sortEventList(events);
@@ -50,10 +51,10 @@
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
     let title = eventToPublish.tagValue("title");
-    let summary = eventToPublish.tagValue("summary");
+    let description = eventToPublish.tagValue("summary") ? eventToPublish.tagValue("summary") :  eventToPublish.tagValue("description");
     ndkEvent.tags = [
       ["title", title!],
-      summary ? ["summary", summary] : ["summary", ""],
+      description ? ["description", description] : ["description", ""],
       ["d", eventToPublish.tagValue("d")!],
     ];
     let links;
@@ -94,6 +95,10 @@
     try {
       await ndkEvent.publish()
       toDelete && await ndkEvent.delete()
+      if (eventToPublish.kind != ndkEvent.kind){
+        await eventToPublish.delete()
+        deletedEventsIds.push(eventToPublish.tagValue("d")!);
+      }
       events = [];
       fetchedEvents = false;
       modalStore.clear();
@@ -163,7 +168,7 @@
                   {/if}
                   <button
                     class="common-btn-icon-ghost"
-                    class:firstEvent={i == 0}
+                    class:!variant-filled={i == 0}
                     on:click={() => {
                       handleSubmit(event);
                     }}><PinIcon size={20} /></button
@@ -174,6 +179,21 @@
                       handleSubmit(event, true);
                     }}><BinIcon size={20} /></button
                   >
+                  {#if event.kind == oldKindLinks}
+                    <span 
+                    use:popup={{ event: 'hover', target: 'popupOldKind', placement: 'top' }}
+                    >🔺
+                  </span>
+                  <div class="card p-4 variant-filled" data-popup="popupOldKind">
+                    <p>List in old format, please update it, press </p>
+                    <button
+                    class="common-btn-icon-ghost"
+                    >
+                    <PinIcon size={20} />
+                    </button>
+                    <div class="arrow variant-filled" />
+                  </div>
+                  {/if}
                 </div>
                 <div class:hidden={isEditMode && editIndex == i}>
                   <h3>{event.tagValue("title")}</h3>

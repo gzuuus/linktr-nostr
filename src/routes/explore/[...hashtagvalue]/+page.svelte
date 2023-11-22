@@ -110,6 +110,7 @@ onDestroy(() => {
       <div>
         <h3>{event.tagValue("title")}</h3>
         <span class="text-sm" class:hidden={!event.tagValue("summary")}>{event.tagValue("summary")}</span>
+        <span class="text-sm" class:hidden={!event.tagValue("description")}>{event.tagValue("description")}</span>
 
         <div class="flex flex-col gap-2 pt-2">
         {#each findListTags(event.tags) as { url, text }}

@@ -61,6 +61,7 @@
   background: 'variant-filled-warning',
   timeout: 5000,
   hoverable: true,
+  classes: 'flex flex-col gap-2',
 	action: {
 		label: 'Update events',
 		response: () => crafUpdateModal()
@@ -164,6 +165,7 @@
 
   onDestroy(() => {
     retryCounter = 5;
+    isEditHappens = false;
   })
 </script>
     {#if retryCounter <= 4 && eventList.length == 0}
@@ -199,6 +201,9 @@
           </div>
           <span class="text-sm" class:hidden={isEditMode || !eventList[currentIndex].tagValue("summary")}>
             {eventList[currentIndex].tagValue("summary")}
+          </span>
+          <span class="text-sm" class:hidden={isEditMode || !eventList[currentIndex].tagValue("description")}>
+            {eventList[currentIndex].tagValue("description")}
           </span>
           <div class:hidden={isEditMode || eventKind != kindLinks}>
             <button on:click={() => (showListsIndex = !showListsIndex)}>

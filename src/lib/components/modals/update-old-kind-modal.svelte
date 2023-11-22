@@ -33,7 +33,7 @@
 			let summary = event.tagValue("summary");
 			ndkEvent.tags = [
 			["title", title!],
-			summary ? ["summary", summary] : ["summary", ""],
+			summary ? ["description", summary] : ["description", ""],
 			["d", event.tagValue("d")!],
 			];
 			let links;
