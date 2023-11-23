@@ -91,7 +91,6 @@
       for (const event of eventList) {
         if (event.kind === oldKindLinks) {
           oldEventList.push(event);
-          console.log(event.kind);
         }
 
         for (const tag of event.tags) {

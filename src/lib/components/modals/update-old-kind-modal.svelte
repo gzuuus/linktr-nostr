@@ -14,8 +14,8 @@
 	const eventList = $modalStore[0].meta.noteContent
 
 	export const deleteOldEventToast: ToastSettings = {
-		message: 'Perfect! you havi migrated all your events',
-		background: 'variant-filled-warning',
+		message: 'Perfect! you have migrated all your events, you can delete old ones if you want',
+		background: 'variant-filled-success',
 		timeout: 5000,
 		hoverable: true,
 		action: {
@@ -25,8 +25,9 @@
 	};
 	async function updateEvents(eventList: NDKEvent[]) {
 		!$ndk.signer && await NDKlogin();
+		modalStore.clear();
+		modalStore.trigger({ type: 'component', component: 'modalLoading'});
 		for (const event of eventList) {
-			modalStore.trigger({ type: 'component', component: 'modalLoading'});
 			const ndkEvent = new NDKEvent($ndk);
 			ndkEvent.kind = kindLinks;
 			let title = event.tagValue("title");
@@ -61,10 +62,8 @@
 			
 			try {
 				await ndkEvent.publish();
-
 				toastStore.trigger(succesPublishToast);
 				} catch (e) {
-				modalStore.clear();
 				toastStore.trigger(errorPublishToast);
 				console.log("Error:", e);
 			}

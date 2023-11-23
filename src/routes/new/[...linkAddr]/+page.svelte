@@ -39,7 +39,6 @@
           authors: [userPubDecoded],
           "#l": ["nostree"],
         })
-        console.log(fetchedEvent)
           events = Array.from(fetchedEvent);
           fetchedEvents = true;
           sortEventList(events);
