@@ -52,7 +52,7 @@
       alt="QR Code"
       />
     </a>
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1 break-all">
         <a class="no-underline text-base font-bold" href="/{userPub}">{value?.name ? value?.name : value?.displayName}</a>
         <span class="common-badge-soft w-fit">
           <ClipboardButton 

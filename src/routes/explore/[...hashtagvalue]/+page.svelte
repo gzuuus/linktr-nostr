@@ -1,7 +1,7 @@
 <script lang="ts">
   import ndk from "$lib/stores/provider";
   import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags } from "$lib/utils/helpers";
-  import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+  import type { NDKEvent, NDKFilter, NDKSubscription } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
   import { kindLinks, oldKindLinks, outNostrLinksUrl } from "$lib/utils/constants";
@@ -23,16 +23,17 @@
   let initialHashtagCount: number = 15;
   let showAllHashtags:boolean = false;
   let showSearchBar: boolean = false;
+  let sub: NDKSubscription;
 
   $: {
     ndkFilter = $page.params.hashtagvalue
-    ? { kinds: [kindLinks, oldKindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 100 }
-    : { kinds: [kindLinks, oldKindLinks], "#l": ["nostree"], limit: 100 };
+    ? { kinds: [kindLinks, oldKindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 75 }
+    : { kinds: [kindLinks, oldKindLinks], "#l": ["nostree"], limit: 75 };
   }
   async function fetchEvents(filter: NDKFilter) {
     eventList = [];
     isSubscribe = true;
-    const sub = $ndk.subscribe(filter, { closeOnEose: false, groupable: false})
+    sub = $ndk.subscribe(filter, { closeOnEose: false, groupable: false})
     sub.on("event", (event) => {
       eventList = [...eventList, event];
       const newHashtags = event.tags
@@ -42,17 +43,19 @@
       if (newHashtags.length > 0) {
         eventHashtags = [...eventHashtags, ...newHashtags];
       }
-
       sortEventList(eventList);
     })
     sub.on("eose", () => {
       isSubscribe = false;
+      sub.stop();
     })
     sub.on("notice", (notice) => {
       console.log(notice);
     })
   }
 onDestroy(() => {
+  sub.stop();
+  isSubscribe = false;
   eventList = [];
 })
 </script>

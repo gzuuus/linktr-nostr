@@ -308,8 +308,8 @@ export async function fetchUserProfile(opts: string): Promise<NDKUserProfile | u
 
         await ndkUser.fetchProfile({
           closeOnEose: true,
-          groupable: true,
-          groupableDelay: 100,
+          groupable: false,
+          groupableDelay: 200,
         });
         return ndkUser.profile as NDKUserProfile;
       } else {
