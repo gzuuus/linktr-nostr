@@ -1,10 +1,8 @@
 <script lang="ts">
   export let userPub: string;
-  export let userProfile: NDKUserProfile | null;
-  import ndk from "$lib/stores/provider";
-  import type { NDKFilter, NDKKind, NDKUserProfile } from "@nostr-dev-kit/ndk";
-  import { ndkUser } from "$lib/stores/user";
-  import { truncateString, sharePage, setCustomStyles } from "$lib/utils/helpers";
+  export let userProfile: NDKUserProfile | undefined = undefined;
+  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+  import { truncateString, sharePage, fetchUserProfile, fetchCssAsset } from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
@@ -14,8 +12,7 @@
   import { isNip05Valid as isNip05ValidStore, userCustomTheme } from "$lib/stores/user";
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
-  import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import { defaulTheme, kindCSSReplaceableAsset, outNostrLinksUrl } from "$lib/utils/constants";
+  import { defaulTheme, outNostrLinksUrl } from "$lib/utils/constants";
   import { Avatar } from '@skeletonlabs/skeleton';
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import ClipboardButton from "./clipboard-button.svelte";
@@ -23,56 +20,22 @@
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { storeTheme } from '$lib/stores/stores';
   import { onDestroy } from "svelte";
+  import { nip19 } from "nostr-tools";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
+  let userNpub: string = nip19.npubEncode(userPub);
 
-  let user = $ndk.getUser({
-    npub: userPub,
-  });
-  async function fetchUserProfile() {
-    await user
-      .fetchProfile({
-        closeOnEose: true,
-        groupable: true,
-        groupableDelay: 100,
-        cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-      })
-      .then(() => {
-        userProfile = user.profile as NDKUserProfile;
-        isNip05Valid(user.profile?.nip05, user.npub);
-        if (userProfile.image == undefined) {
-          generateQRCode(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`);
-        }
-      }).finally(() => {
-      if (user.npub != $ndkUser?.npub){
-        fetchCssAsset()
-      }}
-      );
-  }
-
-  async function fetchCssAsset() {
-    let ndkFilter: NDKFilter = {
-      authors: [user.hexpubkey()], 
-      kinds: [kindCSSReplaceableAsset as NDKKind], 
-      "#L": ["nostree-theme"]
-    };
-    await $ndk
-      .fetchEvent(ndkFilter, {
-        closeOnEose: true,
-        groupable: true,
-        cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-      })
-      .then((fetchedEvent) => {
-          const userTheme = fetchedEvent?.tagValue('l');
-          if (fetchedEvent){
-          if (fetchedEvent?.content){
-            setCustomStyles(fetchedEvent.content);
-          }
-          storeTheme.set(userTheme || '');
-        }
-      });
+  async function fetchUser() {
+    try {
+      const user = await fetchUserProfile(userPub);
+      userProfile = user;
+      isNip05Valid(user?.nip05, user?.npub);
+      await fetchCssAsset(userPub);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   function generateQRCode(value: string) {
@@ -83,15 +46,11 @@
     return (qrImageUrl = qr.createDataURL());
   }
 
-  async function handleShareClick(urlToShare: string) {
-    const shared = await sharePage(urlToShare);
-  }
-
   onDestroy(() => {
-	storeTheme.set($userCustomTheme.UserTheme ? $userCustomTheme.UserTheme : defaulTheme);
-});
+	  storeTheme.set($userCustomTheme.UserTheme ? $userCustomTheme.UserTheme : defaulTheme);
+  });
 </script>
-{#await fetchUserProfile()}
+{#await fetchUser()}
 <div class="w-fit m-auto">
     <PlaceHolderLoading layoutKind={"avatar"} />
 </div>
@@ -119,7 +78,7 @@
         ><QrIcon size={16} /></button
       >
       <a href="lightning:{userProfile.lud16}"><button class="common-btn-icon-ghost"><LnIcon size={16} /></button></a>
-      <button class="common-btn-icon-ghost" on:click={() =>  handleShareClick(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
+      <button class="common-btn-icon-ghost" on:click={() => sharePage(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
         ><ShareIcon size={16} /></button
       >
     </div>
@@ -137,7 +96,7 @@
             ? userProfile.nip05
               ? userProfile.nip05
               : $isNip05ValidStore.Nip05address
-            : truncateString(userPub)} 
+            : truncateString(userNpub)} 
             isButton={false}
             buttonIcon="none"
             />
@@ -147,16 +106,16 @@
         {#if showAbout}
         <div class="flex flex-col gap-2 justify-center items-center card p-2">
           <span class="common-badge-soft w-fit">
-            <ClipboardButton contentToCopy={userPub} buttonText={truncateString(userPub)}
+            <ClipboardButton contentToCopy={userNpub} buttonText={truncateString(userNpub)}
               isButton={false}
               />
           </span>
           {#if userProfile.about }
-            <ParseContent content={userProfile.about} charLimit={300}/>
+              <ParseContent content={userProfile.about} charLimit={300}/>
           {/if}
           <div class="flex gap-2 flex-wrap justify-center">
-            <a href="{outNostrLinksUrl}/{userPub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>
-            <a href="nostr:{userPub}"><span class="common-badge-ghost gap-2">View profile in native client <OstrichIcon size={18} /></span></a>
+            <a href="{outNostrLinksUrl}/{userNpub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>
+            <a href="nostr:{userNpub}"><span class="common-badge-ghost gap-2">View profile in native client <OstrichIcon size={18} /></span></a>
           </div>
       </div>
         {/if}

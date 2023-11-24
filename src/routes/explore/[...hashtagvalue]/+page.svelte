@@ -1,62 +1,58 @@
 <script lang="ts">
   import ndk from "$lib/stores/provider";
-  import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags } from "$lib/utils/helpers";
-  import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+  import { unixToDate, findListTags, findOtherTags, naddrEncodeATags, processHashtags } from "$lib/utils/helpers";
+  import type { NDKEvent, NDKFilter} from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-  import { kindLinks, outNostrLinksUrl } from "$lib/utils/constants";
+  import { kindLinks, oldKindLinks, outNostrLinksUrl } from "$lib/utils/constants";
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import { nip19 } from "nostr-tools";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
-  import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
   import SearchBar from "$lib/components/search-bar.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
-    import { onDestroy } from "svelte";
+  import { onDestroy } from "svelte";
+  import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
+  
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
   let isSubscribe: boolean = false;
-  let eventList: NDKEvent[] = [];
   let initialHashtagCount: number = 15;
   let showAllHashtags:boolean = false;
   let showSearchBar: boolean = false;
-  let retryCounter = 0;
+  let exploreResults: NDKEventStore<ExtendedBaseType<NDKEvent>>
+
   $: {
     ndkFilter = $page.params.hashtagvalue
-    ? { kinds: [kindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"]}
-    : { kinds: [kindLinks], "#l": ["nostree"]};
+    ? { kinds: [kindLinks, oldKindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 75 }
+    : { kinds: [kindLinks, oldKindLinks], "#l": ["nostree"], limit: 75 };
+    fetchEvents(ndkFilter)
   }
-async function fetchEvents(filter: NDKFilter) {
-  isSubscribe = true;
-  eventHashtags= [];
-  await $ndk
-        .fetchEvents(ndkFilter, {
-          closeOnEose: true,
-          cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-        })
-        .then((fetchedEvent) => {
-          eventList = Array.from(fetchedEvent);
-          if (eventList.length == 0) {
-            if (retryCounter <= 10) { 
-              retryCounter += 1;
-              setTimeout(fetchEvents, 150);
-            }
-          }
-          sortEventList(eventList);
-          eventList.forEach((event) => {
-            event.tags.forEach((tag) => {
-              if (tag[0] == "t" && !eventHashtags.includes(tag[1]) ) eventHashtags.push(tag[1]);
-            });
+  async function fetchEvents(filter: NDKFilter) {
+    try {
+      isSubscribe = true;
+      exploreResults = $ndk.storeSubscribe(filter, { closeOnEose: false, groupable: false})
+      if (exploreResults) {
+          exploreResults.onEose(() => {
+            isSubscribe = false;
           });
-        });
-        isSubscribe = false;
+        }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+$: {
+  eventHashtags = $exploreResults ? processHashtags($exploreResults) : [];
 }
+
 onDestroy(() => {
-  retryCounter = 10
+  exploreResults?.unsubscribe();
+  isSubscribe = false;
 })
 </script>
 <svelte:head>
@@ -65,14 +61,7 @@ onDestroy(() => {
   <meta property="og:title" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}/>
   <meta property="og:description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
 </svelte:head>
-{#key $page.url.href}
-{#await fetchEvents(ndkFilter)}
-  <div class="loading-global w-fit m-auto">
-    <PlaceHolderLoading layoutKind={"avatar"} />
-  </div>
-  <h2 class:hidden={!$page.params.hashtagvalue}> #{$page.params.hashtagvalue}</h2>
-  <PlaceHolderLoading colCount={5} />
-{:then value }
+
   <h1 class="inline-flex justify-center">
     <button type="button" on:click={() => goto('/explore')}>
       <ExploreIcon size={25} />
@@ -80,7 +69,6 @@ onDestroy(() => {
   </h1>
   <h3 class:hidden={!$page.params.hashtagvalue}>#{$page.params.hashtagvalue}</h3>  
   <div class="flex flex-col gap-2">
-    {#key isSubscribe}
     <div>
     {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag }
     <button on:click={() => goto(`/explore/${eventHashtag}`)}>
@@ -105,15 +93,15 @@ onDestroy(() => {
     <SearchBar searchKind={"hashtag"} />
     {/if}
   </div>
-    {/key}
   </div>
   <hr/>
-  {#each eventList as event}
+  {#each $exploreResults as event}
     <div class="common-container-content">
       <ProfileCardCompact userPub={event.author.npub} />
       <div>
         <h3>{event.tagValue("title")}</h3>
         <span class="text-sm" class:hidden={!event.tagValue("summary")}>{event.tagValue("summary")}</span>
+        <span class="text-sm" class:hidden={!event.tagValue("description")}>{event.tagValue("description")}</span>
 
         <div class="flex flex-col gap-2 pt-2">
         {#each findListTags(event.tags) as { url, text }}
@@ -169,8 +157,6 @@ onDestroy(() => {
     </div>
     <hr/>
   {/each}
-  {#if eventList.length == 0}
+  {#if $exploreResults.length == 0}
     <PlaceHolderLoading colCount={5} />
   {/if}  
-{/await}
-{/key}

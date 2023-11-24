@@ -18,7 +18,7 @@
     naddrEncodeATags,
   } from "$lib/utils/helpers";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-  import { kindLinks } from "$lib/utils/constants";
+  import { kindLinks, oldKindLinks } from "$lib/utils/constants";
   import { page } from "$app/stores";
   import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
   import { goto } from "$app/navigation";
@@ -34,13 +34,14 @@
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import { outNostrLinksUrl } from "../utils/constants";
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
-  import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+  import { getModalStore, getToastStore, type ModalSettings, type ToastSettings } from '@skeletonlabs/skeleton';
   import ClipboardButton from "./clipboard-button.svelte";
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
+  
   const modalStore = getModalStore();
-
-  let userPubDecoded: string = nip19.decode(userPub).data.toString();
+  const toastStore = getToastStore();
   let eventList: NDKEvent[] = [];
+  let oldEventList: NDKEvent[] = [];
   let showDialog: boolean = false;
   let showListsIndex: boolean = false;
   let showListsIndexSwitchTabs: boolean = false;
@@ -50,45 +51,74 @@
   let eventTitles: string[] = [];
   let eventHashtags: string[] = [];
   let retryCounter = 0;
+  let userNpub = nip19.npubEncode(userPub);
   const ndkFilter: NDKFilter = dValue
-    ? { kinds: [eventKind], authors: [userPubDecoded], "#d": [`${dValue}`] }
-    : { kinds: [eventKind], authors: [userPubDecoded], "#l": [`${listLabel}`] };
+    ? { kinds: [eventKind, oldKindLinks], authors: [userPub], "#d": [`${dValue}`] }
+    : { kinds: [eventKind, oldKindLinks], authors: [userPub], "#l": [`${listLabel}`] };
   
+  export const updateEventToast: ToastSettings = {
+	message: 'We are migrating to a new event kind, due a change in the nostr protocol. Please update your events.',
+  background: 'variant-filled-warning',
+  timeout: 5000,
+  hoverable: true,
+  classes: 'flex flex-col gap-2',
+	action: {
+		label: 'Update events',
+		response: () => crafUpdateModal()
+	}
+};
   async function fetchCurrentEvents() {
-    if (eventKind == kindLinks) {
-      $ndk
-        .fetchEvents(ndkFilter, {
+    oldEventList = []
+    if (eventKind == kindLinks || oldKindLinks) {
+      let fetchedEvent = await $ndk.fetchEvents(
+        ndkFilter, 
+        {
           closeOnEose: true,
           cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
         })
-        .then((fetchedEvent) => {
-          eventList = Array.from(fetchedEvent);
-          if (eventList.length == 0) {
-            if (retryCounter >= 10) {
-              linkListLength = undefined;
-            } else {
-              retryCounter += 1;
-              setTimeout(fetchCurrentEvents, 150);
-            }
-          } else {
-              linkListLength = eventList.length;
+      eventList = Array.from(fetchedEvent);
+      if (eventList.length == 0) {
+        if (retryCounter >= 5) {
+          linkListLength = undefined;
+        } else {
+          retryCounter += 1;
+          setTimeout(fetchCurrentEvents, 150);
+        }
+      } else {
+          linkListLength = eventList.length;
+      }
+      sortEventList(eventList);
+      for (const event of eventList) {
+        if (event.kind === oldKindLinks) {
+          oldEventList.push(event);
+        }
+
+        for (const tag of event.tags) {
+          if (tag[0] === "title") {
+            eventTitles.push(tag[1]);
           }
-          sortEventList(eventList);
-          eventList.forEach((event) => {
-            event.tags.forEach((tag) => {
-              if (tag[0] == "title") eventTitles.push(tag[1]);
-              if (tag[0] == "t" ) eventHashtags.push(tag[1]); 
-            });
-          });
-        });
+
+          if (tag[0] === "t") {
+            eventHashtags.push(tag[1]);
+          }
+        }
+      }
+      if (userPub == $ndkUser?.pubkey) {
+        oldEventList.length > 0 && (toastStore.trigger(updateEventToast));
+      }
+
     } else {
       const ndkFilter: NDKFilter = dValue
-        ? { kinds: [eventKind], authors: [userPubDecoded], "#d": [`${dValue}`], limit: 5 }
-        : { kinds: [eventKind], authors: [userPubDecoded], limit: 5 };
-      $ndk.fetchEvents(ndkFilter, { closeOnEose: true, groupable: true }).then((fetchedEvent) => {
+        ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`], limit: 5 }
+        : { kinds: [eventKind], authors: [userPub], limit: 5 };
+      let fetchedEvent = await $ndk.fetchEvents(
+        ndkFilter, 
+        { 
+          closeOnEose: true, 
+          groupable: true 
+        })
         eventList = Array.from(fetchedEvent);
         sortEventList(eventList);
-      });
     }
   }
 
@@ -105,6 +135,17 @@
     modalStore.trigger(modal);
   }
 
+  function crafUpdateModal() {
+    const modal: ModalSettings = {
+      type: 'component',
+      component: 'modalUpdateOldKind',
+      meta: {
+        noteContent: oldEventList
+      }
+    };
+    modalStore.trigger(modal);
+  }
+
   $: currentIndex = 0;
   function clampIndex(value: number, min: number, max: number) {
     return Math.min(Math.max(value, min), max);
@@ -116,14 +157,17 @@
       isEditHappens = !isEditHappens;
     }
   }
+
+  onMount(() => {
+      fetchCurrentEvents();
+  });
+
   onDestroy(() => {
-    retryCounter = 10;
+    retryCounter = 5;
+    isEditHappens = false;
   })
 </script>
-{#await fetchCurrentEvents()}
-<PlaceHolderLoading colCount={5} />
-{:then value}
-    {#if retryCounter <= 9 && eventList.length == 0}
+    {#if retryCounter <= 4 && eventList.length == 0}
     <PlaceHolderLoading colCount={5} />
     {/if}
     {#if eventList.length > 0}
@@ -156,6 +200,9 @@
           </div>
           <span class="text-sm" class:hidden={isEditMode || !eventList[currentIndex].tagValue("summary")}>
             {eventList[currentIndex].tagValue("summary")}
+          </span>
+          <span class="text-sm" class:hidden={isEditMode || !eventList[currentIndex].tagValue("description")}>
+            {eventList[currentIndex].tagValue("description")}
           </span>
           <div class:hidden={isEditMode || eventKind != kindLinks}>
             <button on:click={() => (showListsIndex = !showListsIndex)}>
@@ -200,13 +247,7 @@
                   {/if}
               {/if}
               <ClipboardButton buttonIcon="copy" contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`} />
-              <ClipboardButton buttonIcon="id" contentToCopy={`${$page.url.origin}/a/${buildEventPointer(
-                undefined,
-                [],
-                userPubDecoded,
-                eventList[currentIndex].kind,
-                eventList[currentIndex].tagValue("d")
-              )}`}/>
+              <ClipboardButton buttonIcon="id" contentToCopy={`${$page.url.origin}/a/${buildEventPointer(eventList[currentIndex])}`}/>
               <button
               class="common-btn-sm-ghost gap-1"
               on:click={() => craftModal(eventList[currentIndex].tagValue("title"),`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}
@@ -242,6 +283,9 @@
           {#if !isEditMode}
           <div class="flex flex-col gap-2">
             {#if eventList.length > 1}
+            <!-- {#each eventList as event }
+              {event.kind},
+            {/each} -->
                 {#each findListTags(eventList[currentIndex].tags) as { url, text }}
                   {#if url.startsWith("nostr:")}
                     <a
@@ -277,7 +321,7 @@
         </div>
         <div class="inline-flex justify-center">
           {#each findOtherTags(eventList[currentIndex].tags, "l") as label}
-            {#if label !== "nostree" && !label.startsWith(userPub.slice(-3))}
+            {#if label !== "nostree" && !label.startsWith(userNpub.slice(-3)) && label.trim() !== ""}
               <button
                 class="common-btn-sm-ghost"
                 on:click={() => goto(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}
@@ -312,4 +356,3 @@
         </div>
 
         {/if}
-{/await}

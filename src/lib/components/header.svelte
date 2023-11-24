@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ndk from "$lib/stores/provider";
 	import Logo from "$lib/elements/icons/logo.svelte";
 	import { goto } from "$app/navigation";
 	import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
@@ -19,13 +20,6 @@
 	const modalStore = getModalStore();
 	const drawerStore = getDrawerStore();
 
-	function triggerSearch(): void {
-	const modal: ModalSettings = {
-		type: 'component',
-		component: 'modalSearch',
-	}
-	modalStore.trigger(modal);
-	}
 	let isOsMac = false;
 	if (browser) {
 		let os = navigator.userAgent;
@@ -35,7 +29,10 @@
 	function onWindowKeydown(e: KeyboardEvent): void {
 		if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
 			e.preventDefault();
-			$modalStore.length ? modalStore.close() : triggerSearch();
+			$modalStore.length ? modalStore.close() : modalStore.trigger({ type: 'component', component: 'modalSearch'});
+		} else if ((e.metaKey || e.ctrlKey) && e.altKey && e.key === 'r') {
+			e.preventDefault();
+			$modalStore.length ? modalStore.close() : modalStore.trigger({ type: 'component', component: 'modalRelayList'});
 		}
 	}
 
@@ -72,7 +69,7 @@
 		<div class="card p-4 w-60 shadow-xl" data-popup="theme">
 			<ThemeButton />
 		</div>
-		<button class="common-btn-sm-ghost" on:click={triggerSearch}>
+		<button class="common-btn-sm-ghost" on:click={() =>modalStore.trigger({ type: 'component', component: 'modalSearch'})}>
 			<span><SearchIcon size={18} /></span>
 			<span class="hidden sm2:inline-block">Search</span>
 			<small class="hidden sm2:inline-block sm2:badge sm2:variant-glass opacity-50">{isOsMac ? '⌘' : 'Ctrl'}+K</small>

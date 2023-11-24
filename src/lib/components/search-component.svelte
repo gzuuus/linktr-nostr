@@ -1,43 +1,58 @@
 <script lang="ts">
-  export let searchQuery:string
+  export let searchQuery: string;
   import ndk from "$lib/stores/provider";
-  import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+  import { NDKRelaySet, type NDKEvent, type NDKFilter, NDKRelay } from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
-  import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-  import PlaceHolderLoading from "./placeHolderLoading.svelte";
+  import { onDestroy } from "svelte";
+  import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
 
+  let searchResults: NDKEventStore<ExtendedBaseType<NDKEvent>> | undefined;
   let eventList: NDKEvent[] = [];
-  let ndkFilter: NDKFilter;
-  
-  $: {
-    ndkFilter = { kinds: [0], search: searchQuery}
+  let isSubscribed: boolean = false;
+  const searchRelays: NDKRelaySet = new NDKRelaySet(new Set(), $ndk);
+  searchRelays.addRelay(new NDKRelay("wss://relay.nostr.band"));
+  searchRelays.addRelay(new NDKRelay("wss://search.nos.today"));
+  searchRelays.addRelay(new NDKRelay("wss://nos.lol"));
+
+  async function searchEvents() {
+    try {
+      const ndkFilter: NDKFilter = { kinds: [0], search: searchQuery, limit: 50 };
+      searchResults = $ndk.storeSubscribe(ndkFilter, {closeOnEose: true, relaySet: searchRelays });
+      eventList = [];
+      isSubscribed = true;
+
+      if (searchResults) {
+        searchResults.onEose(() => {
+          isSubscribed = false;
+        });
+      }
+    } catch (error) {
+      console.error("Error during search:", error);
+    }
   }
 
-  async function searchEvents(filter: NDKFilter) {
-  eventList = [];
+  $: if (searchQuery) {
+    searchEvents();
+  }
 
-  await $ndk
-    .fetchEvents(ndkFilter, {
-      closeOnEose: true,
-      groupable: true,
-      cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-    })
-    .then((fetchedEvent) => {
-      eventList = Array.from(fetchedEvent).filter((event) => {
-        const contentString = JSON.stringify(event.content).toLowerCase();
-        return contentString.includes(searchQuery.toLowerCase().trim());
-      });
-    });
-}
+  $: {
+    if ($searchResults) {
+      eventList = $searchResults
+        .filter(event =>
+          JSON.stringify(event.content)
+            .toLocaleLowerCase()
+            .includes(searchQuery.toLowerCase().trim())
+        );
+    }
+  }
 
+  onDestroy(() => {
+    if (searchResults) searchResults.unsubscribe();
+    isSubscribed = false;
+  });
 </script>
-{#await searchEvents(ndkFilter)}
-<div class="m-auto w-fit">
-  <PlaceHolderLoading layoutKind={"avatar"} />
-</div>
-{:then value } 
 <div>
-  {#if eventList.length == 0}
+  {#if eventList.length == 0 && isSubscribed == false}
   <h2>No matching profiles</h2>
   {:else}
   <div class="flex flex-col gap-4">
@@ -50,4 +65,3 @@
   </div>
   {/if}
 </div>
-{/await}

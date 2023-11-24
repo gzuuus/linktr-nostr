@@ -4,18 +4,18 @@
   import CreateNewList from "$lib/components/create-new-list.svelte";
   import { ndkUser } from "$lib/stores/user";
   import { nip19 } from "nostr-tools";
-  import { findHashTags, findListTags, findOtherTags, sortEventList } from "$lib/utils/helpers";
+  import { NDKlogin, findHashTags, findListTags, findOtherTags, sortEventList } from "$lib/utils/helpers";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
   import PinIcon from "$lib/elements/icons/pin-icon.svelte";
   import Login from "$lib/components/login.svelte";
-  import { errorPublishToast, kindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
+  import { errorPublishToast, kindLinks, oldKindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-  import { Accordion, AccordionItem, getModalStore, getToastStore } from "@skeletonlabs/skeleton";
+  import { Accordion, AccordionItem, getModalStore, getToastStore, popup } from "@skeletonlabs/skeleton";
   import CreateNewListWidget from "$lib/components/create-new-list-widget.svelte";
-
+  
   const toastStore = getToastStore();
   const modalStore = getModalStore();
   let events: NDKEvent[] = [];
@@ -31,40 +31,38 @@
     }
   }
 
-  function showEvents() {
+  async function showEvents() {
     if ($ndkUser) {
       let userPubDecoded: string = nip19.decode($ndkUser.npub).data.toString();
-      $ndk
-        .fetchEvents({
-          kinds: [kindLinks],
+      let fetchedEvent = await $ndk.fetchEvents({
+          kinds: [kindLinks, oldKindLinks],
           authors: [userPubDecoded],
           "#l": ["nostree"],
         })
-        .then((fetchedEvent) => {
           events = Array.from(fetchedEvent);
           fetchedEvents = true;
           sortEventList(events);
-        });
     }
   }
 
-  function handleSubmit(eventToPublish: NDKEvent, toDelete: boolean = false) {
+  async function handleSubmit(eventToPublish: NDKEvent, toDelete: boolean = false) {
     modalStore.trigger({ type: 'component', component: 'modalLoading'});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
-    let title = eventToPublish.tagValue("title");
-    let summary = eventToPublish.tagValue("summary");
+    const title = eventToPublish.tagValue("title");
+    const description = eventToPublish.tagValue("summary") ? eventToPublish.tagValue("summary") :  eventToPublish.tagValue("description");
+    const nameSpace = eventToPublish.tagValue("L");
     ndkEvent.tags = [
       ["title", title!],
-      summary ? ["summary", summary] : ["summary", ""],
+      description ? ["description", description] : ["description", ""],
       ["d", eventToPublish.tagValue("d")!],
+      ["L", nameSpace ? nameSpace : "me.nostree.ontology"],
     ];
     let links;
     let labels;
     let hashtags;
     if (toDelete) {
       ndkEvent.kind = eventToPublish.kind;
-      title = "";
       ndkEvent.tags = [["d", eventToPublish.tagValue("d")!]];
     }
     if (!toDelete) {
@@ -93,25 +91,29 @@
         }
       }
     }
-    ndkEvent
-      .publish()
-      .then(() => {
-        events = [];
-        fetchedEvents = false;
-        modalStore.clear();
-        if (toDelete) {
-          deletedEventsIds.push(eventToPublish.tagValue("d")!);
-          toastStore.trigger(succesDeletingToast);
-        } else {
-          toastStore.trigger(succesPublishToast);
-        }
-          showEvents();
-      })
-      .catch((error) => {
-        modalStore.clear();
-        toastStore.trigger(errorPublishToast);
-        console.log("Error:", error);
-      });
+    !$ndk.signer && await NDKlogin();
+    try {
+      await ndkEvent.publish()
+      toDelete && await ndkEvent.delete()
+      if (eventToPublish.kind != ndkEvent.kind){
+        await eventToPublish.delete()
+        deletedEventsIds.push(eventToPublish.tagValue("d")!);
+      }
+      events = [];
+      fetchedEvents = false;
+      modalStore.clear();
+      if (toDelete) {
+        deletedEventsIds.push(eventToPublish.tagValue("d")!);
+        toastStore.trigger(succesDeletingToast);
+      } else {
+        toastStore.trigger(succesPublishToast);
+      }
+        showEvents();
+    } catch (e) {
+      modalStore.clear();
+      toastStore.trigger(errorPublishToast);
+      console.log("Error:", e);
+    }
   }
 </script>
 <svelte:head>
@@ -166,7 +168,7 @@
                   {/if}
                   <button
                     class="common-btn-icon-ghost"
-                    class:firstEvent={i == 0}
+                    class:!variant-filled={i == 0}
                     on:click={() => {
                       handleSubmit(event);
                     }}><PinIcon size={20} /></button
@@ -177,6 +179,21 @@
                       handleSubmit(event, true);
                     }}><BinIcon size={20} /></button
                   >
+                  {#if event.kind == oldKindLinks}
+                    <span 
+                    use:popup={{ event: 'hover', target: 'popupOldKind', placement: 'top' }}
+                    >🔺
+                  </span>
+                  <div class="card p-4 variant-filled" data-popup="popupOldKind">
+                    <p>List in old format, please update it, press </p>
+                    <button
+                    class="common-btn-icon-ghost"
+                    >
+                    <PinIcon size={20} />
+                    </button>
+                    <div class="arrow variant-filled" />
+                  </div>
+                  {/if}
                 </div>
                 <div class:hidden={isEditMode && editIndex == i}>
                   <h3>{event.tagValue("title")}</h3>

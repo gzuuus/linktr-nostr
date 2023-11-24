@@ -6,15 +6,17 @@
     import Login from '../login.svelte';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
+    import { debounce } from 'debounce';
+    import { NDKlogin } from '$lib/utils/helpers';
 
 	export let parent: any;
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
-
 	const formData = {
 		eventContent: $modalStore[0].meta.noteContent
 	};
-	function onFormSubmit(): void {
+	async function onFormSubmit(): Promise<void> {
+		!$ndk.signer && await NDKlogin();
 		modalStore.close();
 		modalStore.trigger({ type: 'component', component: 'modalLoading'});
 		const ndkEvent = new NDKEvent($ndk);
@@ -41,7 +43,7 @@
 {#if $modalStore[0]}
 	<div class="common-modal-base">
 		<header class="common-2xl-header">Share: {$modalStore[0].title ?? '(title missing)'}</header>
-		<form on:submit|preventDefault={onFormSubmit} class="border border-surface-500 p-6 space-y-4 rounded-container-token">
+		<form on:submit|preventDefault={debounce(onFormSubmit, 200)} class="border border-surface-500 p-6 space-y-4 rounded-container-token">
 			<label class="label break-words">
 				<span>{$modalStore[0].body ?? '(body missing)'}</span>
 				<textarea class="textarea" rows="4" bind:value={formData.eventContent} placeholder="Enter some text..." />

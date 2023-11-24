@@ -15,7 +15,7 @@
     let themesCarrousel: HTMLDivElement;
 
     async function fetchCssAsset() {
-    let ndkFilter: NDKFilter = {authors: [$ndkUser!.hexpubkey()], kinds: [kindCSSReplaceableAsset as NDKKind], "#L": ["nostree-theme"]}
+    let ndkFilter: NDKFilter = {authors: [$ndkUser!.pubkey], kinds: [kindCSSReplaceableAsset as NDKKind], "#L": ["nostree-theme"]}
     await $ndk
       .fetchEvents(ndkFilter, {
         closeOnEose: true,

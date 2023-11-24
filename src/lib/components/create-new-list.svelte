@@ -9,12 +9,12 @@
   import LinkIcon from "$lib/elements/icons/link-icon.svelte";
   import TextIcon from "$lib/elements/icons/text-icon.svelte";
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
-  import { buildATags, findHashTags, findListTags, findOtherTags } from "$lib/utils/helpers";
+  import { NDKlogin, buildATags, findHashTags, findListTags, findOtherTags } from "$lib/utils/helpers";
   import { v4 as uuidv4 } from "uuid";
   import InfoIcon from "$lib/elements/icons/info-icon.svelte";
   import { goto } from "$app/navigation";
   import { ndkUser } from "$lib/stores/user";
-  import { kindLinks } from "$lib/utils/constants";
+  import { kindLinks, specialCharsRegex } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
   import SlugIcon from "$lib/elements/icons/slug-icon.svelte";
   import { nip19 } from "nostr-tools";
@@ -25,6 +25,7 @@
 	import { getToastStore, Accordion, AccordionItem, focusTrap, InputChip, getModalStore, popup } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
+  import { debounce } from "debounce";
 
   const validPrefixes: string[] = [
     "http://",
@@ -49,9 +50,10 @@
   if (listTemplate != "blank") {
     formData = {
       title: listTemplate,
-      summary: `A list about ${listTemplate}`,
+      description: `A list about ${listTemplate}`,
       links: [{ link: "", description: "" }],
       labels: [{label: listTemplate }],
+      nameSpace: "me.nostree.ontology",
       forkData: { forkPubKey: "", forkEventoPointer: "" },
       hashtags: [`${listTemplate}`],
     };
@@ -59,10 +61,11 @@
 
   if (eventToEdit) {
     let title = eventToEdit.tagValue("title");
-    let summary = eventToEdit.tagValue("summary");
+    let description = eventToEdit.tagValue("summary") ? eventToEdit.tagValue("summary") : eventToEdit.tagValue("description");
     const rTags = findListTags(eventToEdit.tags);
     const links = rTags.map((tag) => ({ link: tag.url, description: tag.text }));
     const labels = findOtherTags(eventToEdit.tags, "l").map((tag) => ({ label: tag }));
+    const nameSpace = eventToEdit.tagValue("L")
     const tTags = findHashTags(eventToEdit.tags);
     const hashtags = tTags.map((tag) => tag.text);
     const forkedFrom = eventToEdit.tagValue("p");
@@ -70,19 +73,18 @@
     const ForkData = {
       forkedPubkey: forkedFrom,
       forkedEventoPointer: buildATags(
-        undefined,
-        [],
-        eventToEdit.author.hexpubkey(),
-        eventToEdit.kind,
-        eventToEdit.tagValue("d")
-      )![0],
+        eventToEdit.author.pubkey,
+        eventToEdit.kind!,
+        eventToEdit.tagValue("d")!
+      ),
     };
 
     formData = {
       title: title!,
-      summary: summary ? summary : "",
+      description: description ? description : "",
       links: links,
       labels: labels,
+      nameSpace: nameSpace ? nameSpace : "me.nostree.ontology",
       forkData: {
         forkPubKey: ForkData.forkedPubkey!,
         forkEventoPointer: ForkData.forkedEventoPointer,
@@ -123,20 +125,18 @@
     linkNameValidationStatus.length > 0 &&
     linkNameValidationStatus.every((status) => status);
 
-  function handleSubmit() {
+  async function handleSubmit() {
+    !$ndk.signer && await NDKlogin();
     modalStore.trigger({ type: 'component', component: 'modalLoading',});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
     if (eventToEdit) {
       ndkEvent.tags = [
         ["title", formData.title],
-        ["summary", formData.summary],
+        ["description", formData.description],
         ["d", eventToEdit.tagValue("d")!],
+        ["L", formData.nameSpace],
       ];
-      for (const labelData of formData.labels) {
-        const { label } = labelData;
-        ndkEvent.tags.push(["l", encodeURIComponent(label.trim().toLowerCase())]);
-      }
 
       if (formData.forkData && eventToEdit.author.npub == $ndkUser?.npub) {
         if (eventToEdit.tagValue("p") != null && eventToEdit.tagValue("a") != null) {
@@ -148,14 +148,20 @@
         ndkEvent.tags.push(["p", nip19.decode(eventToEdit.author.npub).data.toString()]);
         ndkEvent.tags.push([
           "a",
-          buildATags(undefined, [], eventToEdit.author.hexpubkey(), eventToEdit.kind, eventToEdit.tagValue("d"))![0],
+          buildATags(eventToEdit.author.pubkey, eventToEdit.kind!, eventToEdit.tagValue("d")!),
         ]);
       }
+      for (const labelData of formData.labels) {
+        const { label } = labelData;
+        ndkEvent.tags.push(["l", label.trim().replace(specialCharsRegex, '-').toLowerCase()]);
+      }
+
     } else {
       ndkEvent.tags = [
         ["title", formData.title],
-        ["summary", formData.summary],
+        ["description", formData.description],
         ["d", newDTag],
+        ["L", "me.nostree.ontology"],
         ["l", "nostree"],
         ["l", formData.labels[0].label.trim() ? formData.labels[0].label.toLowerCase().trim() : generateNanoId($ndkUser?.npub)],
       ];
@@ -230,15 +236,15 @@
   $: isFormValid = areAllLinksValid && formData.title.trim() != ""
 </script>
   <h2>{titleText}</h2>
-  <form use:focusTrap={true} on:submit|preventDefault={handleSubmit}>
+  <form use:focusTrap={true} on:submit|preventDefault={debounce(handleSubmit, 200)}>
     <div class=" flex flex-col gap-2 text-start">
       <label class="label" for="title">
         <span>Title</span>
         <input class="input" type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
       </label>
-      <label class="label" for="summary">
+      <label class="label" for="description">
         Description
-        <input class="input" type="text" id="summary" placeholder="Brief description of your list" bind:value={formData.summary} maxlength="120"/>
+        <input class="input" type="text" id="description" placeholder="Brief description of your list" bind:value={formData.description} maxlength="120"/>
       </label>
       <label class="label" for="links">
         Links

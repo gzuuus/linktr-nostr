@@ -2,19 +2,19 @@
   import { page } from "$app/stores";
   import ProfileCard from "$lib/components/profile-card.svelte";
   import EventCard from "$lib/components/event-card.svelte";
-  import { kindLinks, kindArticles, outNostrLinksUrl } from "$lib/utils/constants";
+  import { kindLinks, kindArticles, outNostrLinksUrl, oldKindLinks } from "$lib/utils/constants";
   import { nip19 } from "nostr-tools";
-    import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
   let naddrPointer: any;
-  let decPubkey: string;
-  let decEventKind: number;
-  let decIdentifier: string;
+  let Pubkey: string;
+  let EventKind: number;
+  let Identifier: string;
   let userProfile: NDKUserProfile;
   $: {
     naddrPointer = nip19.decode($page.params.naddrlink);
-    decPubkey = nip19.npubEncode(naddrPointer.data.pubkey);
-    decEventKind = naddrPointer.data.kind;
-    decIdentifier = naddrPointer.data.identifier;
+    Pubkey = naddrPointer.data.pubkey;
+    EventKind = naddrPointer.data.kind;
+    Identifier = naddrPointer.data.identifier;
   }
 </script>
 <svelte:head>
@@ -27,15 +27,15 @@
 </svelte:head>
 
   {#key naddrPointer}
-    <ProfileCard userPub={decPubkey} bind:userProfile />
+    <ProfileCard userPub={Pubkey} bind:userProfile />
     <div>
-      {#if decEventKind == kindLinks}
-        <EventCard userPub={decPubkey} eventKind={decEventKind} dValue={decIdentifier} />
-      {:else if decEventKind == kindArticles}
-        <EventCard userPub={decPubkey} eventKind={decEventKind} dValue={decIdentifier} />
+      {#if EventKind == kindLinks || oldKindLinks}
+        <EventCard userPub={Pubkey} eventKind={EventKind} dValue={Identifier} />
+      {:else if EventKind == kindArticles}
+        <EventCard userPub={Pubkey} eventKind={EventKind} dValue={Identifier} />
       {/if}
     </div>
-    {#if decEventKind == kindArticles}
+    {#if EventKind == kindArticles}
       <a class="common-btn-filled" href={`${outNostrLinksUrl}/${$page.params.naddrlink}`} target="_blank" rel="noreferrer noopener">Read article</a>
     {/if}
   {/key}

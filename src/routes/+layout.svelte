@@ -13,9 +13,13 @@
   import Drawers from "$lib/components/drawers.svelte";
   import NoExtensionModal from "$lib/components/modals/no-extension-modal.svelte";
   import LoadingBackdropModal from "$lib/components/modals/loading-backdrop-modal.svelte";
+  import RelayListModal from "$lib/components/modals/relay-list-modal.svelte";
   import CreateNewListWidget from "$lib/components/create-new-list-widget.svelte";
   import { storePreview, storeTheme } from "$lib/stores/stores";
   import { browser } from "$app/environment";
+  import { localStore } from "$lib/stores/stores";
+  import { ndkUser, userCustomTheme } from "$lib/stores/user";
+  import UpdateOldKindModal from "$lib/components/modals/update-old-kind-modal.svelte";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -25,16 +29,31 @@
   modalNoNip07: { ref: NoExtensionModal},
   modalLoading: { ref: LoadingBackdropModal},
   modalCreateList: { ref: CreateNewListWidget},
+  modalRelayList: { ref: RelayListModal},
+  modalUpdateOldKind: { ref: UpdateOldKindModal}
 };
-  
 	storePreview.subscribe(setBodyThemeAttribute);
 	storeTheme.subscribe(setBodyThemeAttribute);
 	function setBodyThemeAttribute(): void {
 		if (!browser) return;
 		document.body.setAttribute('data-theme', $storePreview ? 'customTheme' : $storeTheme);
 	}
-
+    if (browser && $localStore.lastUserLogged){
+      let user = $ndk.getUser({
+        npub: $localStore.lastUserLogged,
+      });
+      ndkUser.set(user);
+    if ($localStore.lastUserTheme) {
+      storeTheme.set($localStore.lastUserTheme);
+      userCustomTheme.set({
+				UserTheme: $localStore.lastUserTheme,
+				themeIdentifier: undefined,
+				themeCustomCss: undefined,
+			});
+    } 
+    }
   onMount(async () => {
+
     try {
       $ndk.connect().then(() => console.log("ndk connected successfully"));
     } catch (error) {

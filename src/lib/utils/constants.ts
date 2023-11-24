@@ -1,11 +1,11 @@
+import type { NDKKind } from "@nostr-dev-kit/ndk";
 import type { ToastSettings } from "@skeletonlabs/skeleton";
-
-export const ogImageUrl =
-  "/og-banner.jpg";
-export const ogLogoImg =
-  "/og-logo.png";
-export const kindLinks = 30001;
+export const ogImageUrl = "/og-banner.jpg";
+export const ogLogoImg = "/og-logo.png";
 export const kindNotes = 1;
+export const kindDelete = 5;
+export const kindLinks = 30003 as NDKKind;
+export const oldKindLinks = 30001;
 export const kindArticles = 30023;
 export const kindCSSReplaceableAsset = 35393;
 export const kindCSSAsset = 5393;
@@ -13,6 +13,7 @@ export const toastTimeOut = 3500;
 export const outNostrLinksUrl = "https://njump.me";
 export const CORSproxyUrl = "https://corsproxy.io/?";
 export const defaulTheme = "nostree-theme";
+export const specialCharsRegex = /[^a-zA-Z0-9-]+/g;
 
 export const succesPublishToast: ToastSettings = {
   message: "Published successfully!",

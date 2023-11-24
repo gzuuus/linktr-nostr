@@ -6,18 +6,18 @@ export async function load({ params }: any) {
   const segments = params.userPub.split("/");
   const userPub: string | undefined = segments.shift();
   if (userPub?.startsWith("npub")) {
-    return { npub: userPub, segments };
+    return { pubkey: nip19.decode(userPub).data, segments };
   } else if (userPub?.startsWith("nprofile")) {
     const decodedData = nip19.decode(userPub).data;
     if (typeof decodedData === "object" && "pubkey" in decodedData) {
-      return { npub: nip19.npubEncode(decodedData.pubkey), segments };
+      return { pubkey: decodedData.pubkey, segments };
     }
   } else if (typeof userPub === "string" && !isNip05(userPub)) {
     const vanityNip05Build = `${userPub}@nostree.me`;
     try {
       const user = await NDKUser.fromNip05(vanityNip05Build);
       return {
-        npub: user?.npub,
+        pubkey: user?.pubkey,
         segments,
         vanityNip05Build,
       };
@@ -28,7 +28,7 @@ export async function load({ params }: any) {
   const user = await NDKUser.fromNip05(userPub!);
 
   return {
-    npub: user?.npub,
+    pubkey: user?.pubkey,
     segments,
   };
 }
