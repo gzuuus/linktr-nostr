@@ -30,12 +30,14 @@
 		for (const event of eventList) {
 			const ndkEvent = new NDKEvent($ndk);
 			ndkEvent.kind = kindLinks;
-			let title = event.tagValue("title");
-			let summary = event.tagValue("summary");
+			const title = event.tagValue("title");
+			const summary = event.tagValue("summary");
+			const nameSpace = event.tagValue("L");
 			ndkEvent.tags = [
 			["title", title!],
 			summary ? ["description", summary] : ["description", ""],
 			["d", event.tagValue("d")!],
+			["L", nameSpace ? nameSpace : "me.nostree.ontology"],
 			];
 			let links;
 			let labels;

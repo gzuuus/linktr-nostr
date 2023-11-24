@@ -53,6 +53,7 @@
       description: `A list about ${listTemplate}`,
       links: [{ link: "", description: "" }],
       labels: [{label: listTemplate }],
+      nameSpace: "me.nostree.ontology",
       forkData: { forkPubKey: "", forkEventoPointer: "" },
       hashtags: [`${listTemplate}`],
     };
@@ -64,6 +65,7 @@
     const rTags = findListTags(eventToEdit.tags);
     const links = rTags.map((tag) => ({ link: tag.url, description: tag.text }));
     const labels = findOtherTags(eventToEdit.tags, "l").map((tag) => ({ label: tag }));
+    const nameSpace = eventToEdit.tagValue("L")
     const tTags = findHashTags(eventToEdit.tags);
     const hashtags = tTags.map((tag) => tag.text);
     const forkedFrom = eventToEdit.tagValue("p");
@@ -82,6 +84,7 @@
       description: description ? description : "",
       links: links,
       labels: labels,
+      nameSpace: nameSpace ? nameSpace : "me.nostree.ontology",
       forkData: {
         forkPubKey: ForkData.forkedPubkey!,
         forkEventoPointer: ForkData.forkedEventoPointer,
@@ -132,11 +135,8 @@
         ["title", formData.title],
         ["description", formData.description],
         ["d", eventToEdit.tagValue("d")!],
+        ["L", formData.nameSpace],
       ];
-      for (const labelData of formData.labels) {
-        const { label } = labelData;
-        ndkEvent.tags.push(["l", label.trim().replace(specialCharsRegex, '-').toLowerCase()]);
-      }
 
       if (formData.forkData && eventToEdit.author.npub == $ndkUser?.npub) {
         if (eventToEdit.tagValue("p") != null && eventToEdit.tagValue("a") != null) {
@@ -151,11 +151,17 @@
           buildATags(eventToEdit.author.pubkey, eventToEdit.kind!, eventToEdit.tagValue("d")!),
         ]);
       }
+      for (const labelData of formData.labels) {
+        const { label } = labelData;
+        ndkEvent.tags.push(["l", label.trim().replace(specialCharsRegex, '-').toLowerCase()]);
+      }
+
     } else {
       ndkEvent.tags = [
         ["title", formData.title],
         ["description", formData.description],
         ["d", newDTag],
+        ["L", "me.nostree.ontology"],
         ["l", "nostree"],
         ["l", formData.labels[0].label.trim() ? formData.labels[0].label.toLowerCase().trim() : generateNanoId($ndkUser?.npub)],
       ];

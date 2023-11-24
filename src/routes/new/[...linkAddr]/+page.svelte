@@ -49,19 +49,20 @@
     modalStore.trigger({ type: 'component', component: 'modalLoading'});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
-    let title = eventToPublish.tagValue("title");
-    let description = eventToPublish.tagValue("summary") ? eventToPublish.tagValue("summary") :  eventToPublish.tagValue("description");
+    const title = eventToPublish.tagValue("title");
+    const description = eventToPublish.tagValue("summary") ? eventToPublish.tagValue("summary") :  eventToPublish.tagValue("description");
+    const nameSpace = eventToPublish.tagValue("L");
     ndkEvent.tags = [
       ["title", title!],
       description ? ["description", description] : ["description", ""],
       ["d", eventToPublish.tagValue("d")!],
+      ["L", nameSpace ? nameSpace : "me.nostree.ontology"],
     ];
     let links;
     let labels;
     let hashtags;
     if (toDelete) {
       ndkEvent.kind = eventToPublish.kind;
-      title = "";
       ndkEvent.tags = [["d", eventToPublish.tagValue("d")!]];
     }
     if (!toDelete) {
