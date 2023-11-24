@@ -404,3 +404,19 @@ export async function NDKlogin(): Promise<NDKUser | undefined> {
     return undefined;
   }
 }
+
+export function processHashtags(events: NDKEvent[]): string[] {
+  const newHashtagsSet = new Set<string>();
+
+  events.forEach((event) => {
+    const newHashtags = event.tags.flatMap((tag: string[]) =>
+      tag[0] === "t" && !newHashtagsSet.has(tag[1]) ? [tag[1]] : []
+    );
+
+    if (newHashtags.length > 0) {
+      newHashtags.forEach((tag) => newHashtagsSet.add(tag));
+    }
+  });
+
+  return [...newHashtagsSet];
+}

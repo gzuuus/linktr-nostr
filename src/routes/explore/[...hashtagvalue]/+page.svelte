@@ -1,7 +1,7 @@
 <script lang="ts">
   import ndk from "$lib/stores/provider";
-  import { unixToDate, findListTags, sortEventList, findOtherTags, naddrEncodeATags } from "$lib/utils/helpers";
-  import type { NDKEvent, NDKFilter, NDKSubscription } from "@nostr-dev-kit/ndk";
+  import { unixToDate, findListTags, findOtherTags, naddrEncodeATags, processHashtags } from "$lib/utils/helpers";
+  import type { NDKEvent, NDKFilter} from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
   import { kindLinks, oldKindLinks, outNostrLinksUrl } from "$lib/utils/constants";
@@ -15,48 +15,44 @@
   import SearchBar from "$lib/components/search-bar.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
   import { onDestroy } from "svelte";
+  import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
+  
   let showForkInfo: boolean = false;
   let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
   let isSubscribe: boolean = false;
-  let eventList: NDKEvent[] = [];
   let initialHashtagCount: number = 15;
   let showAllHashtags:boolean = false;
   let showSearchBar: boolean = false;
-  let sub: NDKSubscription;
+  let exploreResults: NDKEventStore<ExtendedBaseType<NDKEvent>>
 
   $: {
     ndkFilter = $page.params.hashtagvalue
     ? { kinds: [kindLinks, oldKindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 75 }
     : { kinds: [kindLinks, oldKindLinks], "#l": ["nostree"], limit: 75 };
+    fetchEvents(ndkFilter)
   }
   async function fetchEvents(filter: NDKFilter) {
-    eventList = [];
-    isSubscribe = true;
-    sub = $ndk.subscribe(filter, { closeOnEose: false, groupable: false})
-    sub.on("event", (event) => {
-      eventList = [...eventList, event];
-      const newHashtags = event.tags
-        .filter((tag: string[]) => tag[0] === "t" && !eventHashtags.includes(tag[1]))
-        .map((tag: string[]) => tag[1]);
-
-      if (newHashtags.length > 0) {
-        eventHashtags = [...eventHashtags, ...newHashtags];
-      }
-      sortEventList(eventList);
-    })
-    sub.on("eose", () => {
-      isSubscribe = false;
-      sub.stop();
-    })
-    sub.on("notice", (notice) => {
-      console.log(notice);
-    })
+    try {
+      isSubscribe = true;
+      exploreResults = $ndk.storeSubscribe(filter, { closeOnEose: false, groupable: false})
+      if (exploreResults) {
+          exploreResults.onEose(() => {
+            isSubscribe = false;
+          });
+        }
+    } catch (error) {
+      console.error(error);
+    }
   }
+
+$: {
+  eventHashtags = $exploreResults ? processHashtags($exploreResults) : [];
+}
+
 onDestroy(() => {
-  sub.stop();
+  exploreResults?.unsubscribe();
   isSubscribe = false;
-  eventList = [];
 })
 </script>
 <svelte:head>
@@ -65,14 +61,7 @@ onDestroy(() => {
   <meta property="og:title" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}/>
   <meta property="og:description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
 </svelte:head>
-{#key $page.url.href}
-{#await fetchEvents(ndkFilter)}
-  <div class="loading-global w-fit m-auto">
-    <PlaceHolderLoading layoutKind={"avatar"} />
-  </div>
-  <h2 class:hidden={!$page.params.hashtagvalue}> #{$page.params.hashtagvalue}</h2>
-  <PlaceHolderLoading colCount={5} />
-{:then value }
+
   <h1 class="inline-flex justify-center">
     <button type="button" on:click={() => goto('/explore')}>
       <ExploreIcon size={25} />
@@ -80,7 +69,6 @@ onDestroy(() => {
   </h1>
   <h3 class:hidden={!$page.params.hashtagvalue}>#{$page.params.hashtagvalue}</h3>  
   <div class="flex flex-col gap-2">
-
     <div>
     {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag }
     <button on:click={() => goto(`/explore/${eventHashtag}`)}>
@@ -107,7 +95,7 @@ onDestroy(() => {
   </div>
   </div>
   <hr/>
-  {#each eventList as event}
+  {#each $exploreResults as event}
     <div class="common-container-content">
       <ProfileCardCompact userPub={event.author.npub} />
       <div>
@@ -169,8 +157,6 @@ onDestroy(() => {
     </div>
     <hr/>
   {/each}
-  {#if eventList.length == 0}
+  {#if $exploreResults.length == 0}
     <PlaceHolderLoading colCount={5} />
   {/if}  
-{/await}
-{/key}

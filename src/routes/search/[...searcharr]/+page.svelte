@@ -25,9 +25,7 @@
 <div>
   <SearchBar bind:searchKind={searchKind} isAdvancedSearch={true} />
 </div>
-{#key $page.params.searcharr}
   {#if $page.params.searcharr}
     <h2>Searching: {$page.params.searcharr}</h2>
     <SearchComponent searchQuery={$page.params.searcharr} />
   {/if}
-{/key}
