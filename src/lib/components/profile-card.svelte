@@ -31,7 +31,7 @@
     try {
       const user = await fetchUserProfile(userPub);
       userProfile = user;
-      isNip05Valid(user?.nip05, user?.npub);
+      isNip05Valid(user?.nip05, user?.npub ? user.npub : userPub);
       await fetchCssAsset(userPub);
     } catch (error) {
       console.error(error);

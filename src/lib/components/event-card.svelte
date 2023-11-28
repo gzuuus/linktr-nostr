@@ -69,6 +69,7 @@
 };
   async function fetchCurrentEvents() {
     oldEventList = []
+    try {
     if (eventKind == kindLinks || oldKindLinks) {
       let fetchedEvent = await $ndk.fetchEvents(
         ndkFilter, 
@@ -120,6 +121,10 @@
         eventList = Array.from(fetchedEvent);
         sortEventList(eventList);
     }
+  }
+  catch (e) {
+    console.error('Error',e);
+  }
   }
 
   function craftModal(modalTitle:string | undefined = "", modalContent:string) {
@@ -283,9 +288,6 @@
           {#if !isEditMode}
           <div class="flex flex-col gap-2">
             {#if eventList.length > 1}
-            <!-- {#each eventList as event }
-              {event.kind},
-            {/each} -->
                 {#each findListTags(eventList[currentIndex].tags) as { url, text }}
                   {#if url.startsWith("nostr:")}
                     <a

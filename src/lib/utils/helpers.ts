@@ -46,6 +46,7 @@ export function isNip05(input: string | undefined): boolean {
 }
 
 export async function isNip05Valid(nip05: string | undefined = "", npub: string | undefined = ""): Promise<boolean> {
+  !npub.startsWith("npub") && (npub = nip19.npubEncode(npub));
   try {
     if (!isNip05(nip05)) {
       isNip05ValidStore.set({
