@@ -62,7 +62,7 @@ onDestroy(() => {
   <meta property="og:title" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}/>
   <meta property="og:description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
 </svelte:head>
-
+{#if $exploreResults}
   <h1 class="inline-flex justify-center">
     <button type="button" on:click={() => goto('/explore')}>
       <ExploreIcon size={25} />
@@ -96,7 +96,7 @@ onDestroy(() => {
   </div>
   </div>
   <hr/>
-  {#if $exploreResults}
+
   {#each $exploreResults as event}
     <div class="common-container-content">
       <ProfileCardCompact userPub={event.author.npub} />
@@ -157,7 +157,8 @@ onDestroy(() => {
     </div>
     <hr/>
   {/each}
-  {/if}
-  {#if $exploreResults && $exploreResults.length == 0}
+ 
+  {#if $exploreResults.length == 0}
     <PlaceHolderLoading colCount={5} />
-  {/if}  
+  {/if}
+  {/if}
