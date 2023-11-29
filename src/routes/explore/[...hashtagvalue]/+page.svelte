@@ -96,6 +96,7 @@ onDestroy(() => {
   </div>
   </div>
   <hr/>
+  {#if $exploreResults}
   {#each $exploreResults as event}
     <div class="common-container-content">
       <ProfileCardCompact userPub={event.author.npub} />
@@ -156,6 +157,7 @@ onDestroy(() => {
     </div>
     <hr/>
   {/each}
+  {/if}
   {#if $exploreResults && $exploreResults.length == 0}
     <PlaceHolderLoading colCount={5} />
   {/if}  
