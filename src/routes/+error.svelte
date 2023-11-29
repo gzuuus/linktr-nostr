@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-    import Logo from '$lib/elements/icons/logo.svelte';
 </script>
 
 {#if $page}

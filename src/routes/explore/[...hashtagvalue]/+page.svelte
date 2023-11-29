@@ -30,8 +30,9 @@
     ndkFilter = $page.params.hashtagvalue
     ? { kinds: [kindLinks, oldKindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 75 }
     : { kinds: [kindLinks, oldKindLinks], "#l": ["nostree"], limit: 75 };
-    fetchEvents(ndkFilter)
+    fetchEvents(ndkFilter);
   }
+
   async function fetchEvents(filter: NDKFilter) {
     try {
       isSubscribe = true;
@@ -120,7 +121,7 @@ onDestroy(() => {
         {/if}
         {/each}
       </div>
-        {#each findOtherTags(event.tags, "a") as label}
+      {#each findOtherTags(event.tags, "a") as label}
           <button class="common-btn-icon-ghost" on:click={() => (showForkInfo = !showForkInfo)}>
             {#if !showForkInfo}
               <ForkIcon size={20} />
@@ -129,7 +130,6 @@ onDestroy(() => {
             {/if}
           </button>
           <div class:hidden={!showForkInfo}>
-            {#each findOtherTags(event.tags, "a") as label}
               <button
                 class="common-btn-icon-ghost inline-flex"
                 on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}
@@ -140,9 +140,8 @@ onDestroy(() => {
               <ProfileCardCompact userPub={nip19.npubEncode(label.split(":")[1])} />
               <h4 class="text-start">Label:</h4>
               <code class="text-start">{label}</code>
-            {/each}
           </div>
-        {/each}
+          {/each}
       </div>
       <div class=" inline-flex gap-2 flex-wrap items-center justify-center">
         {#each findOtherTags(event.tags, "t") as hashtag}
@@ -157,6 +156,6 @@ onDestroy(() => {
     </div>
     <hr/>
   {/each}
-  {#if $exploreResults.length == 0}
+  {#if $exploreResults && $exploreResults.length == 0}
     <PlaceHolderLoading colCount={5} />
   {/if}  
