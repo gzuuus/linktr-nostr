@@ -14,7 +14,7 @@
   import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
   import SearchBar from "$lib/components/search-bar.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
   
   let showForkInfo: boolean = false;
@@ -35,8 +35,8 @@
 
   async function fetchEvents(filter: NDKFilter) {
     try {
-      isSubscribe = true;
-      exploreResults = $ndk.storeSubscribe(filter, { closeOnEose: false, groupable: false})
+      // isSubscribe = true;
+      exploreResults = $ndk.storeSubscribe(filter, { closeOnEose: false, groupable: false, autoStart: false });
       if (exploreResults) {
           exploreResults.onEose(() => {
             isSubscribe = false;
@@ -50,7 +50,10 @@
 $: {
   eventHashtags = $exploreResults ? processHashtags($exploreResults) : [];
 }
-
+onMount(() => {
+  exploreResults.startSubscription();
+  isSubscribe = true;
+})
 onDestroy(() => {
   exploreResults?.unsubscribe();
   isSubscribe = false;
@@ -62,7 +65,7 @@ onDestroy(() => {
   <meta property="og:title" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}/>
   <meta property="og:description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
 </svelte:head>
-{#if $exploreResults}
+
   <h1 class="inline-flex justify-center">
     <button type="button" on:click={() => goto('/explore')}>
       <ExploreIcon size={25} />
@@ -160,5 +163,4 @@ onDestroy(() => {
  
   {#if $exploreResults.length == 0}
     <PlaceHolderLoading colCount={5} />
-  {/if}
   {/if}
