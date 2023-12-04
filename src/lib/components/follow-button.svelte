@@ -3,7 +3,7 @@
     import { currentUserFollows } from "$lib/stores/user";
     import ndk from "$lib/stores/provider";
     import type { NDKUser } from "@nostr-dev-kit/ndk";
-    import { getModalStore, getToastStore} from "@skeletonlabs/skeleton";
+    import { getModalStore, getToastStore, popup} from "@skeletonlabs/skeleton";
     import { NDKEvent, NDKKind, type NDKTag } from "@nostr-dev-kit/ndk";
     import { NDKlogin, unixTimeNow } from "$lib/utils/helpers";
     import FollowIcon from "$lib/elements/icons/follow-icon.svelte";
@@ -77,14 +77,19 @@
                 on:click={handleUnfollow}
                 on:mouseenter={() => (isHover = true)}
                 on:mouseleave={() => (isHover = false)}
+                use:popup={{ event: 'hover', target: 'popup', placement: 'top' }}
                 class="p-1 rounded-full {isHover ? 'variant-soft-error' :'variant-soft-success' }"
             >
             {#if isHover}
                 <UnfollowIcon size={18}/>
             {:else}
                 <PlainCheckIcon size={18}/>
-            {/if}   
+            {/if}
             </button>
+            <div class="card p-4 variant-filled min-w-[200px] z-50" data-popup="popup">
+                <p>You already follow this user. Click to unfollow</p>
+                <div class="arrow variant-filled" />
+            </div> 
         {:else}
             <button
                 on:click={handleFollow}

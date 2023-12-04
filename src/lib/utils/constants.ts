@@ -47,3 +47,17 @@ export const defaultThemes = [
   { type: "gold-nouveau", name: "Gold Nouveau", icon: "💫" },
   { type: "customTheme", name: "Custom", icon: "🎨" },
 ];
+
+export const validPrefixes: string[] = [
+  "http://",
+  "https://",
+  "ftp://",
+  "nostr:",
+  "mailto:",
+  "tel:",
+  "file://",
+  "data:",
+  "ssh://",
+  "irc://",
+  "magnet:",
+];

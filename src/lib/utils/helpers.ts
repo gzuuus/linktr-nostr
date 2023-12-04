@@ -20,6 +20,7 @@ import {
   kindNotes,
   oldKindLinks,
   outNostrLinksUrl,
+  validPrefixes,
 } from "./constants";
 import { storeTheme } from "$lib/stores/stores";
 import { browser } from "$app/environment";
@@ -427,4 +428,24 @@ export function processHashtags(events: NDKEvent[]): string[] {
   });
 
   return [...newHashtagsSet];
+}
+
+export async function fetchUserEvents(userPubKey: string): Promise<NDKEvent[]> {
+  const $ndk = getStore(ndkStore);
+  let userPub = userPubKey;
+  let fetchedEvent = await $ndk.fetchEvents({
+    kinds: [kindLinks, oldKindLinks],
+    authors: [userPub!],
+    "#l": ["nostree"],
+  });
+  let events = Array.from(fetchedEvent);
+  return events;
+}
+
+export function validateURL(url: string): boolean {
+  return validPrefixes.some((prefix) => url.startsWith(prefix));
+}
+
+export function validateURLTitle(title: string): boolean {
+  return title.trim() !== "";
 }
