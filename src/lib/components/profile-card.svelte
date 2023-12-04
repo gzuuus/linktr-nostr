@@ -19,14 +19,14 @@
   import ParseContent from "./parse-content.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { storeTheme } from '$lib/stores/stores';
-  import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { nip19 } from "nostr-tools";
+  import FollowButton from "./follow-button.svelte";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
   let userNpub: string = nip19.npubEncode(userPub);
-
   async function fetchUser() {
     try {
       const user = await fetchUserProfile(userPub);
@@ -45,34 +45,36 @@
     showQR = !showQR;
     return (qrImageUrl = qr.createDataURL());
   }
-
+  onMount(() => {
+    fetchUser();
+  });
   onDestroy(() => {
 	  storeTheme.set($userCustomTheme.UserTheme ? $userCustomTheme.UserTheme : defaulTheme);
   });
 </script>
-{#await fetchUser()}
-<div class="w-fit m-auto">
-    <PlaceHolderLoading layoutKind={"avatar"} />
-</div>
-{:then value}
   {#if userProfile}
       <div class="mx-auto w-fit flex flex-col gap-2">
-      <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
-        <Avatar class={showQR ? 'hidden' : 'common-ring'}
-        border="border-2 border-surface-300-600-token"
-        initials={userProfile.name ? userProfile.name : $isNip05ValidStore.UserIdentifier}
-        src={userProfile.image} 
-        width="w-32"
-        fallback={qrImageUrl}
-        alt={$isNip05ValidStore.UserIdentifier}
-        />
-        <Avatar class="{showQR ? 'common-ring' : 'hidden'}" 
-        src={qrImageUrl} 
-        width="w-32"
-        rounded="rounded-3xl"
-        alt="QR Code"
-        />
-      </a>
+        <div class="relative">
+        <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
+          <Avatar class={showQR ? 'hidden' : 'common-ring'}
+          border="border-2 border-surface-300-600-token"
+          initials={userProfile.name ? userProfile.name : $isNip05ValidStore.UserIdentifier}
+          src={userProfile.image} 
+          width="w-32"
+          fallback={qrImageUrl}
+          alt={$isNip05ValidStore.UserIdentifier}
+          />
+          <Avatar class="{showQR ? 'common-ring' : 'hidden'}" 
+          src={qrImageUrl} 
+          width="w-32"
+          rounded="rounded-3xl"
+          alt="QR Code"
+          />
+        </a>
+        <section class="absolute bottom-0 right-0">
+          <FollowButton userPub={userPub} />
+        </section>
+      </div>
       <div>
       <button class="common-btn-icon-ghost" on:click={() => generateQRCode(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
         ><QrIcon size={16} /></button
@@ -120,5 +122,8 @@
       </div>
         {/if}
       </div>
+      {:else}
+      <div class="w-fit m-auto">
+        <PlaceHolderLoading layoutKind={"avatar"} />
+      </div>
   {/if}
-{/await}

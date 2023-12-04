@@ -8,7 +8,7 @@ import {
   NDKKind,
   NDKNip07Signer,
 } from "@nostr-dev-kit/ndk";
-import { ndkUser, userCustomTheme } from "$lib/stores/user";
+import { currentUserFollows, ndkUser, userCustomTheme } from "$lib/stores/user";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
@@ -277,6 +277,7 @@ export function logout() {
     return {
       lastUserLogged: undefined,
       lastUserTheme: undefined,
+      currentUserFollows: undefined,
     };
   });
   goto("/");
@@ -356,6 +357,7 @@ export async function fetchCssAsset(user: string) {
           return {
             lastUserLogged: currentState.lastUserLogged,
             lastUserTheme: userTheme,
+            currentUserFollows: currentState.currentUserFollows,
           };
         });
 
@@ -373,6 +375,7 @@ export async function fetchCssAsset(user: string) {
           return {
             lastUserLogged: currentState.lastUserLogged,
             lastUserTheme: undefined,
+            currentUserFollows: currentState.currentUserFollows,
           };
         });
       }
@@ -393,10 +396,14 @@ export async function NDKlogin(): Promise<NDKUser | undefined> {
       npub: ndkCurrentUser.npub,
     });
     ndkUser.set(user);
+    const followsSet = await user.follows();
+    const followsArray = Array.from(followsSet as Set<NDKUser>);
+    currentUserFollows.set(followsArray.map((user) => user.pubkey));
     localStore.update((currentState) => {
       return {
         lastUserLogged: ndkCurrentUser.npub,
         lastUserTheme: currentState.lastUserTheme,
+        currentUserFollows: followsArray.map((user) => user.pubkey),
       };
     });
     await fetchCssAsset(user.pubkey);

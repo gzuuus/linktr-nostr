@@ -35,7 +35,6 @@
 
   async function fetchEvents(filter: NDKFilter) {
     try {
-      // isSubscribe = true;
       exploreResults = $ndk.storeSubscribe(filter, { closeOnEose: false, groupable: false, autoStart: false });
       if (exploreResults) {
           exploreResults.onEose(() => {

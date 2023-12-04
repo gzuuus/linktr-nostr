@@ -12,6 +12,7 @@
   import { Avatar } from "@skeletonlabs/skeleton";
   import ClipboardButton from "./clipboard-button.svelte";
   import { nip19 } from "nostr-tools";
+  import FollowButton from "./follow-button.svelte";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
@@ -33,25 +34,30 @@
     </div>
   {:then value}
     <div transition:fade class="flex gap-2 text-left justify-start items-center flex-wrap">
-    <a href="/{userPub}">
-      <Avatar class={showQR ? 'hidden' : 'common-ring'}
-      border="border-2 border-surface-300-600-token hover:!border-primary-500"
-      cursor="cursor-pointer"
-      initials={value?.name ? value?.name : value?.displayName}
-      src={value?.image ? value.image : ''} 
-      width="w-16"
-      fallback={qrImageUrl}
-      alt={value?.name ? value?.name : value?.displayName}
-      />
-      <Avatar class="{showQR ? 'common-ring' : 'hidden'}" 
-      border="border-4 border-surface-300-600-token hover:!border-primary-500"
-      cursor="cursor-pointer"
-      src={qrImageUrl} 
-      width="w-32"
-      rounded="rounded-3xl"
-      alt="QR Code"
-      />
-    </a>
+      <div class=" relative">
+      <a href="/{userPub}">
+        <Avatar class={showQR ? 'hidden' : 'common-ring'}
+        border="border-2 border-surface-300-600-token hover:!border-primary-500"
+        cursor="cursor-pointer"
+        initials={value?.name ? value?.name : value?.displayName}
+        src={value?.image ? value.image : ''} 
+        width="w-16"
+        fallback={qrImageUrl}
+        alt={value?.name ? value?.name : value?.displayName}
+        />
+        <Avatar class="{showQR ? 'common-ring' : 'hidden'}" 
+        border="border-4 border-surface-300-600-token hover:!border-primary-500"
+        cursor="cursor-pointer"
+        src={qrImageUrl} 
+        width="w-32"
+        rounded="rounded-3xl"
+        alt="QR Code"
+        />
+      </a>
+      <section class=" absolute -bottom-2 right-0">
+        <FollowButton userPub={userPub} />
+      </section>
+    </div>
       <div class="flex flex-col gap-1 break-all">
         <a class="no-underline text-base font-bold" href="/{userPub}">{value?.name ? value?.name : value?.displayName}</a>
         <span class="common-badge-soft w-fit">
