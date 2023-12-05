@@ -19,6 +19,8 @@
   import { localStore } from "$lib/stores/stores";
   import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
   import { ndkUser } from "$lib/stores/user";
+  import GlobalIcon from "$lib/elements/icons/global-icon.svelte";
+  import FriendsIcon from "$lib/elements/icons/friends-icon.svelte";
   
   let showForkInfo: boolean = false;
   let eventHashtags: string[] = [];
@@ -81,9 +83,15 @@
     </button>Explore
   </h1>
   {#if $ndkUser}
-    <RadioGroup active="variant-filled-primary" hover="hover:variant-soft-primary">
-      <RadioItem bind:group={exploreNetwork} name="justify" value={false}>Global</RadioItem>
-      <RadioItem bind:group={exploreNetwork} name="justify" value={true}>Friends</RadioItem>
+    <RadioGroup background="variant-soft-surface" border="none" active="variant-filled-primary" hover="hover:variant-soft-primary">
+      <RadioItem class="btn w-full h-full" bind:group={exploreNetwork} name="select-network" value={false}>
+        <span><GlobalIcon size={16} /></span>
+        <span>Global</span>
+      </RadioItem>
+      <RadioItem class="btn w-full h-full" bind:group={exploreNetwork} name="select-network" value={true}>
+        <span><FriendsIcon size={16} /></span>
+        <span>Friends</span>
+      </RadioItem>
     </RadioGroup>
   {/if}
   <h3 class:hidden={!$page.params.hashtagvalue}>#{$page.params.hashtagvalue}</h3>  

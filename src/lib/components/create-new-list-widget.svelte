@@ -97,7 +97,7 @@
     </div>
 
     <label class="label">
-        <span>Select list to add</span>
+        <span>Select the list to add the link to</span>
         <select class="select w-full" bind:value={eventToEdit}>
             {#each fetchedEvents as event}
             <option value={event}>{event.tagValue('title')}</option>
