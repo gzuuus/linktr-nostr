@@ -27,10 +27,10 @@
   let showSearchBar: boolean = false;
   let exploreResults: NDKEventStore<ExtendedBaseType<NDKEvent>>
   let exploreNetwork: boolean = false;
-  let authors = exploreNetwork ? $localStore.currentUserFollows : [''];
 
   $: {
     let hashtag = $page.params.hashtagvalue;
+    let authors = $localStore.currentUserFollows;
     let ndkFilter = {
       kinds: [kindLinks, oldKindLinks],
       ...(exploreNetwork && { authors }),
@@ -58,14 +58,14 @@
     }
   }
 
-$: {
-  eventHashtags = $exploreResults ? processHashtags($exploreResults) : [];
-}
+  $: {
+    eventHashtags = $exploreResults ? processHashtags($exploreResults) : [];
+  }
 
-onDestroy(() => {
-  exploreResults?.unsubscribe();
-  isSubscribe = false;
-})
+  onDestroy(() => {
+    exploreResults?.unsubscribe();
+    isSubscribe = false;
+  })
 </script>
 <svelte:head>
   <title>{$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}</title>
