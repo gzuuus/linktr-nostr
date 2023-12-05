@@ -279,6 +279,7 @@ export function logout() {
       lastUserLogged: undefined,
       lastUserTheme: undefined,
       currentUserFollows: undefined,
+      currentUserLists: undefined,
     };
   });
   goto("/");
@@ -432,10 +433,9 @@ export function processHashtags(events: NDKEvent[]): string[] {
 
 export async function fetchUserEvents(userPubKey: string): Promise<NDKEvent[]> {
   const $ndk = getStore(ndkStore);
-  let userPub = userPubKey;
   let fetchedEvent = await $ndk.fetchEvents({
     kinds: [kindLinks, oldKindLinks],
-    authors: [userPub!],
+    authors: [userPubKey],
     "#l": ["nostree"],
   });
   let events = Array.from(fetchedEvent);

@@ -56,6 +56,7 @@
 			return {
 				lastUserLogged: currentState.lastUserLogged,
 				lastUserTheme: userTheme,
+				currentUserFollows: currentState.currentUserFollows,
 			}});
 			storeTheme.set(userTheme || '');
 

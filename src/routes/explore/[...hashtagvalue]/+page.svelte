@@ -14,28 +14,40 @@
   import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
   import SearchBar from "$lib/components/search-bar.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy } from "svelte";
   import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
+  import { localStore } from "$lib/stores/stores";
+  import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
   
   let showForkInfo: boolean = false;
-  let ndkFilter: NDKFilter
   let eventHashtags: string[] = [];
   let isSubscribe: boolean = false;
   let initialHashtagCount: number = 15;
   let showAllHashtags:boolean = false;
   let showSearchBar: boolean = false;
   let exploreResults: NDKEventStore<ExtendedBaseType<NDKEvent>>
+  let exploreNetwork: boolean = false;
+  let authors = exploreNetwork ? $localStore.currentUserFollows : [''];
 
   $: {
-    ndkFilter = $page.params.hashtagvalue
-    ? { kinds: [kindLinks, oldKindLinks], "#t": [`${$page.params.hashtagvalue}`], "#l": ["nostree"], limit: 75 }
-    : { kinds: [kindLinks, oldKindLinks], "#l": ["nostree"], limit: 75 };
-    fetchEvents(ndkFilter);
+    let hashtag = $page.params.hashtagvalue;
+    let ndkFilter = {
+      kinds: [kindLinks, oldKindLinks],
+      ...(exploreNetwork && { authors }),
+      ...(hashtag && { "#t": [hashtag] }),
+      "#l": ["nostree"],
+      limit: 75,
+    };
+
+    fetchEvents(ndkFilter).then(() => {
+      exploreResults?.startSubscription();
+      isSubscribe = true;
+    });
   }
 
   async function fetchEvents(filter: NDKFilter) {
     try {
-      exploreResults = $ndk.storeSubscribe(filter, { closeOnEose: false, groupable: false, autoStart: false });
+      exploreResults = $ndk.storeSubscribe(filter, { closeOnEose: true, groupable: false, autoStart: false });
       if (exploreResults) {
           exploreResults.onEose(() => {
             isSubscribe = false;
@@ -49,10 +61,7 @@
 $: {
   eventHashtags = $exploreResults ? processHashtags($exploreResults) : [];
 }
-onMount(() => {
-  exploreResults.startSubscription();
-  isSubscribe = true;
-})
+
 onDestroy(() => {
   exploreResults?.unsubscribe();
   isSubscribe = false;
@@ -70,6 +79,10 @@ onDestroy(() => {
       <ExploreIcon size={25} />
     </button>Explore
   </h1>
+  <RadioGroup active="variant-filled-primary" hover="hover:variant-soft-primary">
+    <RadioItem bind:group={exploreNetwork} name="justify" value={false}>Global</RadioItem>
+    <RadioItem bind:group={exploreNetwork} name="justify" value={true}>Friends</RadioItem>
+  </RadioGroup>
   <h3 class:hidden={!$page.params.hashtagvalue}>#{$page.params.hashtagvalue}</h3>  
   <div class="flex flex-col gap-2">
     <div>
