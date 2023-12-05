@@ -18,7 +18,7 @@
   import { storePreview, storeTheme } from "$lib/stores/stores";
   import { browser } from "$app/environment";
   import { localStore } from "$lib/stores/stores";
-  import { ndkUser, userCustomTheme } from "$lib/stores/user";
+  import { currentUserFollows, ndkUser, userCustomTheme } from "$lib/stores/user";
   import UpdateOldKindModal from "$lib/components/modals/update-old-kind-modal.svelte";
 
   initializeStores();
@@ -34,6 +34,18 @@
 };
 	storePreview.subscribe(setBodyThemeAttribute);
 	storeTheme.subscribe(setBodyThemeAttribute);
+  currentUserFollows.subscribe(setLocalFollows);
+  function setLocalFollows(): void {
+    if ($currentUserFollows.length == 0) return;
+      localStore.update((currentState) => {
+        return {
+          lastUserLogged: currentState.lastUserLogged,
+          lastUserTheme: currentState.lastUserTheme,
+          currentUserFollows: $currentUserFollows ? $currentUserFollows : currentState.currentUserFollows || undefined,
+        };
+      });
+    }
+
 	function setBodyThemeAttribute(): void {
 		if (!browser) return;
 		document.body.setAttribute('data-theme', $storePreview ? 'customTheme' : $storeTheme);
@@ -43,17 +55,20 @@
         npub: $localStore.lastUserLogged,
       });
       ndkUser.set(user);
-    if ($localStore.lastUserTheme) {
-      storeTheme.set($localStore.lastUserTheme);
-      userCustomTheme.set({
-				UserTheme: $localStore.lastUserTheme,
-				themeIdentifier: undefined,
-				themeCustomCss: undefined,
-			});
-    } 
+      if ($localStore.currentUserFollows){
+        currentUserFollows.set($localStore.currentUserFollows);
+      }
+      if ($localStore.lastUserTheme) {
+        storeTheme.set($localStore.lastUserTheme);
+        userCustomTheme.set({
+          UserTheme: $localStore.lastUserTheme,
+          themeIdentifier: undefined,
+          themeCustomCss: undefined,
+        });
+      } 
     }
-  onMount(async () => {
 
+  onMount(async () => {
     try {
       $ndk.connect().then(() => console.log("ndk connected successfully"));
     } catch (error) {

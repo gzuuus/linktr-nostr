@@ -3,6 +3,8 @@
   export let doGoto: boolean = true;
   export let eventToEdit: NDKEvent | null = null;
   export let listTemplate: string = "blank";
+  export let addLink: { url: string; text: string } | undefined = undefined;
+  export let autoPublish: boolean = false;
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";
   import ResetIcon from "$lib/elements/icons/reset-icon.svelte";
@@ -14,7 +16,7 @@
   import InfoIcon from "$lib/elements/icons/info-icon.svelte";
   import { goto } from "$app/navigation";
   import { ndkUser } from "$lib/stores/user";
-  import { kindLinks, specialCharsRegex } from "$lib/utils/constants";
+  import { kindLinks, specialCharsRegex, validPrefixes } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
   import SlugIcon from "$lib/elements/icons/slug-icon.svelte";
   import { nip19 } from "nostr-tools";
@@ -26,20 +28,9 @@
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import { debounce } from "debounce";
+  import { onDestroy } from "svelte";
 
-  const validPrefixes: string[] = [
-    "http://",
-    "https://",
-    "ftp://",
-    "nostr:",
-    "mailto:",
-    "tel:",
-    "file://",
-    "data:",
-    "ssh://",
-    "irc://",
-    "magnet:",
-  ];
+
   const modalStore = getModalStore();
   const toastStore = getToastStore();
   const newDTag = `nostree-${uuidv4()}`;
@@ -62,7 +53,11 @@
   if (eventToEdit) {
     let title = eventToEdit.tagValue("title");
     let description = eventToEdit.tagValue("summary") ? eventToEdit.tagValue("summary") : eventToEdit.tagValue("description");
+
     const rTags = findListTags(eventToEdit.tags);
+    if (addLink) {
+      rTags.push(addLink);
+    }
     const links = rTags.map((tag) => ({ link: tag.url, description: tag.text }));
     const labels = findOtherTags(eventToEdit.tags, "l").map((tag) => ({ label: tag }));
     const nameSpace = eventToEdit.tagValue("L")
@@ -91,7 +86,6 @@
       },
       hashtags: hashtags,
     };
-
     validateAllURLs();
     validateAllURLNames();
   }
@@ -127,7 +121,7 @@
 
   async function handleSubmit() {
     !$ndk.signer && await NDKlogin();
-    modalStore.trigger({ type: 'component', component: 'modalLoading',});
+    modalStore.trigger({ type: 'component', component: 'modalLoading'});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
     if (eventToEdit) {
@@ -234,6 +228,12 @@
     focusedIndex = -1;
   }
   $: isFormValid = areAllLinksValid && formData.title.trim() != ""
+  if (autoPublish) {
+    handleSubmit();
+  }
+  onDestroy(() => {
+    handleReset();
+  });
 </script>
   <h2>{titleText}</h2>
   <form use:focusTrap={true} on:submit|preventDefault={debounce(handleSubmit, 200)}>

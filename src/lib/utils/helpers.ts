@@ -8,7 +8,7 @@ import {
   NDKKind,
   NDKNip07Signer,
 } from "@nostr-dev-kit/ndk";
-import { ndkUser, userCustomTheme } from "$lib/stores/user";
+import { currentUserFollows, ndkUser, userCustomTheme } from "$lib/stores/user";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
@@ -20,6 +20,7 @@ import {
   kindNotes,
   oldKindLinks,
   outNostrLinksUrl,
+  validPrefixes,
 } from "./constants";
 import { storeTheme } from "$lib/stores/stores";
 import { browser } from "$app/environment";
@@ -277,6 +278,8 @@ export function logout() {
     return {
       lastUserLogged: undefined,
       lastUserTheme: undefined,
+      currentUserFollows: undefined,
+      currentUserLists: undefined,
     };
   });
   goto("/");
@@ -356,6 +359,7 @@ export async function fetchCssAsset(user: string) {
           return {
             lastUserLogged: currentState.lastUserLogged,
             lastUserTheme: userTheme,
+            currentUserFollows: currentState.currentUserFollows,
           };
         });
 
@@ -373,6 +377,7 @@ export async function fetchCssAsset(user: string) {
           return {
             lastUserLogged: currentState.lastUserLogged,
             lastUserTheme: undefined,
+            currentUserFollows: currentState.currentUserFollows,
           };
         });
       }
@@ -393,10 +398,14 @@ export async function NDKlogin(): Promise<NDKUser | undefined> {
       npub: ndkCurrentUser.npub,
     });
     ndkUser.set(user);
+    const followsSet = await user.follows();
+    const followsArray = Array.from(followsSet as Set<NDKUser>);
+    currentUserFollows.set(followsArray.map((user) => user.pubkey));
     localStore.update((currentState) => {
       return {
         lastUserLogged: ndkCurrentUser.npub,
         lastUserTheme: currentState.lastUserTheme,
+        currentUserFollows: followsArray.map((user) => user.pubkey),
       };
     });
     await fetchCssAsset(user.pubkey);
@@ -420,4 +429,23 @@ export function processHashtags(events: NDKEvent[]): string[] {
   });
 
   return [...newHashtagsSet];
+}
+
+export async function fetchUserEvents(userPubKey: string): Promise<NDKEvent[]> {
+  const $ndk = getStore(ndkStore);
+  let fetchedEvent = await $ndk.fetchEvents({
+    kinds: [kindLinks, oldKindLinks],
+    authors: [userPubKey],
+    "#l": ["nostree"],
+  });
+  let events = Array.from(fetchedEvent);
+  return events;
+}
+
+export function validateURL(url: string): boolean {
+  return validPrefixes.some((prefix) => url.startsWith(prefix));
+}
+
+export function validateURLTitle(title: string): boolean {
+  return title.trim() !== "";
 }

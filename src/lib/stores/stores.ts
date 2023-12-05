@@ -9,8 +9,10 @@ export const storeLivePreview = writable("");
 interface UserLocalStore {
   lastUserLogged: string | undefined;
   lastUserTheme: string | undefined;
+  currentUserFollows: string[] | undefined;
 }
 export const localStore: Writable<UserLocalStore> = localStorageStore("nostree-localStore", {
   lastUserLogged: undefined,
   lastUserTheme: undefined,
+  currentUserFollows: undefined,
 });
