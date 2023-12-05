@@ -10,7 +10,7 @@ let cacheAdapter: NDKCacheAdapter | undefined;
 if (browser) {
   cacheAdapter = new NDKCacheAdapterDexie({
     dbName: "nostreeV02",
-    expirationTime: 3600 * 24 * 2,
+    expirationTime: 3600 * 24 * 1,
   });
 }
 

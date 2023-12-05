@@ -18,6 +18,7 @@
   import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
   import { localStore } from "$lib/stores/stores";
   import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
+  import { ndkUser } from "$lib/stores/user";
   
   let showForkInfo: boolean = false;
   let eventHashtags: string[] = [];
@@ -79,10 +80,12 @@
       <ExploreIcon size={25} />
     </button>Explore
   </h1>
-  <RadioGroup active="variant-filled-primary" hover="hover:variant-soft-primary">
-    <RadioItem bind:group={exploreNetwork} name="justify" value={false}>Global</RadioItem>
-    <RadioItem bind:group={exploreNetwork} name="justify" value={true}>Friends</RadioItem>
-  </RadioGroup>
+  {#if $ndkUser}
+    <RadioGroup active="variant-filled-primary" hover="hover:variant-soft-primary">
+      <RadioItem bind:group={exploreNetwork} name="justify" value={false}>Global</RadioItem>
+      <RadioItem bind:group={exploreNetwork} name="justify" value={true}>Friends</RadioItem>
+    </RadioGroup>
+  {/if}
   <h3 class:hidden={!$page.params.hashtagvalue}>#{$page.params.hashtagvalue}</h3>  
   <div class="flex flex-col gap-2">
     <div>
