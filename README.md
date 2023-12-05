@@ -29,10 +29,10 @@ This roadmap is only a draft of the direction of the project, it can be changed,
 - [x] Migration to TailwindCSS
 - [x] Theming system with ability to set themes for users
 - [x] Cache system
+- [x] Follow button
 - [ ] Theme generator
 - [ ] Docs
 - [ ] Edit profile
-- [ ] Follow button
 - [ ] On boarding
 - [ ] Calendar events
 - [ ] Live streaming events
@@ -40,6 +40,7 @@ This roadmap is only a draft of the direction of the project, it can be changed,
 - [ ] Nip-15 market/stall integration
 - [ ] Autoplay music/media lists
 - [ ] Expanded personal pages, with more stuff (articles, notes, etc)
+- [ ] Torrents
 
 ### Case study
 
