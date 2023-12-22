@@ -67,14 +67,6 @@
         });
       } 
     }
-
-  onMount(async () => {
-    try {
-      $ndk.connect().then(() => console.log("ndk connected successfully"));
-    } catch (error) {
-      console.error(`Error`, error);
-    }
-  });
 </script>
 
 <svelte:head>

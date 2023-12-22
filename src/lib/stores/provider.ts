@@ -1,5 +1,4 @@
 import { writable } from "svelte/store";
-import NDK from "@nostr-dev-kit/ndk";
 import type { NDKCacheAdapter } from "@nostr-dev-kit/ndk";
 import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 import { browser } from "$app/environment";
@@ -28,6 +27,8 @@ const ndk = new NDKSvelte({
   cacheAdapter,
   enableOutboxModel: false,
 });
+
+ndk.connect().then(() => console.log("ndk connected successfully"));
 
 const ndkStore = writable(ndk);
 

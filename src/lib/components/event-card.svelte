@@ -41,6 +41,7 @@
   const modalStore = getModalStore();
   const toastStore = getToastStore();
   let eventList: NDKEvent[] = [];
+  let RawEventList: NDKEvent[] = [];
   let oldEventList: NDKEvent[] = [];
   let showDialog: boolean = false;
   let showListsIndex: boolean = false;
@@ -57,16 +58,17 @@
     : { kinds: [eventKind, oldKindLinks], authors: [userPub], "#l": [`${listLabel}`] };
   
   export const updateEventToast: ToastSettings = {
-	message: 'We are migrating to a new event kind, due a change in the nostr protocol. Please update your events.',
-  background: 'variant-filled-warning',
-  timeout: 5000,
-  hoverable: true,
-  classes: 'flex flex-col gap-2',
-	action: {
-		label: 'Update events',
-		response: () => crafUpdateModal()
-	}
-};
+    message: 'We are migrating to a new event kind, due a change in the nostr protocol. Please update your events.',
+    background: 'variant-filled-warning',
+    timeout: 5000,
+    hoverable: true,
+    classes: 'flex flex-col gap-2',
+    action: {
+      label: 'Update events',
+      response: () => crafUpdateModal()
+    }
+  };
+
   async function fetchCurrentEvents() {
     oldEventList = []
     try {
@@ -77,31 +79,27 @@
           closeOnEose: true,
           cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
         })
-      eventList = Array.from(fetchedEvent);
-      if (eventList.length == 0) {
-        if (retryCounter >= 5) {
-          linkListLength = undefined;
-        } else {
-          retryCounter += 1;
-          setTimeout(fetchCurrentEvents, 150);
+      RawEventList = Array.from(fetchedEvent);
+      console.log(RawEventList)
+      linkListLength = RawEventList.length ? RawEventList.length : undefined;
+      sortEventList(RawEventList);
+      for (const event of RawEventList) {
+        const tagDValue = event.tagValue('d');
+        const tagTitleValue = event.tagValue('title');
+        const tagHashtagValue = event.tagValue('t');
+        
+        if (event.kind == kindLinks) {
+          eventList.push(event);
+          tagTitleValue != undefined && eventTitles.push(tagTitleValue);
+          tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
         }
-      } else {
-          linkListLength = eventList.length;
-      }
-      sortEventList(eventList);
-      for (const event of eventList) {
-        if (event.kind === oldKindLinks) {
+        const tagDExistsInEventList = eventList.some((e) => e.tagValue('d') === tagDValue);
+
+        if (event.kind == oldKindLinks && !tagDExistsInEventList) {
           oldEventList.push(event);
-        }
-
-        for (const tag of event.tags) {
-          if (tag[0] === "title") {
-            eventTitles.push(tag[1]);
-          }
-
-          if (tag[0] === "t") {
-            eventHashtags.push(tag[1]);
-          }
+          eventList.push(event);
+          tagTitleValue != undefined && eventTitles.push(tagTitleValue);
+          tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
         }
       }
       if (userPub == $ndkUser?.pubkey) {
@@ -172,7 +170,7 @@
     isEditHappens = false;
   })
 </script>
-    {#if retryCounter <= 4 && eventList.length == 0}
+    {#if eventList.length == 0 && linkListLength != undefined}
     <PlaceHolderLoading colCount={5} />
     {/if}
     {#if eventList.length > 0}
