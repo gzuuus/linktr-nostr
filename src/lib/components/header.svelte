@@ -1,11 +1,10 @@
 <script lang="ts">
-	import ndk from "$lib/stores/provider";
 	import Logo from "$lib/elements/icons/logo.svelte";
 	import { goto } from "$app/navigation";
 	import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
 	import ThemeButton from "./theme-button.svelte";
 	import ThemesIcon from "$lib/elements/icons/themes-icon.svelte";
-	import type { ModalSettings, DrawerSettings } from '@skeletonlabs/skeleton';
+	import type { DrawerSettings } from '@skeletonlabs/skeleton';
 	import { AppBar, popup, getModalStore, getDrawerStore } from '@skeletonlabs/skeleton';
 	import HamburgerIcon from "$lib/elements/icons/hamburger-icon.svelte";
 	import Login from "./login.svelte";
@@ -17,6 +16,7 @@
 	import SearchIcon from "$lib/elements/icons/search-icon.svelte";
     import { browser } from "$app/environment";
     import PlusSmall from "$lib/elements/icons/plus-small.svelte";
+    import { localStore } from "$lib/stores/stores";
 	const modalStore = getModalStore();
 	const drawerStore = getDrawerStore();
 
@@ -94,7 +94,7 @@
 		</div>
 		<button
 		class="common-btn-sm-ghost"
-		on:click={() => goto(`/${$ndkUser?.npub}`)}
+		on:click={() => goto(`/${$localStore.UserIdentifier ? $localStore.UserIdentifier : $ndkUser?.npub}`)}
 		>
 			<span><ProfileIcon size={20} /></span>
 			<span class="hidden sm2:inline-flex">Profile</span>

@@ -6,6 +6,8 @@
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
   import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
   import { NDKlogin } from "$lib/utils/helpers";
+    import { localStore } from "$lib/stores/stores";
+    import { get } from "svelte/store";
 
   const modalStore = getModalStore();
 	const modal: ModalSettings = {
@@ -19,7 +21,8 @@
         return;
       }
       if (doGoto) {
-        goto(`/${login.npub}`);
+        const {UserIdentifier} = get(localStore)
+        goto(`/${UserIdentifier ? UserIdentifier : login.npub}`);
       }
     }
 

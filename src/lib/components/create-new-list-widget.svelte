@@ -13,6 +13,7 @@
     import type { Link } from "$lib/classes/list";
     import { errorPublishToast, succesPublishToast } from "$lib/utils/constants";
     import { page } from "$app/stores";
+    import { localStore } from "$lib/stores/stores";
     export let showCreateNewList = false;
 
     const modalStore = getModalStore();
@@ -71,7 +72,7 @@
     const linkDescription = addLink.description ? addLink.description : '<Link description>';
     const linkUrl = addLink.url ? addLink.url : '<Link url>';
     const origin = $page.url.origin;
-    const userIdentifier = $isNip05ValidStore.UserIdentifier ? $isNip05ValidStore.UserIdentifier : $ndkUser?.npub;
+    const userIdentifier = $localStore.UserIdentifier ? $localStore.UserIdentifier : $ndkUser?.npub;
     const slug = eventToEdit ? findSlugTag(eventToEdit) : '';
 
     return `${baseText} ${eventTitle}! 🎉.\n${linkDescription}, ${linkUrl}\nCheck it out: ${origin}/${userIdentifier}/${slug}`;
