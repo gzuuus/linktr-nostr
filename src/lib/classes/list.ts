@@ -1,6 +1,6 @@
 export interface Link {
-  url: string,
-  description: string
+  url: string;
+  description: string;
 }
 export class FormData {
   title: string = "";

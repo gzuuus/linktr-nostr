@@ -32,11 +32,11 @@
   import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
-  import { outNostrLinksUrl } from "../utils/constants";
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
   import { getModalStore, getToastStore, type ModalSettings, type ToastSettings } from '@skeletonlabs/skeleton';
   import ClipboardButton from "./clipboard-button.svelte";
   import { onDestroy, onMount } from "svelte";
+  import RenderLinks from "./render-links.svelte";
   
   const modalStore = getModalStore();
   const toastStore = getToastStore();
@@ -285,29 +285,7 @@
         <div>
           {#if !isEditMode}
           <div class="flex flex-col gap-2">
-            {#if eventList.length > 1}
-                {#each findListTags(eventList[currentIndex].tags) as { url, description }}
-                  {#if url.startsWith("nostr:")}
-                    <a
-                      href={`${outNostrLinksUrl}/${url.split(":")[url.split(":").length - 1]}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                    <button class="common-list-btn-filled">{description}</button>
-                    </a>
-                  {:else}
-                    <a href={url} target="_blank" rel="noreferrer">
-                      <button class="common-list-btn-filled">{description}</button>
-                    </a>
-                  {/if}
-                {/each}
-            {:else}
-                {#each findListTags(eventList[currentIndex].tags) as { url, description }}
-                  <a href={url} target="_blank" rel="noreferrer">
-                    <button class="common-list-btn-filled">{description}</button>
-                  </a>
-                {/each}
-            {/if}
+                <RenderLinks eventTags={eventList[currentIndex].tags} />
           </div>
           {:else}
             <button class="common-btn-sm-ghost"

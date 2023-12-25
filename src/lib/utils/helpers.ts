@@ -204,10 +204,10 @@ export function findOtherTags(tags: NDKTag[], tagName: string) {
   });
 }
 
-export function findSlugTag(event: NDKEvent):string {
-  const matchingTags = event.tags.filter((tag) => tag[0] == 'l');
-  let slugTag = matchingTags.filter((tag) => tag[1] != 'nostree')[0];
-  return slugTag[1]
+export function findSlugTag(event: NDKEvent): string {
+  const matchingTags = event.tags.filter((tag) => tag[0] == "l");
+  let slugTag = matchingTags.filter((tag) => tag[1] != "nostree")[0];
+  return slugTag[1];
 }
 
 export function parseNostrUrls(rawContent: string): string {
@@ -409,11 +409,11 @@ export async function NDKlogin(): Promise<NDKUser | undefined> {
       npub: ndkCurrentUser.npub,
     });
     ndkUser.set(user);
-    
+
     const followsSet = await user.follows();
     const followsArray = Array.from(followsSet as Set<NDKUser>);
     currentUserFollows.set(followsArray.map((user) => user.pubkey));
-    const userProfile = await user.fetchProfile()
+    const userProfile = await user.fetchProfile();
     await isNip05Valid(userProfile?.nip05, userProfile?.npub);
     const nip05ValidStore = getStore(isNip05ValidStore);
     localStore.update((currentState) => {
@@ -470,27 +470,27 @@ export async function addLinkToList(link: Link, eventToModify: NDKEvent): Promis
 
   let linkTag = ["r", link.url, link.description];
   try {
-      !$ndk.signer && await NDKlogin();
-      let eventToPublish = eventToModify;
-      eventToPublish.sig = undefined;
-      eventToPublish.created_at = unixTimeNow();
-      eventToPublish.tags.push(linkTag);
-      await eventToPublish.publish();
-      return true;
+    !$ndk.signer && (await NDKlogin());
+    let eventToPublish = eventToModify;
+    eventToPublish.sig = undefined;
+    eventToPublish.created_at = unixTimeNow();
+    eventToPublish.tags.push(linkTag);
+    await eventToPublish.publish();
+    return true;
   } catch (e) {
-      console.log(e);
-      return false;
+    console.log(e);
+    return false;
   }
 }
 
-export async function publishKind1 (content: string): Promise<boolean> {
+export async function publishKind1(content: string): Promise<boolean> {
   const $ndk = getStore(ndkStore);
   let eventToPublish = new NDKEvent($ndk);
   try {
-    !$ndk.signer && await NDKlogin();
+    !$ndk.signer && (await NDKlogin());
     eventToPublish.kind = NDKKind.Text;
     eventToPublish.content = content;
-    eventToPublish.tags.push(["t", "nostree"])
+    eventToPublish.tags.push(["t", "nostree"]);
     await eventToPublish.publish();
     return true;
   } catch (error) {

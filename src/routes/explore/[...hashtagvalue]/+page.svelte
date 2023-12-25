@@ -21,6 +21,7 @@
   import { ndkUser } from "$lib/stores/user";
   import GlobalIcon from "$lib/elements/icons/global-icon.svelte";
   import FriendsIcon from "$lib/elements/icons/friends-icon.svelte";
+    import RenderLinks from "$lib/components/render-links.svelte";
   
   let showForkInfo: boolean = false;
   let eventHashtags: string[] = [];
@@ -132,21 +133,7 @@
         <span class="text-sm" class:hidden={!event.tagValue("description")}>{event.tagValue("description")}</span>
 
         <div class="flex flex-col gap-2 pt-2">
-        {#each findListTags(event.tags) as { url, description }}
-          {#if url.startsWith("nostr:")}
-          <a
-            href={`${outNostrLinksUrl}/${url.split(":")[url.split(":").length - 1]}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-          <button class="btn variant-filled w-full whitespace-pre-wrap">{description}</button>
-          </a>
-        {:else}
-          <a href={url} target="_blank" rel="noreferrer">
-            <button class="btn variant-filled w-full whitespace-pre-wrap">{description}</button>
-          </a>
-        {/if}
-        {/each}
+        <RenderLinks eventTags={event.tags} />
       </div>
       {#each findOtherTags(event.tags, "a") as label}
           <button class="common-btn-icon-ghost" on:click={() => (showForkInfo = !showForkInfo)}>
