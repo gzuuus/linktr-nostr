@@ -286,25 +286,25 @@
           {#if !isEditMode}
           <div class="flex flex-col gap-2">
             {#if eventList.length > 1}
-                {#each findListTags(eventList[currentIndex].tags) as { url, text }}
+                {#each findListTags(eventList[currentIndex].tags) as { url, description }}
                   {#if url.startsWith("nostr:")}
                     <a
                       href={`${outNostrLinksUrl}/${url.split(":")[url.split(":").length - 1]}`}
                       target="_blank"
                       rel="noreferrer"
                     >
-                    <button class="common-list-btn-filled">{text}</button>
+                    <button class="common-list-btn-filled">{description}</button>
                     </a>
                   {:else}
                     <a href={url} target="_blank" rel="noreferrer">
-                      <button class="common-list-btn-filled">{text}</button>
+                      <button class="common-list-btn-filled">{description}</button>
                     </a>
                   {/if}
                 {/each}
             {:else}
-                {#each findListTags(eventList[currentIndex].tags) as { url, text }}
+                {#each findListTags(eventList[currentIndex].tags) as { url, description }}
                   <a href={url} target="_blank" rel="noreferrer">
-                    <button class="common-list-btn-filled">{text}</button>
+                    <button class="common-list-btn-filled">{description}</button>
                   </a>
                 {/each}
             {/if}

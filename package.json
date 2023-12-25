@@ -46,9 +46,9 @@
   "type": "module",
   "dependencies": {
     "@floating-ui/dom": "^1.5.3",
-    "@nostr-dev-kit/ndk": "^2.1.1",
+    "@nostr-dev-kit/ndk": "2.1.1",
     "@nostr-dev-kit/ndk-cache-dexie": "2.1.1",
-    "@nostr-dev-kit/ndk-svelte": "^2.1.1",
+    "@nostr-dev-kit/ndk-svelte": "2.1.1",
     "debounce": "^1.2.1",
     "dexie": "^3.2.4",
     "linkify-it": "^4.0.1",

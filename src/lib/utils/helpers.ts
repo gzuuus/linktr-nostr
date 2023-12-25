@@ -29,6 +29,7 @@ import { get as getStore } from "svelte/store";
 import ndkStore from "$lib/stores/provider";
 import type { AddressPointer, EventPointer } from "nostr-tools/lib/types/nip19";
 import { localStore } from "$lib/stores/stores";
+import type { Link } from "$lib/classes/list";
 
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
@@ -176,10 +177,9 @@ export function decodeEventPointer(encodedPointer: string) {
 
 export function findListTags(tags: NDKTag[]) {
   const matchingTags = tags.filter((tag) => tag[0] == "r");
-
   return matchingTags.map((tag) => {
-    const [url, text] = tag.slice(1);
-    return { url, text } as { url: string; text: string };
+    const [url, description] = tag.slice(1);
+    return { url, description } as Link;
   });
 }
 
@@ -202,6 +202,13 @@ export function findOtherTags(tags: NDKTag[], tagName: string) {
     return tagValue as string;
   });
 }
+
+export function findSlugTag(event: NDKEvent):string {
+  const matchingTags = event.tags.filter((tag) => tag[0] == 'l');
+  let slugTag = matchingTags.filter((tag) => tag[1] != 'nostree')[0];
+  return slugTag[1]
+}
+
 export function parseNostrUrls(rawContent: string): string {
   const nostrPattern = /nostr:(nprofile|nevent|naddr|npub1)(\w+)/g;
 
@@ -448,4 +455,37 @@ export function validateURL(url: string): boolean {
 
 export function validateURLTitle(title: string): boolean {
   return title.trim() !== "";
+}
+
+export async function addLinkToList(link: Link, eventToModify: NDKEvent): Promise<boolean> {
+  const $ndk = getStore(ndkStore);
+  let linkTag = ["r", link.url, link.description];
+  try {
+      !$ndk.signer && await NDKlogin();
+      let eventToPublish = eventToModify;
+      eventToPublish.sig = undefined;
+      eventToPublish.created_at = unixTimeNow();
+      eventToPublish.tags.push(linkTag);
+      await eventToPublish.publish();
+      return true;
+  } catch (e) {
+      console.log(e);
+      return false;
+  }
+}
+
+export async function publishKind1 (content: string): Promise<boolean> {
+  const $ndk = getStore(ndkStore);
+  let eventToPublish = new NDKEvent($ndk);
+  try {
+    !$ndk.signer && await NDKlogin();
+    eventToPublish.kind = NDKKind.Text;
+    eventToPublish.content = content;
+    eventToPublish.tags.push(["t", "nostree"])
+    await eventToPublish.publish();
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
 }

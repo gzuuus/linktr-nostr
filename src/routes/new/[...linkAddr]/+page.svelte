@@ -68,7 +68,7 @@
     if (!toDelete) {
       links = findListTags(eventToPublish.tags).map((tag) => ({
         link: tag.url,
-        description: tag.text,
+        description: tag.description,
       }));
       hashtags = findOtherTags(eventToPublish.tags, "t").map((tag) => ({ hashtag: tag }));
       for (const linkData of links) {
@@ -214,8 +214,8 @@
                       <svelte:fragment slot="summary">View links</svelte:fragment>
                       <svelte:fragment slot="content">
                       <div class="flex flex-col flex-wrap gap-2">
-                        {#each findListTags(event.tags) as { url, text }}
-                          <a href={url} target="_blank" rel="noreferrer"><button class="common-list-btn-filled">{text}</button></a>
+                        {#each findListTags(event.tags) as { url, description }}
+                          <a href={url} target="_blank" rel="noreferrer"><button class="common-list-btn-filled">{description}</button></a>
                         {/each}
                       </div>
                       </svelte:fragment>

@@ -2,27 +2,34 @@
     import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
     import CloseIcon from "$lib/elements/icons/close-icon.svelte";
     import CreateNewList from "./create-new-list.svelte";
-    import { Autocomplete, type AutocompleteOption } from '@skeletonlabs/skeleton';
-    import { fetchUserEvents, validateURL, validateURLTitle } from "$lib/utils/helpers";
-    import { ndkUser } from "$lib/stores/user";
+    import { Autocomplete, getToastStore, type AutocompleteOption } from '@skeletonlabs/skeleton';
+    import { addLinkToList, fetchUserEvents, findSlugTag, publishKind1, validateURL, validateURLTitle } from "$lib/utils/helpers";
+    import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
     import type { NDKEvent } from "@nostr-dev-kit/ndk";
     import { onDestroy } from "svelte";
     import TextIcon from "$lib/elements/icons/text-icon.svelte";
     import LinkIcon from "$lib/elements/icons/link-icon.svelte";
     import { getModalStore } from "@skeletonlabs/skeleton";
+    import type { Link } from "$lib/classes/list";
+    import { errorPublishToast, succesPublishToast } from "$lib/utils/constants";
+    import { page } from "$app/stores";
     export let showCreateNewList = false;
 
     const modalStore = getModalStore();
+    const toastStore = getToastStore();
     let selectedTemplate:string;
     let fetchedEvents: NDKEvent[] = [];
-    let eventToEdit: NDKEvent | undefined = undefined;
+    let eventToEdit: NDKEvent
     let isTitleValid: boolean = false;
     let isURLValid: boolean = false;
-    let submitAddLink: boolean = false;
+    let shareLinkAdded: boolean = false;
     let isFormSent: boolean = false;
     let showOptions: boolean = false;
     let customTemplate: string;
-    let addLink = {url: '', text: '' }
+    let addLink: Link = {
+        description: "",
+        url: "",
+    };
 
     $:{
         showCreateNewList = selectedTemplate ? true : false;
@@ -50,17 +57,33 @@
         fetchedEvents = await fetchUserEvents($ndkUser?.pubkey!);
     }
 
-    $: if (submitAddLink && !isFormSent){
+    let shareContent:string 
+    $: shareContent = `I just added a new link to my Nostr list ${eventToEdit ? eventToEdit.tagValue("title") : ""}! 🎉.\n${addLink.description ? addLink.description : '<Link description>'}, ${addLink.url ? addLink.url : '<Link url>'}\nCheck it out: ${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${eventToEdit ? findSlugTag(eventToEdit) : ''}`;
+    async function handleAddLink() {
         modalStore.clear();
         modalStore.trigger({ type: 'component', component: 'modalLoading'});
+        try{
+            isFormSent = await addLinkToList(addLink, eventToEdit);
+            if (isFormSent) {
+                modalStore.clear(); 
+                toastStore.trigger(succesPublishToast);
+                shareLinkAdded && publishKind1(shareContent);
+            }
+        } catch (e) {
+            modalStore.clear();
+            toastStore.trigger(errorPublishToast)
+            console.log("Error:", e);
+        }
+
+
     }
 
     onDestroy(() => {
         fetchedEvents = [];
-        eventToEdit = undefined;
     });
 </script>
-<div class="card p-4 flex flex-col items-center">
+
+<div class="card p-4 flex flex-col items-center shadow-xl">
 {#if selectedTemplate}
     <div class="text-end w-full">
         <button class="common-btn-icon-ghost" on:click={resetFields}>
@@ -79,8 +102,8 @@
         type="text"
         id={`description`}
         placeholder="Link name"
-        bind:value={addLink.text}
-        on:input={() => isTitleValid = validateURLTitle(addLink.text)}
+        bind:value={addLink.description}
+        on:input={() => isTitleValid = validateURLTitle(addLink.description)}
         />
     </div>
     <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
@@ -100,20 +123,27 @@
         <span>Select the list to add the link to</span>
         <select class="select w-full" bind:value={eventToEdit}>
             {#each fetchedEvents as event}
-            <option value={event}>{event.tagValue('title')}</option>
+                <option value={event}>{event.tagValue('title')}</option>
             {/each}
         </select>
     </label>
-
-    <button disabled={!isURLValid || !isTitleValid || !eventToEdit}  class="common-btn-filled w-full" on:click={() => submitAddLink = true} type="button">Add link</button>
-    {#if submitAddLink}
-        <div class="hidden">
-            <CreateNewList bind:isFormSent eventToEdit={eventToEdit} addLink={addLink} autoPublish={true} doGoto={false} />
-        </div>
+    <button 
+        disabled={!isURLValid || !isTitleValid || !eventToEdit}  
+        class="common-btn-filled w-full" 
+        on:click={handleAddLink}
+        type="button">Add link
+    </button>
+    <label class="flex items-center space-x-2">
+		<input class="checkbox" type="checkbox" bind:value={shareLinkAdded}/>
+		<p>Share link as note</p>
+	</label>
+    {#if shareLinkAdded}
+        <textarea class="textarea" rows="4" bind:value={shareContent} placeholder="Enter some text..." />
     {/if}
 </div>
 {/if}
-<div class:hidden={selectedTemplate || fetchedEvents.length > 0} class="flex flex-col gap-2">
+
+<div class:hidden={selectedTemplate || fetchedEvents.length > 0} class="flex flex-col gap-2 w-full">
     <button class="common-btn-filled w-full" on:click={fetchEvents} type="button">Add a new link to a list</button>
 
     <div class="btn-group variant-filled grid grid-cols-[1fr_auto] w-full">

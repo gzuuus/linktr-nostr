@@ -3,7 +3,7 @@
   export let doGoto: boolean = true;
   export let eventToEdit: NDKEvent | null = null;
   export let listTemplate: string = "blank";
-  export let addLink: { url: string; text: string } | undefined = undefined;
+  export let addLink: Link | undefined = undefined;
   export let autoPublish: boolean = false;
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";
@@ -23,7 +23,7 @@
   import InsertIcon from "$lib/elements/icons/insert-icon.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
-  import { FormData } from "$lib/classes/list";
+  import { FormData, type Link } from "$lib/classes/list";
 	import { getToastStore, Accordion, AccordionItem, focusTrap, InputChip, getModalStore, popup } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
@@ -42,7 +42,7 @@
     formData = {
       title: listTemplate,
       description: `A list about ${listTemplate}`,
-      links: [{ link: "", description: "" }],
+      links: [{ url: "", description: "" }],
       labels: [{label: listTemplate }],
       nameSpace: "me.nostree.ontology",
       forkData: { forkPubKey: "", forkEventoPointer: "" },
@@ -58,7 +58,7 @@
     if (addLink) {
       rTags.push(addLink);
     }
-    const links = rTags.map((tag) => ({ link: tag.url, description: tag.text }));
+    const links = rTags.map((tag) => ({ url: tag.url, description: tag.description }));
     const labels = findOtherTags(eventToEdit.tags, "l").map((tag) => ({ label: tag }));
     const nameSpace = eventToEdit.tagValue("L")
     const tTags = findHashTags(eventToEdit.tags);
@@ -104,7 +104,7 @@
 
   function validateAllURLs() {
     linkValidationStatus = formData.links.map((linkData) => {
-      const isValidPrefix = validPrefixes.some((prefix) => linkData.link.startsWith(prefix));
+      const isValidPrefix = validPrefixes.some((prefix) => linkData.url.startsWith(prefix));
       return isValidPrefix;
     });
   }
@@ -161,8 +161,8 @@
       ];
     }
     for (const linkData of formData.links) {
-      const { link, description } = linkData;
-      ndkEvent.tags.push(["r", link.trim(), description.trim()]);
+      const { url, description } = linkData;
+      ndkEvent.tags.push(["r", url.trim(), description.trim()]);
     }
     for (const hashtag of formData.hashtags) {
       if (hashtag.trim() !== "") {
@@ -190,9 +190,9 @@
 
   function addLinkField(insertFirstPosition: boolean = true) {
     if (insertFirstPosition) {
-      formData.links = [{ link: "", description: "" }, ...formData.links];
+      formData.links = [{ url: "", description: "" }, ...formData.links];
     } else {
-      formData.links = [...formData.links, { link: "", description: "" }];
+      formData.links = [...formData.links, { url: "", description: "" }];
     }
     validateAllURLs();
     validateAllURLNames();
@@ -270,7 +270,7 @@
               type="text"
               id={`link-${index}`}
               placeholder="URL: https://..."
-              bind:value={linkData.link}
+              bind:value={linkData.url}
               on:input={validateAllURLs}
             />
           </div>
@@ -292,8 +292,8 @@
             <div class="arrow variant-filled" />
           </div>
 
-          {#if !linkValidationStatus[index] && linkData.link.trim()}
-            <span class="badge variant-ghost-error flex flex-row gap-1 w-fit m-auto" class:hidden={linkData.link.trim() && linkValidationStatus[index]}>
+          {#if !linkValidationStatus[index] && linkData.url.trim()}
+            <span class="badge variant-ghost-error flex flex-row gap-1 w-fit m-auto" class:hidden={linkData.url.trim() && linkValidationStatus[index]}>
               <InfoIcon size={18} /> Prefix needed
             </span>
           {/if}

@@ -132,18 +132,18 @@
         <span class="text-sm" class:hidden={!event.tagValue("description")}>{event.tagValue("description")}</span>
 
         <div class="flex flex-col gap-2 pt-2">
-        {#each findListTags(event.tags) as { url, text }}
+        {#each findListTags(event.tags) as { url, description }}
           {#if url.startsWith("nostr:")}
           <a
             href={`${outNostrLinksUrl}/${url.split(":")[url.split(":").length - 1]}`}
             target="_blank"
             rel="noreferrer"
           >
-          <button class="btn variant-filled w-full whitespace-pre-wrap">{text}</button>
+          <button class="btn variant-filled w-full whitespace-pre-wrap">{description}</button>
           </a>
         {:else}
           <a href={url} target="_blank" rel="noreferrer">
-            <button class="btn variant-filled w-full whitespace-pre-wrap">{text}</button>
+            <button class="btn variant-filled w-full whitespace-pre-wrap">{description}</button>
           </a>
         {/if}
         {/each}
