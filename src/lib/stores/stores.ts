@@ -10,9 +10,11 @@ interface UserLocalStore {
   lastUserLogged: string | undefined;
   lastUserTheme: string | undefined;
   currentUserFollows: string[] | undefined;
+  UserIdentifier: string | undefined;
 }
 export const localStore: Writable<UserLocalStore> = localStorageStore("nostree-localStore", {
   lastUserLogged: undefined,
   lastUserTheme: undefined,
   currentUserFollows: undefined,
+  UserIdentifier: undefined,
 });

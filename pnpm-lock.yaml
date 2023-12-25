@@ -47,10 +47,10 @@ dependencies:
 
 devDependencies:
   '@playwright/test':
-    specifier: ^1.40.0
+    specifier: ^1.40.1
     version: 1.40.1
   '@skeletonlabs/skeleton':
-    specifier: ^2.5.1
+    specifier: ^2.6.1
     version: 2.6.1(svelte@4.2.8)
   '@skeletonlabs/tw-plugin':
     specifier: ^0.2.4
@@ -59,10 +59,10 @@ devDependencies:
     specifier: ^2.1.1
     version: 2.1.1(@sveltejs/kit@1.30.3)
   '@sveltejs/adapter-cloudflare':
-    specifier: ^2.3.3
+    specifier: ^2.3.4
     version: 2.3.4(@sveltejs/kit@1.30.3)
   '@sveltejs/kit':
-    specifier: ^1.27.6
+    specifier: ^1.30.3
     version: 1.30.3(svelte@4.2.8)(vite@4.5.1)
   '@tailwindcss/forms':
     specifier: ^0.5.7
@@ -77,7 +77,7 @@ devDependencies:
     specifier: ^12.2.3
     version: 12.2.3
   '@types/node':
-    specifier: ^20.10.0
+    specifier: ^20.10.5
     version: 20.10.5
   '@types/uuid':
     specifier: ^9.0.7
@@ -92,7 +92,7 @@ devDependencies:
     specifier: ^10.4.16
     version: 10.4.16(postcss@8.4.32)
   eslint:
-    specifier: ^8.54.0
+    specifier: ^8.56.0
     version: 8.56.0
   eslint-config-prettier:
     specifier: ^8.10.0
@@ -101,7 +101,7 @@ devDependencies:
     specifier: ^2.35.1
     version: 2.35.1(eslint@8.56.0)(svelte@4.2.8)
   postcss:
-    specifier: ^8.4.31
+    specifier: ^8.4.32
     version: 8.4.32
   postcss-load-config:
     specifier: ^4.0.2
@@ -113,22 +113,22 @@ devDependencies:
     specifier: ^2.10.1
     version: 2.10.1(prettier@2.8.8)(svelte@4.2.8)
   svelte:
-    specifier: ^4.2.7
+    specifier: ^4.2.8
     version: 4.2.8
   svelte-check:
     specifier: ^3.6.2
     version: 3.6.2(postcss-load-config@4.0.2)(postcss@8.4.32)(svelte@4.2.8)
   tailwindcss:
-    specifier: ^3.3.5
+    specifier: ^3.4.0
     version: 3.4.0
   tslib:
     specifier: ^2.6.2
     version: 2.6.2
   typescript:
-    specifier: ^5.3.2
+    specifier: ^5.3.3
     version: 5.3.3
   vite:
-    specifier: ^4.5.0
+    specifier: ^4.5.1
     version: 4.5.1(@types/node@20.10.5)
 
 packages:

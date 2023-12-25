@@ -57,6 +57,7 @@
 				lastUserLogged: currentState.lastUserLogged,
 				lastUserTheme: userTheme,
 				currentUserFollows: currentState.currentUserFollows,
+				UserIdentifier: currentState.UserIdentifier,
 			}});
 			storeTheme.set(userTheme || '');
 

@@ -42,6 +42,7 @@
           lastUserLogged: currentState.lastUserLogged,
           lastUserTheme: currentState.lastUserTheme,
           currentUserFollows: $currentUserFollows ? $currentUserFollows : currentState.currentUserFollows || undefined,
+          UserIdentifier: currentState.UserIdentifier
         };
       });
     }

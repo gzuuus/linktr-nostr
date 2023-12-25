@@ -22,7 +22,7 @@
     let eventToEdit: NDKEvent
     let isTitleValid: boolean = false;
     let isURLValid: boolean = false;
-    let shareLinkAdded: boolean = false;
+    let shareLinkAdded:boolean = false
     let isFormSent: boolean = false;
     let showOptions: boolean = false;
     let customTemplate: string;
@@ -30,10 +30,6 @@
         description: "",
         url: "",
     };
-
-    $:{
-        showCreateNewList = selectedTemplate ? true : false;
-    }
 
     const templateOptions: AutocompleteOption<string>[] = [
         { label: 'Films', value: 'films'},
@@ -57,27 +53,57 @@
         fetchedEvents = await fetchUserEvents($ndkUser?.pubkey!);
     }
 
-    let shareContent:string 
-    $: shareContent = `I just added a new link to my Nostr list ${eventToEdit ? eventToEdit.tagValue("title") : ""}! 🎉.\n${addLink.description ? addLink.description : '<Link description>'}, ${addLink.url ? addLink.url : '<Link url>'}\nCheck it out: ${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${eventToEdit ? findSlugTag(eventToEdit) : ''}`;
+    let shareContent = '';
+
+    $: {
+        if (shareLinkAdded){
+            shareContent = generateShareContent();
+        }
+    }
+
+    $:{
+        showCreateNewList = selectedTemplate ? true : false;
+    }
+
+    function generateShareContent() {
+    const baseText = "I just added a new link to my Nostree list";
+    const eventTitle = eventToEdit ? eventToEdit.tagValue("title") : "";
+    const linkDescription = addLink.description ? addLink.description : '<Link description>';
+    const linkUrl = addLink.url ? addLink.url : '<Link url>';
+    const origin = $page.url.origin;
+    const userIdentifier = $isNip05ValidStore.UserIdentifier ? $isNip05ValidStore.UserIdentifier : $ndkUser?.npub;
+    const slug = eventToEdit ? findSlugTag(eventToEdit) : '';
+
+    return `${baseText} ${eventTitle}! 🎉.\n${linkDescription}, ${linkUrl}\nCheck it out: ${origin}/${userIdentifier}/${slug}`;
+    }
+
     async function handleAddLink() {
         modalStore.clear();
         modalStore.trigger({ type: 'component', component: 'modalLoading'});
         try{
             isFormSent = await addLinkToList(addLink, eventToEdit);
             if (isFormSent) {
-                modalStore.clear(); 
-                toastStore.trigger(succesPublishToast);
-                shareLinkAdded && publishKind1(shareContent);
+                if (shareLinkAdded) {
+                    let isPublished = await publishKind1(shareContent);
+                    isPublished && toastStore.trigger(succesPublishToast) && modalStore.clear(); 
+                    !isPublished && toastStore.trigger(errorPublishToast) && modalStore.clear();
+                } else {
+                    modalStore.clear(); 
+                    toastStore.trigger(succesPublishToast);
+                }
+            } else {
+                modalStore.clear();
+                toastStore.trigger(errorPublishToast)
             }
         } catch (e) {
             modalStore.clear();
             toastStore.trigger(errorPublishToast)
             console.log("Error:", e);
         }
-
-
     }
-
+    function toggleShareLink () {
+        shareLinkAdded = !shareLinkAdded
+    }
     onDestroy(() => {
         fetchedEvents = [];
     });
@@ -134,7 +160,13 @@
         type="button">Add link
     </button>
     <label class="flex items-center space-x-2">
-		<input class="checkbox" type="checkbox" bind:value={shareLinkAdded}/>
+		<input 
+            class="checkbox" 
+            type="checkbox" 
+            class:cursor-not-allowed={!isURLValid || !isTitleValid || !eventToEdit} 
+            disabled={!isURLValid || !isTitleValid || !eventToEdit} 
+            on:change={toggleShareLink}
+        />
 		<p>Share link as note</p>
 	</label>
     {#if shareLinkAdded}
@@ -154,7 +186,7 @@
     </div>
 </div>
 
-<div class:hidden={ !showOptions } class="flex flex-col gap-2 pt-2" >
+<div class:hidden={ !showOptions || selectedTemplate } class="flex flex-col gap-2 pt-2" >
     <span class="font-semibold">Create new list from a template</span>
     <div class="card w-full max-w-sm max-h-48 p-4 overflow-y-auto" tabindex="-1">
         <Autocomplete bind:input={selectedTemplate} options={templateOptions} on:selection={onSelection} />

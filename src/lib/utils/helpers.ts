@@ -30,6 +30,7 @@ import ndkStore from "$lib/stores/provider";
 import type { AddressPointer, EventPointer } from "nostr-tools/lib/types/nip19";
 import { localStore } from "$lib/stores/stores";
 import type { Link } from "$lib/classes/list";
+import { getModalStore } from "@skeletonlabs/skeleton";
 
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
@@ -287,6 +288,7 @@ export function logout() {
       lastUserTheme: undefined,
       currentUserFollows: undefined,
       currentUserLists: undefined,
+      UserIdentifier: undefined,
     };
   });
   goto("/");
@@ -367,6 +369,7 @@ export async function fetchCssAsset(user: string) {
             lastUserLogged: currentState.lastUserLogged,
             lastUserTheme: userTheme,
             currentUserFollows: currentState.currentUserFollows,
+            UserIdentifier: currentState.UserIdentifier,
           };
         });
 
@@ -385,6 +388,7 @@ export async function fetchCssAsset(user: string) {
             lastUserLogged: currentState.lastUserLogged,
             lastUserTheme: undefined,
             currentUserFollows: currentState.currentUserFollows,
+            UserIdentifier: currentState.UserIdentifier,
           };
         });
       }
@@ -405,14 +409,19 @@ export async function NDKlogin(): Promise<NDKUser | undefined> {
       npub: ndkCurrentUser.npub,
     });
     ndkUser.set(user);
+    
     const followsSet = await user.follows();
     const followsArray = Array.from(followsSet as Set<NDKUser>);
     currentUserFollows.set(followsArray.map((user) => user.pubkey));
+    const userProfile = await user.fetchProfile()
+    await isNip05Valid(userProfile?.nip05, userProfile?.npub);
+    const nip05ValidStore = getStore(isNip05ValidStore);
     localStore.update((currentState) => {
       return {
         lastUserLogged: ndkCurrentUser.npub,
         lastUserTheme: currentState.lastUserTheme,
         currentUserFollows: followsArray.map((user) => user.pubkey),
+        UserIdentifier: nip05ValidStore.UserIdentifier,
       };
     });
     await fetchCssAsset(user.pubkey);
@@ -456,9 +465,9 @@ export function validateURL(url: string): boolean {
 export function validateURLTitle(title: string): boolean {
   return title.trim() !== "";
 }
-
 export async function addLinkToList(link: Link, eventToModify: NDKEvent): Promise<boolean> {
   const $ndk = getStore(ndkStore);
+
   let linkTag = ["r", link.url, link.description];
   try {
       !$ndk.signer && await NDKlogin();
