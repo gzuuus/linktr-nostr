@@ -6,13 +6,12 @@
     import type { NDKTag } from "@nostr-dev-kit/ndk";
 
     export let eventTags: NDKTag[];
-    
+    $: linkTags = findListTags(eventTags)
     let showAll = false;
     let visibleItems = 5;
     let filteredTags: Link[]
-
     $:{
-        filteredTags = showAll ? findListTags(eventTags) : findListTags(eventTags).slice(0, visibleItems);
+        filteredTags = showAll ? linkTags : linkTags.slice(0, visibleItems);
     } 
 
     function toggleShowAll() {
@@ -30,12 +29,12 @@
     </a>
 {/each}
 
-{#if findListTags(eventTags).length > visibleItems}
+{#if linkTags.length > visibleItems}
     <button on:click={toggleShowAll} class="btn btn-icon btn-icon-sm variant-soft m-auto">
         {#if showAll}
             <MinusSmall size={16} />        
             {:else}
-            <small>+{eventTags.length - visibleItems}</small>
+            <small>+{linkTags.length - visibleItems}</small>
         {/if}
     </button>
 {/if}
