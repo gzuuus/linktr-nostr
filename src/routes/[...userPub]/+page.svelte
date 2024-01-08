@@ -19,14 +19,14 @@
   $: segments = $page.data.segments;
 </script>
 <svelte:head>
-  {#if userPubKey || segments}
+  {#if userProfile}
   <title>{userProfile.displayName ? userProfile.displayName : userProfile.name}</title>
   <meta name="description" content={userProfile.about ? userProfile.about : ""} />
   <meta property="og:title" content={userProfile.displayName ? userProfile.displayName : userProfile.name} />
   <meta property="og:description" content={userProfile.about ? userProfile.about : ""} />
   {/if}
 </svelte:head>
-  {#key userPubKey}
+  {#key userPubKey || segments}
     <ProfileCard userPub={userPubKey} bind:userProfile />
     {#key $page.url.pathname.split("/").length > 2}
       {#key isEditHappens}
