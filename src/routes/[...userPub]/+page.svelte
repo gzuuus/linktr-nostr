@@ -19,7 +19,7 @@
   $: segments = $page.data.segments;
 </script>
 <svelte:head>
-  {#if $page.url.href}
+  {#if userPubKey || $page.url.href}
   <title>{userProfile.displayName ? userProfile.displayName : userProfile.name}</title>
   <meta name="description" content={userProfile.about ? userProfile.about : ""} />
   <meta property="og:title" content={userProfile.displayName ? userProfile.displayName : userProfile.name} />
