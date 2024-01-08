@@ -26,7 +26,7 @@
   <meta property="og:description" content={userProfile.about ? userProfile.about : ""} />
   {/if}
 </svelte:head>
-  {#key userPubKey}
+  {#key userPubKey || $page.url.href}
     <ProfileCard userPub={userPubKey} bind:userProfile />
     {#key $page.url.pathname.split("/").length > 2}
       {#key isEditHappens}
