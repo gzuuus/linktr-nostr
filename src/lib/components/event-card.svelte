@@ -74,7 +74,7 @@
       let filterDb: NDKEvent[] = await filterDbEvents(ndkFilter);
 
     if (eventKind == kindLinks || oldKindLinks) {
-      let fetchedEvent = filterDb ? filterDb : await $ndk.fetchEvents(
+      let fetchedEvent = filterDb.length ? filterDb : await $ndk.fetchEvents(
         ndkFilter, 
         {
           closeOnEose: true,
