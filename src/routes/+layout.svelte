@@ -1,7 +1,10 @@
 <script lang="ts">
   import "../app.postcss";
   import Header from "$lib/components/header.svelte";
-  import { onMount } from "svelte";
+  import { db } from "@nostr-dev-kit/ndk-cache-dexie";
+  import { onDestroy, onMount } from "svelte";
+  import type NDKEvent from "@nostr-dev-kit/ndk";
+
   import ndk from "$lib/stores/provider";
   import { ogImageUrl } from "$lib/utils/constants";
   import { AppShell, Modal, Toast, type ModalComponent} from '@skeletonlabs/skeleton';
@@ -35,6 +38,7 @@
 	storePreview.subscribe(setBodyThemeAttribute);
 	storeTheme.subscribe(setBodyThemeAttribute);
   currentUserFollows.subscribe(setLocalFollows);
+
   function setLocalFollows(): void {
     if ($currentUserFollows.length == 0) return;
       localStore.update((currentState) => {
@@ -66,10 +70,8 @@
           themeIdentifier: undefined,
           themeCustomCss: undefined,
         });
-      } 
+      }
     }
-
-
 </script>
 
 <svelte:head>

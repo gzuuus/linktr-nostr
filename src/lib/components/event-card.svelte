@@ -12,10 +12,10 @@
   import {
     unixToDate,
     buildEventPointer,
-    findListTags,
     sortEventList,
     findOtherTags,
     naddrEncodeATags,
+    filterDbEvents
   } from "$lib/utils/helpers";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import { kindLinks, oldKindLinks } from "$lib/utils/constants";
@@ -54,8 +54,8 @@
   let retryCounter = 0;
   let userNpub = nip19.npubEncode(userPub);
   const ndkFilter: NDKFilter = dValue
-    ? { kinds: [eventKind, oldKindLinks], authors: [userPub], "#d": [`${dValue}`] }
-    : { kinds: [eventKind, oldKindLinks], authors: [userPub], "#l": [`${listLabel}`] };
+    ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`] }
+    : { kinds: [eventKind], authors: [userPub], "#l": [`${listLabel}`] };
   
   export const updateEventToast: ToastSettings = {
     message: 'We are migrating to a new event kind, due a change in the nostr protocol. Please update your events.',
@@ -70,17 +70,17 @@
   };
 
   async function fetchCurrentEvents() {
-    oldEventList = []
     try {
+      let filterDb: NDKEvent[] = await filterDbEvents(ndkFilter);
+
     if (eventKind == kindLinks || oldKindLinks) {
-      let fetchedEvent = await $ndk.fetchEvents(
+      let fetchedEvent = filterDb ? filterDb : await $ndk.fetchEvents(
         ndkFilter, 
         {
           closeOnEose: true,
           cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
         })
       RawEventList = Array.from(fetchedEvent);
-      console.log(RawEventList)
       linkListLength = RawEventList.length ? RawEventList.length : undefined;
       sortEventList(RawEventList);
       for (const event of RawEventList) {
@@ -95,12 +95,6 @@
         }
         const tagDExistsInEventList = eventList.some((e) => e.tagValue('d') === tagDValue);
 
-        if (event.kind == oldKindLinks && !tagDExistsInEventList) {
-          oldEventList.push(event);
-          eventList.push(event);
-          tagTitleValue != undefined && eventTitles.push(tagTitleValue);
-          tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
-        }
       }
       if (userPub == $ndkUser?.pubkey) {
         oldEventList.length > 0 && (toastStore.trigger(updateEventToast));

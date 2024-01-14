@@ -30,7 +30,6 @@ import ndkStore from "$lib/stores/provider";
 import type { AddressPointer, EventPointer } from "nostr-tools/lib/types/nip19";
 import { localStore } from "$lib/stores/stores";
 import type { Link } from "$lib/classes/list";
-import { getModalStore } from "@skeletonlabs/skeleton";
 
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
@@ -135,7 +134,7 @@ export function propsBuildPointer(
 
 export function buildEventPointer(event: NDKEvent) {
   let objPointer: EventPointer | AddressPointer;
-  let encodedPointer: string = "";
+  let encodedPointer: string;
   if (event.kind == kindNotes) {
     objPointer = {
       id: event.id,
@@ -144,11 +143,12 @@ export function buildEventPointer(event: NDKEvent) {
     };
     return (encodedPointer = nip19.neventEncode(objPointer));
   } else if (event.kind == kindLinks || event.kind == kindArticles || event.kind == oldKindLinks) {
+    console.log(event.tagValue("d")!, event.author.pubkey, event.kind, event.relay?.url);
     objPointer = {
       identifier: event.tagValue("d")!,
       pubkey: event.author.pubkey,
       kind: event.kind,
-      relays: [event.relay?.url ?? ""],
+      relays: event.relay?.url ? [event.relay?.url] : [],
     };
     return (encodedPointer = nip19.naddrEncode(objPointer));
   }
@@ -497,4 +497,35 @@ export async function publishKind1(content: string): Promise<boolean> {
     console.error(error);
     return false;
   }
+}
+
+export async function filterDbEvents(filter: NDKFilter): Promise<NDKEvent[]> {
+  if (!browser) return [];
+  const $ndk = getStore(ndkStore);
+
+  let filterDb: NDKEvent[] = [];
+
+  try {
+    if (filter.kinds && filter.authors && filter["#l"]) {
+      const events = await db.events
+        .where("pubkey")
+        .anyOf(filter.authors!)
+        .and((event) => filter.kinds!.includes(event.kind))
+        .toArray();
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+      console.log("cachedEvents", filterDb);
+    } else if (filter.kinds && filter.authors && filter["#d"]) {
+      const events = await db.events
+        .where("id")
+        .startsWith(`${filter.kinds[0]}:${filter.authors[0]}:${filter["#d"]}`)
+        .toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+      console.log("cached #d", filterDb);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+  return filterDb;
 }

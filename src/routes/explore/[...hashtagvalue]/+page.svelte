@@ -21,7 +21,7 @@
   import { ndkUser } from "$lib/stores/user";
   import GlobalIcon from "$lib/elements/icons/global-icon.svelte";
   import FriendsIcon from "$lib/elements/icons/friends-icon.svelte";
-    import RenderLinks from "$lib/components/render-links.svelte";
+  import RenderLinks from "$lib/components/render-links.svelte";
   
   let showForkInfo: boolean = false;
   let eventHashtags: string[] = [];
