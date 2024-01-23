@@ -414,7 +414,7 @@ export async function NDKlogin(): Promise<NDKUser | undefined> {
     const followsArray = Array.from(followsSet as Set<NDKUser>);
     currentUserFollows.set(followsArray.map((user) => user.pubkey));
     const userProfile = await user.fetchProfile();
-    await isNip05Valid(userProfile?.nip05, userProfile?.npub);
+    await isNip05Valid(userProfile?.nip05, user.npub);
     const nip05ValidStore = getStore(isNip05ValidStore);
     localStore.update((currentState) => {
       return {
