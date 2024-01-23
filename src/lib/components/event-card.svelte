@@ -29,7 +29,6 @@
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
-  import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
@@ -43,7 +42,6 @@
   let eventList: NDKEvent[] = [];
   let RawEventList: NDKEvent[] = [];
   let oldEventList: NDKEvent[] = [];
-  let showDialog: boolean = false;
   let showListsIndex: boolean = false;
   let showListsIndexSwitchTabs: boolean = false;
   let showForkInfo: boolean = false;
@@ -51,7 +49,6 @@
   let isFormSent: boolean = false;
   let eventTitles: string[] = [];
   let eventHashtags: string[] = [];
-  let retryCounter = 0;
   let userNpub = nip19.npubEncode(userPub);
   const ndkFilter: NDKFilter = dValue
     ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`] }
@@ -71,20 +68,18 @@
 
   async function fetchCurrentEvents() {
     try {
-      let filterDb: NDKEvent[] = await filterDbEvents(ndkFilter);
+      let filterDb: NDKEvent[] | undefined = await filterDbEvents(ndkFilter);
 
     if (eventKind == kindLinks || oldKindLinks) {
-      let fetchedEvent = filterDb.length ? filterDb : await $ndk.fetchEvents(
+      let fetchedEvent = filterDb ? filterDb : await $ndk.fetchEvents(
         ndkFilter, 
         {
           closeOnEose: true,
-          cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
         })
       RawEventList = Array.from(fetchedEvent);
       linkListLength = RawEventList.length ? RawEventList.length : undefined;
       sortEventList(RawEventList);
       for (const event of RawEventList) {
-        const tagDValue = event.tagValue('d');
         const tagTitleValue = event.tagValue('title');
         const tagHashtagValue = event.tagValue('t');
         
@@ -93,7 +88,6 @@
           tagTitleValue != undefined && eventTitles.push(tagTitleValue);
           tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
         }
-        const tagDExistsInEventList = eventList.some((e) => e.tagValue('d') === tagDValue);
 
       }
       if (userPub == $ndkUser?.pubkey) {
@@ -160,7 +154,6 @@
   });
 
   onDestroy(() => {
-    retryCounter = 5;
     isEditHappens = false;
   })
 </script>
@@ -285,7 +278,6 @@
             <button class="common-btn-sm-ghost"
               on:click={() => {
                 isEditMode = false;
-                showDialog = false;
               }}>{isFork ? "Forking" : "Editing"} <CloseIcon size={16} /></button
             >
             <CreateNewList bind:isFormSent eventToEdit={eventList[currentIndex]} doGoto={isFork ? true : false} />

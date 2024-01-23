@@ -499,21 +499,36 @@ export async function publishKind1(content: string): Promise<boolean> {
   }
 }
 
-export async function filterDbEvents(filter: NDKFilter): Promise<NDKEvent[]> {
-  if (!browser) return [];
+export async function filterDbEvents(filter: NDKFilter): Promise<NDKEvent[] | undefined> {
+  if (!browser) return;
+  console.log(filter);
   const $ndk = getStore(ndkStore);
-
-  let filterDb: NDKEvent[] = [];
-
+  let filterDb: NDKEvent[] | undefined;
   try {
-    if (filter.kinds && filter.authors && filter["#l"]) {
+    if (filter.authors) {
+      const events = await db.events
+        .where("pubkey")
+        .anyOf(filter.authors)
+        .toArray();
+
+        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
+    } else if (filter.kinds) {
+      const events = await db.events
+        .where("kind")
+        .anyOf(filter.kinds)
+        .toArray();
+
+        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
+        console.log(filterDb);
+    }
+    else if (filter.kinds && filter.authors && filter["#l"]) {
       const events = await db.events
         .where("pubkey")
         .anyOf(filter.authors!)
         .and((event) => filter.kinds!.includes(event.kind))
         .toArray();
-      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
-      console.log("cachedEvents", filterDb);
+
+        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));      
     } else if (filter.kinds && filter.authors && filter["#d"]) {
       const events = await db.events
         .where("id")
@@ -521,8 +536,9 @@ export async function filterDbEvents(filter: NDKFilter): Promise<NDKEvent[]> {
         .toArray();
 
       filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
-      console.log("cached #d", filterDb);
     }
+
+    console.log("cachedEvents", filterDb);
   } catch (error) {
     console.log(error);
   }
