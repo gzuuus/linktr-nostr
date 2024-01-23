@@ -346,9 +346,15 @@ export async function fetchCssAsset(user: string) {
     kinds: [kindCSSReplaceableAsset as NDKKind],
     "#L": ["nostree-theme"],
   };
-
+  let filterDb: NDKEvent[] | undefined;
   try {
-    const fetchedEvent = await $ndk.fetchEvent(ndkFilter, {
+    const cachedTheme = await db.events
+      .where("id")
+      .startsWith(`${kindCSSReplaceableAsset}:${user}`)
+      .toArray();
+    filterDb = cachedTheme.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
+    filterDb.length ? filterDb = filterDb : filterDb = undefined;
+    const fetchedEvent = filterDb ? filterDb[0] : await $ndk.fetchEvent(ndkFilter, {
       closeOnEose: true,
       groupable: true,
     });
@@ -409,7 +415,6 @@ export async function NDKlogin(): Promise<NDKUser | undefined> {
       npub: ndkCurrentUser.npub,
     });
     ndkUser.set(user);
-
     const followsSet = await user.follows();
     const followsArray = Array.from(followsSet as Set<NDKUser>);
     currentUserFollows.set(followsArray.map((user) => user.pubkey));
@@ -498,30 +503,15 @@ export async function publishKind1(content: string): Promise<boolean> {
     return false;
   }
 }
-
+// TODO
 export async function filterDbEvents(filter: NDKFilter): Promise<NDKEvent[] | undefined> {
   if (!browser) return;
-  console.log(filter);
+  console.log("filterDbEvents", filter);
   const $ndk = getStore(ndkStore);
   let filterDb: NDKEvent[] | undefined;
   try {
-    if (filter.authors) {
-      const events = await db.events
-        .where("pubkey")
-        .anyOf(filter.authors)
-        .toArray();
-
-        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
-    } else if (filter.kinds) {
-      const events = await db.events
-        .where("kind")
-        .anyOf(filter.kinds)
-        .toArray();
-
-        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
-        console.log(filterDb);
-    }
-    else if (filter.kinds && filter.authors && filter["#l"]) {
+    if (filter.kinds && filter.authors && filter["#l"]) {
+      console.log("filter.kinds && filter.authors && filter['#l']", filter.kinds);
       const events = await db.events
         .where("pubkey")
         .anyOf(filter.authors!)
@@ -536,9 +526,31 @@ export async function filterDbEvents(filter: NDKFilter): Promise<NDKEvent[] | un
         .toArray();
 
       filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    } else if (filter.authors && filter.kinds) {
+      console.log("filter.authors", filter.authors);
+      const events = await db.events
+        .where("pubkey")
+        .anyOf(filter.authors)
+        .and((event) => filter.kinds!.includes(event.kind))
+        .toArray();
+
+        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
+    } else if (filter.authors) {
+      const events = await db.events
+        .where("pubkey")
+        .anyOf(filter.authors)
+        .toArray();
+
+        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
+    } else if (filter.kinds) {
+      const events = await db.events
+        .where("kind")
+        .anyOf(filter.kinds)
+        .toArray();
+
+        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
     }
 
-    console.log("cachedEvents", filterDb);
   } catch (error) {
     console.log(error);
   }
