@@ -98,7 +98,3 @@
     <slot />
   </div>
 </AppShell>
-
-<style>
-  @import '$lib/elements/animations/general-animations.css';
-</style>

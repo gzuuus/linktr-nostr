@@ -26,10 +26,9 @@ import { browser } from "$app/environment";
 import { db } from "@nostr-dev-kit/ndk-cache-dexie";
 import { get as getStore } from "svelte/store";
 import ndkStore from "$lib/stores/provider";
-import type { AddressPointer, EventPointer } from "nostr-tools/lib/types/nip19";
 import { localStore } from "$lib/stores/stores";
 import type { Link } from "$lib/classes/list";
-
+import { type AddressPointer, type EventPointer } from 'nostr-tools/nip19';
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
