@@ -18,7 +18,6 @@ import {
   kindCSSReplaceableAsset,
   kindLinks,
   kindNotes,
-  oldKindLinks,
   outNostrLinksUrl,
   validPrefixes,
 } from "./constants";
@@ -142,7 +141,7 @@ export function buildEventPointer(event: NDKEvent) {
       author: event.author.pubkey,
     };
     return (encodedPointer = nip19.neventEncode(objPointer));
-  } else if (event.kind == kindLinks || event.kind == kindArticles || event.kind == oldKindLinks) {
+  } else if (event.kind == kindLinks || event.kind == kindArticles || event.kind == kindLinks) {
     console.log(event.tagValue("d")!, event.author.pubkey, event.kind, event.relay?.url);
     objPointer = {
       identifier: event.tagValue("d")!,
@@ -346,15 +345,9 @@ export async function fetchCssAsset(user: string) {
     kinds: [kindCSSReplaceableAsset as NDKKind],
     "#L": ["nostree-theme"],
   };
-  let filterDb: NDKEvent[] | undefined;
   try {
-    const cachedTheme = await db.events
-      .where("id")
-      .startsWith(`${kindCSSReplaceableAsset}:${user}`)
-      .toArray();
-    filterDb = cachedTheme.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
-    filterDb.length ? filterDb = filterDb : filterDb = undefined;
-    const fetchedEvent = filterDb ? filterDb[0] : await $ndk.fetchEvent(ndkFilter, {
+    // TODO: use cache
+    const fetchedEvent = await $ndk.fetchEvent(ndkFilter, {
       closeOnEose: true,
       groupable: true,
     });
@@ -455,7 +448,7 @@ export function processHashtags(events: NDKEvent[]): string[] {
 export async function fetchUserEvents(userPubKey: string): Promise<NDKEvent[]> {
   const $ndk = getStore(ndkStore);
   let fetchedEvent = await $ndk.fetchEvents({
-    kinds: [kindLinks, oldKindLinks],
+    kinds: [kindLinks],
     authors: [userPubKey],
     "#l": ["nostree"],
   });

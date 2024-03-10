@@ -4,7 +4,7 @@
   import type { NDKEvent, NDKFilter} from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-  import { kindLinks, oldKindLinks, outNostrLinksUrl } from "$lib/utils/constants";
+  import { kindLinks } from "$lib/utils/constants";
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import { nip19 } from "nostr-tools";
@@ -36,7 +36,7 @@
     let hashtag = $page.params.hashtagvalue;
     let authors = $localStore.currentUserFollows;
     let ndkFilter = {
-      kinds: [kindLinks, oldKindLinks],
+      kinds: [kindLinks],
       ...(exploreNetwork && { authors }),
       ...(hashtag && { "#t": [hashtag] }),
       "#l": ["nostree"],

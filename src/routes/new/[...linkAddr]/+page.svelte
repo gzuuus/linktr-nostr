@@ -9,7 +9,7 @@
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
   import PinIcon from "$lib/elements/icons/pin-icon.svelte";
   import Login from "$lib/components/login.svelte";
-  import { errorPublishToast, kindLinks, oldKindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
+  import { errorPublishToast, kindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
@@ -35,7 +35,7 @@
     if ($ndkUser) {
       let userPubDecoded: string = nip19.decode($ndkUser.npub).data.toString();
       let fetchedEvent = await $ndk.fetchEvents({
-          kinds: [kindLinks, oldKindLinks],
+          kinds: [kindLinks],
           authors: [userPubDecoded],
           "#l": ["nostree"],
         })
@@ -179,21 +179,6 @@
                       handleSubmit(event, true);
                     }}><BinIcon size={20} /></button
                   >
-                  {#if event.kind == oldKindLinks}
-                    <span 
-                    use:popup={{ event: 'hover', target: 'popupOldKind', placement: 'top' }}
-                    >🔺
-                  </span>
-                  <div class="card p-4 variant-filled" data-popup="popupOldKind">
-                    <p>List in old format, please update it, press </p>
-                    <button
-                    class="common-btn-icon-ghost"
-                    >
-                    <PinIcon size={20} />
-                    </button>
-                    <div class="arrow variant-filled" />
-                  </div>
-                  {/if}
                 </div>
                 <div class:hidden={isEditMode && editIndex == i}>
                   <h3>{event.tagValue("title")}</h3>

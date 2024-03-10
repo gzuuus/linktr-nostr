@@ -15,8 +15,6 @@
   let linkListLength: number;
   let userProfile: NDKUserProfile;
   let userNpub = nip19.npubEncode($page.data.pubkey)
-  $: userPubKey = $page.data.pubkey;
-  $: segments = $page.data.segments;
 </script>
 <svelte:head>
   {#if userProfile}
@@ -26,17 +24,17 @@
   <meta property="og:description" content={userProfile.about ? userProfile.about : ""} />
   {/if}
 </svelte:head>
-  {#key userPubKey || $page.url.href}
-    <ProfileCard userPub={userPubKey} bind:userProfile />
+  {#key $page.data.pubkey || $page.url.href}
+    <ProfileCard userPub={$page.data.pubkey} bind:userProfile />
     {#key $page.url.pathname.split("/").length > 2}
       {#key isEditHappens}
         <div>
           <EventCard
             bind:linkListLength 
             bind:isEditHappens
-            userPub={userPubKey}
+            userPub={$page.data.pubkey}
             eventKind={kindLinks}
-            listLabel={segments[0]}
+            listLabel={$page.data.segments[0]}
           />
           {#if linkListLength == undefined}
           <div class=" flex flex-col gap-2 justify-center common-ring p-4 w-fit m-auto rounded-container-token card">

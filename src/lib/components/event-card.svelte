@@ -18,7 +18,7 @@
     filterDbEvents
   } from "$lib/utils/helpers";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-  import { kindLinks, oldKindLinks } from "$lib/utils/constants";
+  import { kindLinks } from "$lib/utils/constants";
   import { page } from "$app/stores";
   import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
   import { goto } from "$app/navigation";
@@ -41,7 +41,6 @@
   const toastStore = getToastStore();
   let eventList: NDKEvent[] = [];
   let RawEventList: NDKEvent[] = [];
-  let oldEventList: NDKEvent[] = [];
   let showListsIndex: boolean = false;
   let showListsIndexSwitchTabs: boolean = false;
   let showForkInfo: boolean = false;
@@ -54,56 +53,30 @@
     ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`] }
     : { kinds: [eventKind], authors: [userPub], "#l": [`${listLabel}`] };
   
-  export const updateEventToast: ToastSettings = {
-    message: 'We are migrating to a new event kind, due a change in the nostr protocol. Please update your events.',
-    background: 'variant-filled-warning',
-    timeout: 5000,
-    hoverable: true,
-    classes: 'flex flex-col gap-2',
-    action: {
-      label: 'Update events',
-      response: () => crafUpdateModal()
-    }
-  };
-
   async function fetchCurrentEvents() {
+    console.log("its happening")
     try {
+    if (eventKind == kindLinks) {
       let filterDb: NDKEvent[] | undefined = await filterDbEvents(ndkFilter);
-
-    if (eventKind == kindLinks || oldKindLinks) {
-      let fetchedEvent = filterDb ? filterDb : await $ndk.fetchEvents(
-        ndkFilter, 
-        {
-          closeOnEose: true,
-        })
-      RawEventList = Array.from(fetchedEvent);
+      filterDb && (RawEventList.push(...filterDb));
+      // TODO: improve this to add events that are not in the db
+      RawEventList.length ? $ndk.fetchEvents(ndkFilter) : RawEventList = Array.from(await $ndk.fetchEvents(ndkFilter));
       linkListLength = RawEventList.length ? RawEventList.length : undefined;
       sortEventList(RawEventList);
       for (const event of RawEventList) {
         const tagTitleValue = event.tagValue('title');
         const tagHashtagValue = event.tagValue('t');
         
-        if (event.kind == kindLinks) {
           eventList.push(event);
           tagTitleValue != undefined && eventTitles.push(tagTitleValue);
           tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
-        }
 
       }
-      if (userPub == $ndkUser?.pubkey) {
-        oldEventList.length > 0 && (toastStore.trigger(updateEventToast));
-      }
-
     } else {
       const ndkFilter: NDKFilter = dValue
         ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`], limit: 5 }
         : { kinds: [eventKind], authors: [userPub], limit: 5 };
-      let fetchedEvent = await $ndk.fetchEvents(
-        ndkFilter, 
-        { 
-          closeOnEose: true, 
-          groupable: true 
-        })
+      let fetchedEvent = await $ndk.fetchEvents(ndkFilter)
         eventList = Array.from(fetchedEvent);
         sortEventList(eventList);
     }
@@ -121,17 +94,6 @@
       component: 'modalPublishKind1',
       meta: {
         noteContent: `Look this cool nostree list '${modalTitle}' from nostr:${$isNip05ValidStore.UserNpub}\n${modalContent}`
-      }
-    };
-    modalStore.trigger(modal);
-  }
-
-  function crafUpdateModal() {
-    const modal: ModalSettings = {
-      type: 'component',
-      component: 'modalUpdateOldKind',
-      meta: {
-        noteContent: oldEventList
       }
     };
     modalStore.trigger(modal);
