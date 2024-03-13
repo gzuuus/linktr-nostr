@@ -59,9 +59,8 @@
     if (eventKind == kindLinks) {
       let filterDb: NDKEvent[] | undefined = await filterDbEvents(ndkFilter);
       filterDb && (RawEventList.push(...filterDb));
-      // TODO: improve this to add events that are not in the db
+      // TODO: improve this to add events that are not in the db, compare the cache with the fetchedEvents to ensure that we have them all
       RawEventList.length ? $ndk.fetchEvents(ndkFilter) : RawEventList = Array.from(await $ndk.fetchEvents(ndkFilter));
-      linkListLength = RawEventList.length ? RawEventList.length : undefined;
       sortEventList(RawEventList);
       for (const event of RawEventList) {
         const tagTitleValue = event.tagValue('title');
@@ -70,7 +69,6 @@
           eventList.push(event);
           tagTitleValue != undefined && eventTitles.push(tagTitleValue);
           tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
-
       }
     } else {
       const ndkFilter: NDKFilter = dValue
@@ -85,6 +83,7 @@
     console.error('Error',e);
   }
   }
+  $: linkListLength = RawEventList.length ?? undefined;
 
   function craftModal(modalTitle:string | undefined = "", modalContent:string) {
     const modal: ModalSettings = {
