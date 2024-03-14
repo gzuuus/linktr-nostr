@@ -10,6 +10,7 @@
   import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import { nip19 } from "nostr-tools";
+  import EventCardLive from "$lib/components/event-card-live.svelte";
 
   let isEditHappens: boolean = false;
   let linkListLength: number;
@@ -29,13 +30,20 @@
     {#key $page.url.pathname.split("/").length > 2}
       {#key isEditHappens}
         <div>
-          <EventCard
+          <EventCardLive
             bind:linkListLength 
             bind:isEditHappens
             userPub={$page.data.pubkey}
             eventKind={kindLinks}
             listLabel={$page.data.segments[0]}
           />
+          <!-- <EventCard
+            bind:linkListLength 
+            bind:isEditHappens
+            userPub={$page.data.pubkey}
+            eventKind={kindLinks}
+            listLabel={$page.data.segments[0]}
+          /> -->
           {#if linkListLength == undefined}
           <div class=" flex flex-col gap-2 justify-center common-ring p-4 w-fit m-auto rounded-container-token card">
             <button class="btn btn-icon variant-filled m-auto" on:click={() => goto(`/new`)}>

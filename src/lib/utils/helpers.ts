@@ -28,7 +28,7 @@ import { get as getStore } from "svelte/store";
 import ndkStore from "$lib/stores/provider";
 import { localStore } from "$lib/stores/stores";
 import type { Link } from "$lib/classes/list";
-import { type AddressPointer, type EventPointer } from 'nostr-tools/nip19';
+import { type AddressPointer, type EventPointer } from "nostr-tools/nip19";
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
@@ -510,7 +510,7 @@ export async function filterDbEvents(filter: NDKFilter): Promise<NDKEvent[] | un
         .and((event) => filter.kinds!.includes(event.kind))
         .toArray();
 
-        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));      
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
     } else if (filter.kinds && filter.authors && filter["#d"]) {
       const events = await db.events
         .where("id")
@@ -526,23 +526,16 @@ export async function filterDbEvents(filter: NDKFilter): Promise<NDKEvent[] | un
         .and((event) => filter.kinds!.includes(event.kind))
         .toArray();
 
-        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
     } else if (filter.authors) {
-      const events = await db.events
-        .where("pubkey")
-        .anyOf(filter.authors)
-        .toArray();
+      const events = await db.events.where("pubkey").anyOf(filter.authors).toArray();
 
-        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
     } else if (filter.kinds) {
-      const events = await db.events
-        .where("kind")
-        .anyOf(filter.kinds)
-        .toArray();
+      const events = await db.events.where("kind").anyOf(filter.kinds).toArray();
 
-        filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event))); 
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
     }
-
   } catch (error) {
     console.log(error);
   }

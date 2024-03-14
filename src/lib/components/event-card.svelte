@@ -83,7 +83,7 @@
     console.error('Error',e);
   }
   }
-  $: linkListLength = RawEventList.length ?? undefined;
+  $: linkListLength = RawEventList.length ? RawEventList.length : undefined;
 
   function craftModal(modalTitle:string | undefined = "", modalContent:string) {
     const modal: ModalSettings = {
