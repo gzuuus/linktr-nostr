@@ -31,3 +31,9 @@
     </div>
 </section>
 {/if}
+
+<style>
+    .loading-global {
+        animation: spin 4s linear infinite;
+    }
+</style>

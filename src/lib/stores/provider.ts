@@ -9,7 +9,6 @@ let cacheAdapter: NDKCacheAdapter | undefined;
 if (browser) {
   cacheAdapter = new NDKCacheAdapterDexie({
     dbName: "nostreeV02",
-    expirationTime: 3600 * 24 * 1,
   });
 }
 
@@ -17,9 +16,7 @@ export const defaulRelaysUrls: string[] = [
   "wss://purplepag.es",
   "wss://relay.nostr.band",
   "wss://nos.lol",
-  "wss://offchain.pub/",
-  "wss://nostr-pub.wellorder.net",
-  "wss://nostr.mutinywallet.com ",
+  "wss://bouncer.nostree.me",
 ];
 
 const ndk = new NDKSvelte({

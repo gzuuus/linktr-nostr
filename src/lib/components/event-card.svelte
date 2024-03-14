@@ -12,13 +12,13 @@
   import {
     unixToDate,
     buildEventPointer,
-    findListTags,
     sortEventList,
     findOtherTags,
     naddrEncodeATags,
+    filterDbEvents
   } from "$lib/utils/helpers";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-  import { kindLinks, oldKindLinks } from "$lib/utils/constants";
+  import { kindLinks } from "$lib/utils/constants";
   import { page } from "$app/stores";
   import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
   import { goto } from "$app/navigation";
@@ -29,7 +29,6 @@
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
-  import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
@@ -42,8 +41,6 @@
   const toastStore = getToastStore();
   let eventList: NDKEvent[] = [];
   let RawEventList: NDKEvent[] = [];
-  let oldEventList: NDKEvent[] = [];
-  let showDialog: boolean = false;
   let showListsIndex: boolean = false;
   let showListsIndexSwitchTabs: boolean = false;
   let showForkInfo: boolean = false;
@@ -51,71 +48,33 @@
   let isFormSent: boolean = false;
   let eventTitles: string[] = [];
   let eventHashtags: string[] = [];
-  let retryCounter = 0;
   let userNpub = nip19.npubEncode(userPub);
   const ndkFilter: NDKFilter = dValue
-    ? { kinds: [eventKind, oldKindLinks], authors: [userPub], "#d": [`${dValue}`] }
-    : { kinds: [eventKind, oldKindLinks], authors: [userPub], "#l": [`${listLabel}`] };
+    ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`] }
+    : { kinds: [eventKind], authors: [userPub], "#l": [`${listLabel}`] };
   
-  export const updateEventToast: ToastSettings = {
-    message: 'We are migrating to a new event kind, due a change in the nostr protocol. Please update your events.',
-    background: 'variant-filled-warning',
-    timeout: 5000,
-    hoverable: true,
-    classes: 'flex flex-col gap-2',
-    action: {
-      label: 'Update events',
-      response: () => crafUpdateModal()
-    }
-  };
-
   async function fetchCurrentEvents() {
-    oldEventList = []
+    console.log("its happening")
     try {
-    if (eventKind == kindLinks || oldKindLinks) {
-      let fetchedEvent = await $ndk.fetchEvents(
-        ndkFilter, 
-        {
-          closeOnEose: true,
-          cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-        })
-      RawEventList = Array.from(fetchedEvent);
-      console.log(RawEventList)
-      linkListLength = RawEventList.length ? RawEventList.length : undefined;
+    if (eventKind == kindLinks) {
+      let filterDb: NDKEvent[] | undefined = await filterDbEvents(ndkFilter);
+      filterDb && (RawEventList.push(...filterDb));
+      // TODO: improve this to add events that are not in the db, compare the cache with the fetchedEvents to ensure that we have them all
+      RawEventList.length ? $ndk.fetchEvents(ndkFilter) : RawEventList = Array.from(await $ndk.fetchEvents(ndkFilter));
       sortEventList(RawEventList);
       for (const event of RawEventList) {
-        const tagDValue = event.tagValue('d');
         const tagTitleValue = event.tagValue('title');
         const tagHashtagValue = event.tagValue('t');
         
-        if (event.kind == kindLinks) {
           eventList.push(event);
           tagTitleValue != undefined && eventTitles.push(tagTitleValue);
           tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
-        }
-        const tagDExistsInEventList = eventList.some((e) => e.tagValue('d') === tagDValue);
-
-        if (event.kind == oldKindLinks && !tagDExistsInEventList) {
-          oldEventList.push(event);
-          eventList.push(event);
-          tagTitleValue != undefined && eventTitles.push(tagTitleValue);
-          tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
-        }
       }
-      if (userPub == $ndkUser?.pubkey) {
-        oldEventList.length > 0 && (toastStore.trigger(updateEventToast));
-      }
-
     } else {
       const ndkFilter: NDKFilter = dValue
         ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`], limit: 5 }
         : { kinds: [eventKind], authors: [userPub], limit: 5 };
-      let fetchedEvent = await $ndk.fetchEvents(
-        ndkFilter, 
-        { 
-          closeOnEose: true, 
-          groupable: true 
-        })
+      let fetchedEvent = await $ndk.fetchEvents(ndkFilter)
         eventList = Array.from(fetchedEvent);
         sortEventList(eventList);
     }
@@ -124,6 +83,7 @@
     console.error('Error',e);
   }
   }
+  $: linkListLength = RawEventList.length ? RawEventList.length : undefined;
 
   function craftModal(modalTitle:string | undefined = "", modalContent:string) {
     const modal: ModalSettings = {
@@ -133,17 +93,6 @@
       component: 'modalPublishKind1',
       meta: {
         noteContent: `Look this cool nostree list '${modalTitle}' from nostr:${$isNip05ValidStore.UserNpub}\n${modalContent}`
-      }
-    };
-    modalStore.trigger(modal);
-  }
-
-  function crafUpdateModal() {
-    const modal: ModalSettings = {
-      type: 'component',
-      component: 'modalUpdateOldKind',
-      meta: {
-        noteContent: oldEventList
       }
     };
     modalStore.trigger(modal);
@@ -166,7 +115,6 @@
   });
 
   onDestroy(() => {
-    retryCounter = 5;
     isEditHappens = false;
   })
 </script>
@@ -291,7 +239,6 @@
             <button class="common-btn-sm-ghost"
               on:click={() => {
                 isEditMode = false;
-                showDialog = false;
               }}>{isFork ? "Forking" : "Editing"} <CloseIcon size={16} /></button
             >
             <CreateNewList bind:isFormSent eventToEdit={eventList[currentIndex]} doGoto={isFork ? true : false} />

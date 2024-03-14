@@ -18,7 +18,6 @@ import {
   kindCSSReplaceableAsset,
   kindLinks,
   kindNotes,
-  oldKindLinks,
   outNostrLinksUrl,
   validPrefixes,
 } from "./constants";
@@ -27,11 +26,9 @@ import { browser } from "$app/environment";
 import { db } from "@nostr-dev-kit/ndk-cache-dexie";
 import { get as getStore } from "svelte/store";
 import ndkStore from "$lib/stores/provider";
-import type { AddressPointer, EventPointer } from "nostr-tools/lib/types/nip19";
 import { localStore } from "$lib/stores/stores";
 import type { Link } from "$lib/classes/list";
-import { getModalStore } from "@skeletonlabs/skeleton";
-
+import { type AddressPointer, type EventPointer } from "nostr-tools/nip19";
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
@@ -135,7 +132,7 @@ export function propsBuildPointer(
 
 export function buildEventPointer(event: NDKEvent) {
   let objPointer: EventPointer | AddressPointer;
-  let encodedPointer: string = "";
+  let encodedPointer: string;
   if (event.kind == kindNotes) {
     objPointer = {
       id: event.id,
@@ -143,12 +140,13 @@ export function buildEventPointer(event: NDKEvent) {
       author: event.author.pubkey,
     };
     return (encodedPointer = nip19.neventEncode(objPointer));
-  } else if (event.kind == kindLinks || event.kind == kindArticles || event.kind == oldKindLinks) {
+  } else if (event.kind == kindLinks || event.kind == kindArticles || event.kind == kindLinks) {
+    console.log(event.tagValue("d")!, event.author.pubkey, event.kind, event.relay?.url);
     objPointer = {
       identifier: event.tagValue("d")!,
       pubkey: event.author.pubkey,
       kind: event.kind,
-      relays: [event.relay?.url ?? ""],
+      relays: event.relay?.url ? [event.relay?.url] : [],
     };
     return (encodedPointer = nip19.naddrEncode(objPointer));
   }
@@ -346,8 +344,8 @@ export async function fetchCssAsset(user: string) {
     kinds: [kindCSSReplaceableAsset as NDKKind],
     "#L": ["nostree-theme"],
   };
-
   try {
+    // TODO: use cache
     const fetchedEvent = await $ndk.fetchEvent(ndkFilter, {
       closeOnEose: true,
       groupable: true,
@@ -409,7 +407,6 @@ export async function NDKlogin(): Promise<NDKUser | undefined> {
       npub: ndkCurrentUser.npub,
     });
     ndkUser.set(user);
-
     const followsSet = await user.follows();
     const followsArray = Array.from(followsSet as Set<NDKUser>);
     currentUserFollows.set(followsArray.map((user) => user.pubkey));
@@ -450,7 +447,7 @@ export function processHashtags(events: NDKEvent[]): string[] {
 export async function fetchUserEvents(userPubKey: string): Promise<NDKEvent[]> {
   const $ndk = getStore(ndkStore);
   let fetchedEvent = await $ndk.fetchEvents({
-    kinds: [kindLinks, oldKindLinks],
+    kinds: [kindLinks],
     authors: [userPubKey],
     "#l": ["nostree"],
   });
@@ -497,4 +494,51 @@ export async function publishKind1(content: string): Promise<boolean> {
     console.error(error);
     return false;
   }
+}
+// TODO
+export async function filterDbEvents(filter: NDKFilter): Promise<NDKEvent[] | undefined> {
+  if (!browser) return;
+  console.log("filterDbEvents", filter);
+  const $ndk = getStore(ndkStore);
+  let filterDb: NDKEvent[] | undefined;
+  try {
+    if (filter.kinds && filter.authors && filter["#l"]) {
+      console.log("filter.kinds && filter.authors && filter['#l']", filter.kinds);
+      const events = await db.events
+        .where("pubkey")
+        .anyOf(filter.authors!)
+        .and((event) => filter.kinds!.includes(event.kind))
+        .toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    } else if (filter.kinds && filter.authors && filter["#d"]) {
+      const events = await db.events
+        .where("id")
+        .startsWith(`${filter.kinds[0]}:${filter.authors[0]}:${filter["#d"]}`)
+        .toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    } else if (filter.authors && filter.kinds) {
+      console.log("filter.authors", filter.authors);
+      const events = await db.events
+        .where("pubkey")
+        .anyOf(filter.authors)
+        .and((event) => filter.kinds!.includes(event.kind))
+        .toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    } else if (filter.authors) {
+      const events = await db.events.where("pubkey").anyOf(filter.authors).toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    } else if (filter.kinds) {
+      const events = await db.events.where("kind").anyOf(filter.kinds).toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+  return filterDb;
 }
