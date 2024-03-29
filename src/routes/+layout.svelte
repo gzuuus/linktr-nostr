@@ -67,6 +67,7 @@
       }
     }
     const autoLogin = get(autoLoginStore);
+    // TODO: improve this, bad UX
     if (autoLogin) {
       try {
         if (autoLogin === "extension") {

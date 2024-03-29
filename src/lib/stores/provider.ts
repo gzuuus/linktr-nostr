@@ -86,9 +86,8 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
     } else {
       signer = new NDKNip46Signer(ndk, connectionString, localSigner);
     }
-    let popUp: Window | null = null;
     signer.rpc.on("authUrl", (url: string) => {
-      popUp = window.open(url, "_blank", "width=400,height=600");
+      window.open(url, "_blank");
     });
 
     await signer.blockUntilReady();
