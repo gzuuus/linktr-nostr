@@ -13,7 +13,6 @@ export interface UserCustomTheme {
   themeIdentifier: string | undefined;
   themeCustomCss: string | undefined;
 }
-export const ndkUser = writable<NDKUser | null>(null);
 export const currentUserFollows = writable<string[]>([]);
 export const isNip05Valid = writable<UserProfileIdentifiers>({
   isNip05Valid: null,

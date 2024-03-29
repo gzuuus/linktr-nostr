@@ -8,12 +8,15 @@ import {
   NDKKind,
   NDKNip07Signer,
 } from "@nostr-dev-kit/ndk";
-import { currentUserFollows, ndkUser, userCustomTheme } from "$lib/stores/user";
+import { currentUserFollows, userCustomTheme } from "$lib/stores/user";
+import { autoLoginStore, localSignerStore, ndkActiveUser } from "$lib/stores/provider";
 import { goto } from "$app/navigation";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
 import {
+  CORSproxyUrl,
   defaulTheme,
+  emailRegex,
   kindArticles,
   kindCSSReplaceableAsset,
   kindLinks,
@@ -37,18 +40,78 @@ export function dateTomorrow() {
   return new Date(Date.now() + 3600 * 1000 * 24);
 }
 
-export function isNip05(input: string | undefined): boolean {
-  if (input === undefined) {
-    return false;
-  }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(input);
+// export function isNip05(input: string | undefined): boolean {
+//   if (input === undefined) {
+//     return false;
+//   }
+//   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//   return emailRegex.test(input);
+// }
+
+export function parseNip05Address(address: string): { name?: string; domain?: string } {
+  const parts = address.trim().toLowerCase().split("@");
+  return { name: parts[0], domain: parts[1] };
 }
+interface nip05response {
+  names: { [name: string]: string };
+  nip46?: string;
+}
+export async function fetchWithFallback(address: string): Promise<nip05response | undefined> {
+  const { name, domain } = parseNip05Address(address);
+  if (!name || !domain) throw new Error("invalid address");
+  const fetchUrl = `https://${domain}/.well-known/nostr.json?name=${name}`;
+  try {
+    const response = await fetch(fetchUrl);
+    let json = (await response.json()) as nip05response;
+    if (json.names[name]) {
+      json.names = { [name]: json.names[name] };
+    } else return undefined;
+    return json;
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("CORS")) {
+      const response = await fetch(CORSproxyUrl + fetchUrl);
+      let json = (await response.json()) as nip05response;
+      if (json.names[name]) {
+        json.names = { [name]: json.names[name] };
+      } else return undefined;
+      return json;
+    } else {
+      throw error;
+    }
+  }
+}
+// export async function fetchNip05withCors(address: string) {
+//   const { name, domain } = parseNip05Address(address);
+//   if (!name || !domain) throw new Error("invalid address");
+
+//   const json = await fetchWithCorsFallback(`https://${domain}/.well-known/nostr.json?name=${name}`)
+//     .then((res) => res.json() as Promise<IdentityJson>)
+//     .then((json) => {
+//       // convert all keys in names, and relays to lower case
+//       if (json.names) {
+//         for (const [name, pubkey] of Object.entries(json.names)) {
+//           delete json.names[name];
+//           json.names[name.toLowerCase()] = pubkey;
+//         }
+//       }
+//       if (json.relays) {
+//         for (const [name, pubkey] of Object.entries(json.relays)) {
+//           delete json.relays[name];
+//           json.relays[name.toLowerCase()] = pubkey;
+//         }
+//       }
+//       return json;
+//     });
+
+//   await this.addToCache(domain, json);
+
+//   return getIdentityFromJson(name, domain, json);
+// }
 
 export async function isNip05Valid(nip05: string | undefined = "", npub: string | undefined = ""): Promise<boolean> {
   !npub.startsWith("npub") && (npub = nip19.npubEncode(npub));
   try {
-    if (!isNip05(nip05)) {
+    if (!emailRegex.test(nip05)) {
       isNip05ValidStore.set({
         isNip05Valid: false,
         Nip05address: undefined,
@@ -64,7 +127,7 @@ export async function isNip05Valid(nip05: string | undefined = "", npub: string 
     const Nip05address = nip05;
     const UserNpub = isNip05Valid ? nip05Promise.npub : npub;
 
-    if (isNip05(Nip05address) && Nip05address.split("@")[1] == "nostree.me") {
+    if (emailRegex.test(Nip05address) && Nip05address.split("@")[1] == "nostree.me") {
       isNip05ValidStore.set({
         isNip05Valid,
         Nip05address,
@@ -227,12 +290,8 @@ export function parseNostrUrls(rawContent: string): string {
   });
 }
 
-export function truncateString(str?: string): string {
-  if (str === undefined) {
-    return "";
-  } else {
-    return str.substring(0, 12) + ":" + str.substring(str.length - 6);
-  }
+export function truncateString(str: string): string {
+  return str.substring(0, 12) + ":" + str.substring(str.length - 6);
 }
 
 export function truncatedBech(bech32: string, length?: number): string {
@@ -266,30 +325,8 @@ export async function sharePage(urlToShare: string) {
 }
 
 export function logout() {
-  ndkUser.set(null);
-  isNip05ValidStore.set({
-    isNip05Valid: null,
-    Nip05address: undefined,
-    UserNpub: undefined,
-    Vanity: undefined,
-    UserIdentifier: undefined,
-  });
-  userCustomTheme.set({
-    UserTheme: undefined,
-    themeIdentifier: undefined,
-    themeCustomCss: undefined,
-  });
-  storeTheme.set(defaulTheme);
-  localStore.update(() => {
-    return {
-      lastUserLogged: undefined,
-      lastUserTheme: undefined,
-      currentUserFollows: undefined,
-      currentUserLists: undefined,
-      UserIdentifier: undefined,
-    };
-  });
-  goto("/");
+  localStorage.clear();
+  location.reload();
 }
 
 export function sortEventList(eventList: NDKEvent[]) {
@@ -337,7 +374,7 @@ export async function fetchUserProfile(opts: string): Promise<NDKUserProfile | u
 
 export async function fetchCssAsset(user: string) {
   const $ndk = getStore(ndkStore);
-  const $ndkUser = getStore(ndkUser);
+  const $ndkActiveUser = getStore(ndkActiveUser);
   const $storeTheme = getStore(storeTheme);
   let ndkFilter: NDKFilter = {
     authors: [user],
@@ -356,7 +393,7 @@ export async function fetchCssAsset(user: string) {
       const themeIdentifier = fetchedEvent.tagValue("d");
       const themeCustomCss = fetchedEvent.content;
 
-      if (user == $ndkUser?.pubkey) {
+      if (user == $ndkActiveUser?.pubkey) {
         userCustomTheme.set({
           UserTheme: userTheme || undefined,
           themeIdentifier: themeIdentifier || undefined,
@@ -380,7 +417,7 @@ export async function fetchCssAsset(user: string) {
         setCustomStyles(fetchedEvent.content);
       }
     } else {
-      if (user == $ndkUser?.pubkey) {
+      if (user == $ndkActiveUser?.pubkey) {
         localStore.update((currentState) => {
           return {
             lastUserLogged: currentState.lastUserLogged,
@@ -396,37 +433,37 @@ export async function fetchCssAsset(user: string) {
   }
 }
 
-export async function NDKlogin(): Promise<NDKUser | undefined> {
-  try {
-    const $ndk = getStore(ndkStore);
-    const signer = new NDKNip07Signer();
-    $ndk.signer = signer;
-    ndkStore.set($ndk);
-    const ndkCurrentUser = await signer.user();
-    let user = $ndk.getUser({
-      npub: ndkCurrentUser.npub,
-    });
-    ndkUser.set(user);
-    const followsSet = await user.follows();
-    const followsArray = Array.from(followsSet as Set<NDKUser>);
-    currentUserFollows.set(followsArray.map((user) => user.pubkey));
-    const userProfile = await user.fetchProfile();
-    await isNip05Valid(userProfile?.nip05, user.npub);
-    const nip05ValidStore = getStore(isNip05ValidStore);
-    localStore.update((currentState) => {
-      return {
-        lastUserLogged: ndkCurrentUser.npub,
-        lastUserTheme: currentState.lastUserTheme,
-        currentUserFollows: followsArray.map((user) => user.pubkey),
-        UserIdentifier: nip05ValidStore.UserIdentifier,
-      };
-    });
-    await fetchCssAsset(user.pubkey);
-    return user;
-  } catch (error) {
-    return undefined;
-  }
-}
+// export async function NDKlogin(): Promise<NDKUser | undefined> {
+//   try {
+//     const $ndk = getStore(ndkStore);
+//     const signer = new NDKNip07Signer();
+//     $ndk.signer = signer;
+//     ndkStore.set($ndk);
+//     const ndkCurrentUser = await signer.user();
+//     let user = $ndk.getUser({
+//       npub: ndkCurrentUser.npub,
+//     });
+//     ndkActiveUser.set(user);
+//     const followsSet = await user.follows();
+//     const followsArray = Array.from(followsSet as Set<NDKUser>);
+//     currentUserFollows.set(followsArray.map((user) => user.pubkey));
+//     const userProfile = await user.fetchProfile();
+//     await isNip05Valid(userProfile?.nip05, user.npub);
+//     const nip05ValidStore = getStore(isNip05ValidStore);
+//     localStore.update((currentState) => {
+//       return {
+//         lastUserLogged: ndkCurrentUser.npub,
+//         lastUserTheme: currentState.lastUserTheme,
+//         currentUserFollows: followsArray.map((user) => user.pubkey),
+//         UserIdentifier: nip05ValidStore.UserIdentifier,
+//       };
+//     });
+//     await fetchCssAsset(user.pubkey);
+//     return user;
+//   } catch (error) {
+//     return undefined;
+//   }
+// }
 
 export function processHashtags(events: NDKEvent[]): string[] {
   const newHashtagsSet = new Set<string>();
@@ -467,7 +504,7 @@ export async function addLinkToList(link: Link, eventToModify: NDKEvent): Promis
 
   let linkTag = ["r", link.url, link.description];
   try {
-    !$ndk.signer && (await NDKlogin());
+    if (!$ndk.signer) return false;
     let eventToPublish = eventToModify;
     eventToPublish.sig = undefined;
     eventToPublish.created_at = unixTimeNow();
@@ -484,7 +521,7 @@ export async function publishKind1(content: string): Promise<boolean> {
   const $ndk = getStore(ndkStore);
   let eventToPublish = new NDKEvent($ndk);
   try {
-    !$ndk.signer && (await NDKlogin());
+    if (!$ndk.signer) return false;
     eventToPublish.kind = NDKKind.Text;
     eventToPublish.content = content;
     eventToPublish.tags.push(["t", "nostree"]);

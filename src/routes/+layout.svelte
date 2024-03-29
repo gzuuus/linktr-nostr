@@ -1,11 +1,6 @@
 <script lang="ts">
   import "../app.postcss";
   import Header from "$lib/components/header.svelte";
-  import { db } from "@nostr-dev-kit/ndk-cache-dexie";
-  import { onDestroy, onMount } from "svelte";
-  import type NDKEvent from "@nostr-dev-kit/ndk";
-
-  import ndk from "$lib/stores/provider";
   import { ogImageUrl } from "$lib/utils/constants";
   import { AppShell, Modal, Toast, type ModalComponent} from '@skeletonlabs/skeleton';
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
@@ -21,8 +16,8 @@
   import { storePreview, storeTheme } from "$lib/stores/stores";
   import { browser } from "$app/environment";
   import { localStore } from "$lib/stores/stores";
-  import { currentUserFollows, ndkUser, userCustomTheme } from "$lib/stores/user";
-  import UpdateOldKindModal from "$lib/components/modals/update-old-kind-modal.svelte";
+  import { currentUserFollows, userCustomTheme } from "$lib/stores/user";
+  import LoginModal from "$lib/components/modals/login-modal.svelte";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -33,7 +28,7 @@
   modalLoading: { ref: LoadingBackdropModal},
   modalCreateList: { ref: CreateNewListWidget},
   modalRelayList: { ref: RelayListModal},
-  modalUpdateOldKind: { ref: UpdateOldKindModal}
+  modalLogin: { ref: LoginModal},
 };
 	storePreview.subscribe(setBodyThemeAttribute);
 	storeTheme.subscribe(setBodyThemeAttribute);
@@ -55,11 +50,7 @@
 		if (!browser) return;
 		document.body.setAttribute('data-theme', $storePreview ? 'customTheme' : $storeTheme);
 	}
-    if (browser && $localStore.lastUserLogged){
-      let user = $ndk.getUser({
-        npub: $localStore.lastUserLogged,
-      });
-      ndkUser.set(user);
+    if (browser && $localStore){
       if ($localStore.currentUserFollows){
         currentUserFollows.set($localStore.currentUserFollows);
       }

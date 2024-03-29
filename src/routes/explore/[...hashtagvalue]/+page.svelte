@@ -18,7 +18,7 @@
   import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
   import { localStore } from "$lib/stores/stores";
   import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
-  import { ndkUser } from "$lib/stores/user";
+  import { ndkActiveUser } from "$lib/stores/provider";
   import GlobalIcon from "$lib/elements/icons/global-icon.svelte";
   import FriendsIcon from "$lib/elements/icons/friends-icon.svelte";
   import RenderLinks from "$lib/components/render-links.svelte";
@@ -83,7 +83,7 @@
       <ExploreIcon size={25} />
     </button>Explore
   </h1>
-  {#if $ndkUser}
+  {#if $ndkActiveUser}
     <RadioGroup background="variant-soft-surface" border="none" active="variant-filled-primary" hover="hover:variant-soft-primary">
       <RadioItem class="btn w-full h-full" bind:group={exploreNetwork} name="select-network" value={false}>
         <span><GlobalIcon size={16} /></span>

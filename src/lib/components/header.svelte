@@ -11,7 +11,7 @@
 	import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
 	import { logout } from "$lib/utils/helpers";
 	import LogoutIcon from "$lib/elements/icons/logout-icon.svelte";
-	import { ndkUser } from "$lib/stores/user";
+	import { ndkActiveUser } from "$lib/stores/provider";
 	import EditIcon from "$lib/elements/icons/edit-icon.svelte";
 	import SearchIcon from "$lib/elements/icons/search-icon.svelte";
     import { browser } from "$app/environment";
@@ -74,7 +74,7 @@
 			<span class="hidden sm2:inline-block">Search</span>
 			<small class="hidden sm2:inline-block sm2:badge sm2:variant-glass opacity-50">{isOsMac ? '⌘' : 'Ctrl'}+K</small>
 		</button>
-		{#if $ndkUser}
+		{#if $ndkActiveUser}
 		<div class="btn-group variant-ghost grid grid-cols-[1fr_auto] ">
 			<button 
 				class="!text-sm hover:variant-filled hover:!text-surface-50-900-token" 
@@ -94,7 +94,7 @@
 		</div>
 		<button
 		class="common-btn-sm-ghost"
-		on:click={() => goto(`/${$localStore.UserIdentifier ? $localStore.UserIdentifier : $ndkUser?.npub}`)}
+		on:click={() => goto(`/${$localStore.UserIdentifier ? $localStore.UserIdentifier : $ndkActiveUser?.npub}`)}
 		>
 			<span><ProfileIcon size={20} /></span>
 			<span class="hidden sm2:inline-flex">Profile</span>

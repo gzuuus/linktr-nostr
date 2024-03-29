@@ -2,12 +2,10 @@
     import { NDKEvent } from '@nostr-dev-kit/ndk';
 	import ndk from "$lib/stores/provider";
 	import { getModalStore } from '@skeletonlabs/skeleton';
-    import { ndkUser } from '$lib/stores/user';
-    import Login from '../login.svelte';
+	import { ndkActiveUser } from '$lib/stores/provider';
+	import Login from '../login.svelte';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
-    import { NDKlogin } from '$lib/utils/helpers';
-
 	export let parent: any;
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
@@ -15,7 +13,7 @@
 		eventContent: $modalStore[0].meta.noteContent
 	};
 	async function onFormSubmit(): Promise<void> {
-		!$ndk.signer && await NDKlogin();
+		if (!$ndk.signer) return
 		modalStore.close();
 		modalStore.trigger({ type: 'component', component: 'modalLoading'});
 		const ndkEvent = new NDKEvent($ndk);
@@ -49,7 +47,7 @@
 			</label>
 			<footer class="modal-footer {parent.regionFooter}">
 				<button type="button" class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
-				{#if $ndkUser}
+				{#if $ndkActiveUser}
 				<button type="submit" class="btn {parent.buttonPositive}">Share</button>
 				{:else}
 				<Login doGoto={false}/>

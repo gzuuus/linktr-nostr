@@ -47,6 +47,7 @@
   "type": "module",
   "dependencies": {
     "@floating-ui/dom": "^1.6.3",
+    "@noble/hashes": "^1.4.0",
     "@nostr-dev-kit/ndk": "^2.5.0",
     "@nostr-dev-kit/ndk-cache-dexie": "^2.2.7",
     "@nostr-dev-kit/ndk-svelte": "^2.2.7",
@@ -54,7 +55,7 @@
     "linkify-it": "^4.0.1",
     "markdown-it": "^13.0.2",
     "nanoid": "^4.0.2",
-    "nostr-tools": "^1.17.0",
+    "nostr-tools": "^2.3.2",
     "qrcode-generator": "^1.4.4",
     "svelte-a11y-dialog": "^0.2.0",
     "uuid": "^9.0.1"

@@ -1,6 +1,6 @@
 import { NDKUser } from "@nostr-dev-kit/ndk";
 import { nip19 } from "nostr-tools";
-import { isNip05 } from "$lib/utils/helpers";
+import { emailRegex } from "$lib/utils/constants";
 
 export async function load({ params }: any) {
   const segments = params.userPub.split("/");
@@ -15,7 +15,7 @@ export async function load({ params }: any) {
         segments,
       };
     }
-  } else if (typeof userPub === "string" && !isNip05(userPub)) {
+  } else if (userPub && !emailRegex.test(userPub)) {
     const vanityNip05Build = `${userPub}@nostree.me`;
     try {
       const user = await NDKUser.fromNip05(vanityNip05Build);

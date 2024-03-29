@@ -20,7 +20,8 @@
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
   import { kindLinks } from "$lib/utils/constants";
   import { page } from "$app/stores";
-  import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
+  import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
+  import { ndkActiveUser } from "$lib/stores/provider";
   import { goto } from "$app/navigation";
   import ChevronIconHorizontal from "$lib/elements/icons/chevron-icon-horizontal.svelte";
   import CreateNewList from "./create-new-list.svelte";
@@ -178,8 +179,8 @@
                 {/each}
                 </div>
               <div>
-                {#if $ndkUser}
-                  {#if eventList[currentIndex].author.npub != $ndkUser?.npub}
+                {#if $ndkActiveUser}
+                  {#if eventList[currentIndex].author.npub != $ndkActiveUser?.npub}
                     <button
                       class="btn btn-sm variant-ghost"
                       on:click={() => {

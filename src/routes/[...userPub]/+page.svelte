@@ -30,20 +30,13 @@
     {#key $page.url.pathname.split("/").length > 2}
       {#key isEditHappens}
         <div>
-          <EventCardLive
+          <EventCard
             bind:linkListLength 
             bind:isEditHappens
             userPub={$page.data.pubkey}
             eventKind={kindLinks}
             listLabel={$page.data.segments[0]}
           />
-          <!-- <EventCard
-            bind:linkListLength 
-            bind:isEditHappens
-            userPub={$page.data.pubkey}
-            eventKind={kindLinks}
-            listLabel={$page.data.segments[0]}
-          /> -->
           {#if linkListLength == undefined}
           <div class=" flex flex-col gap-2 justify-center common-ring p-4 w-fit m-auto rounded-container-token card">
             <button class="btn btn-icon variant-filled m-auto" on:click={() => goto(`/new`)}>

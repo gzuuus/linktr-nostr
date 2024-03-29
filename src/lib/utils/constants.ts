@@ -20,8 +20,20 @@ export const succesPublishToast: ToastSettings = {
   hoverable: true,
   background: "variant-filled-success",
 };
+export const succesLogin: ToastSettings = {
+  message: "Login successfully!",
+  timeout: toastTimeOut,
+  hoverable: true,
+  background: "variant-filled-success",
+};
 export const errorPublishToast: ToastSettings = {
   message: "Error on publishing, look at console!",
+  timeout: toastTimeOut,
+  hoverable: true,
+  background: "variant-filled-error",
+};
+export const errorLogin: ToastSettings = {
+  message: "Error on login, look at console!",
   timeout: toastTimeOut,
   hoverable: true,
   background: "variant-filled-error",
@@ -60,3 +72,5 @@ export const validPrefixes: string[] = [
   "irc://",
   "magnet:",
 ];
+
+export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{1,}$/;

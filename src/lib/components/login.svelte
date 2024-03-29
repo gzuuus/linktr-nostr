@@ -5,25 +5,18 @@
   import { page } from "$app/stores";
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
   import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
-  import { NDKlogin } from "$lib/utils/helpers";
+  // import { NDKlogin } from "$lib/utils/helpers";
     import { localStore } from "$lib/stores/stores";
     import { get } from "svelte/store";
 
   const modalStore = getModalStore();
 	const modal: ModalSettings = {
 		type: 'component',
-		component: 'modalNoNip07',
+		component: 'modalLogin',
 	}
   async function login() {
-      const login = await NDKlogin();
-      if (!login){
-        modalStore.trigger(modal)
-        return;
-      }
-      if (doGoto) {
-        const {UserIdentifier} = get(localStore)
-        goto(`/${UserIdentifier ? UserIdentifier : login.npub}`);
-      }
+    // TODO: improve ux here, redirect after login
+    modalStore.trigger(modal)
     }
 
   $: buttonClass =

@@ -4,13 +4,12 @@ import ndk from "$lib/stores/provider";
 import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
 import { NDKEvent } from '@nostr-dev-kit/ndk';
 import { errorPublishToast, succesDeletingToast } from './constants';
-import { NDKlogin } from "./helpers";
 
 const modalStore = getModalStore();
 const toastStore = getToastStore();
 async function deleteEventData (eventToPublish: NDKEvent) {
     try{
-        !$ndk.signer && await NDKlogin();
+        if (!$ndk.signer) return
         modalStore.trigger({ type: 'component', component: 'modalLoading'});
         const ndkEvent = new NDKEvent($ndk);
         ndkEvent.kind = eventToPublish.kind;

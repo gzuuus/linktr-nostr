@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { ndkUser } from "$lib/stores/user";
+    import { ndkActiveUser } from "$lib/stores/provider";
     import { currentUserFollows } from "$lib/stores/user";
     import ndk from "$lib/stores/provider";
     import type { NDKUser } from "@nostr-dev-kit/ndk";
     import { getModalStore, getToastStore, popup} from "@skeletonlabs/skeleton";
     import { NDKEvent, NDKKind, type NDKTag } from "@nostr-dev-kit/ndk";
-    import { NDKlogin, unixTimeNow } from "$lib/utils/helpers";
+    import { unixTimeNow } from "$lib/utils/helpers";
     import FollowIcon from "$lib/elements/icons/follow-icon.svelte";
     import { errorPublishToast, toastTimeOut } from "$lib/utils/constants";
     import UnfollowIcon from "$lib/elements/icons/unfollow-icon.svelte";
@@ -23,13 +23,13 @@
     
     async function handleFollow() {
         modalStore.trigger({ type: 'component', component: 'modalLoading',});
-        !$ndk.signer && await NDKlogin();
+        if (!$ndk.signer) return;
         try {
-        const followResult = await $ndkUser?.follow(user);
+        const followResult = await $ndkActiveUser?.follow(user);
         if (followResult) {
             modalStore.close();
             toastStore.trigger({message: "Followed!", timeout: toastTimeOut, background: "variant-filled-success"});
-            const followsSet = await $ndkUser?.follows();
+            const followsSet = await $ndkActiveUser?.follows();
             console.log(followsSet);
             const followsArray = Array.from(followsSet as Set<NDKUser>);
             $currentUserFollows = followsArray.map((user) => user.pubkey);
@@ -48,13 +48,13 @@
         const newFollowsArray = $currentUserFollows.filter((pubkey) => pubkey !== user.pubkey);
         const tags: NDKTag[] = newFollowsArray.map((pubkey) => ["p", pubkey] as NDKTag);
         const event = new NDKEvent($ndk, {
-            pubkey: $ndkUser!.pubkey,
+            pubkey: $ndkActiveUser!.pubkey,
             kind: NDKKind.Contacts,
             tags: tags,
             created_at: unixTimeNow(),
             content: "",
         });
-        !$ndk.signer && await NDKlogin();
+        if (!$ndk.signer) return;
         try {
             await event.publish()
             $currentUserFollows = newFollowsArray;
@@ -71,7 +71,7 @@
 </script>
 
 {#key user.pubkey}
-    {#if $ndkUser}
+    {#if $ndkActiveUser}
         {#if $currentUserFollows.includes(user.pubkey)}
             <button
                 on:click={handleUnfollow}

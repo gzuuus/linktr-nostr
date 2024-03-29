@@ -6,13 +6,12 @@
     import { getToastStore } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast, kindCSSReplaceableAsset, kindCSSAsset } from '$lib/utils/constants';
     import { NDKEvent } from '@nostr-dev-kit/ndk';
-	import ndk from "$lib/stores/provider";
+	import ndk, { ndkActiveUser } from "$lib/stores/provider";
 	import { getModalStore } from '@skeletonlabs/skeleton';
-    import { ndkUser } from '$lib/stores/user';
     import { v4 as uuidv4 } from "uuid";
 	import { userCustomTheme } from '$lib/stores/user';
     import { localStore, storeTheme } from '$lib/stores/stores';
-    import { NDKlogin, setCustomStyles } from '$lib/utils/helpers';
+    import { setCustomStyles } from '$lib/utils/helpers';
 
     const modalStore = getModalStore();
 	const toastStore = getToastStore();
@@ -28,7 +27,7 @@
 	}
 	$: eventIdentifier = $userCustomTheme.themeIdentifier ? $userCustomTheme.themeIdentifier : `nostree-theme-${uuidv4()}`
     async function EventSubmit(): Promise<void> {
-		!$ndk.signer && await NDKlogin();
+		if (!$ndk.signer) return;
 		modalStore.trigger({ type: 'component', component: 'modalLoading'});
 		const ndkEvent = new NDKEvent($ndk);
 		ndkEvent.kind = kindCSSReplaceableAsset;
@@ -70,7 +69,7 @@
 		}
 	}
 </script>
-{#if $ndkUser}
+{#if $ndkActiveUser}
 <button class="btn variant-filled w-full" on:click={EventSubmit}>
     <span>{isNewCustomTheme ? 'Publish theme' : 'Use theme in profile'}</span>
 </button>
