@@ -10,8 +10,6 @@
   let valText = "";
   let loading = false
   let isNip46login = false
-  let error: Error;
-
   const toastStore = getToastStore();
   const modalStore = getModalStore();
   async function extension() {
@@ -25,7 +23,7 @@
     } catch (e) {
       loading = false
       toastStore.trigger(errorLogin);
-      if (e instanceof Error) error = e;
+      console.log(e);
     }
   }
   async function login(e: SubmitEvent) {
@@ -43,7 +41,7 @@
     } catch (e) {
       loading = false
       toastStore.trigger(errorLogin);
-      if (e instanceof Error) error = e;
+      console.log(e);
     }
   }
 $: NIP05_REGEX.test(address) ? setTimeout(() =>(valText = address), 800) : (valText = "");

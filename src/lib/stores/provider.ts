@@ -111,9 +111,9 @@ const autoLogin = get(autoLoginStore);
 if (autoLogin) {
   try {
     if (autoLogin === "extension") {
-      await loginWithExtension().catch((e) => console.log(e));
+      await loginWithExtension().catch(() => {});
     } else if (emailRegex.test(autoLogin) || autoLogin.startsWith("bunker://") || autoLogin.includes("#")) {
-      await loginWithNostrAddress(autoLogin).catch((e) => console.log(e));
+      await loginWithNostrAddress(autoLogin).catch(() => {});
     }
   } catch (e) {
     console.log(e);
