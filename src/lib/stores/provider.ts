@@ -107,19 +107,6 @@ export const ndkActiveUser = writable(ndk.activeUser);
 
 ndk.connect().then(() => console.log("ndk connected successfully"));
 
-const autoLogin = get(autoLoginStore);
-if (autoLogin) {
-  try {
-    if (autoLogin === "extension") {
-      await loginWithExtension().catch(() => {});
-    } else if (emailRegex.test(autoLogin) || autoLogin.startsWith("bunker://") || autoLogin.includes("#")) {
-      await loginWithNostrAddress(autoLogin).catch(() => {});
-    }
-  } catch (e) {
-    console.log(e);
-  }
-}
-
 const ndkStore = writable(ndk);
 
 export default ndkStore;

@@ -18,6 +18,9 @@
   import { localStore } from "$lib/stores/stores";
   import { currentUserFollows, userCustomTheme } from "$lib/stores/user";
   import LoginModal from "$lib/components/modals/login-modal.svelte";
+    import { autoLoginStore, loginWithExtension, loginWithNostrAddress } from "$lib/stores/provider";
+    import { get } from "svelte/store";
+    import { NIP05_REGEX } from "nostr-tools/nip05";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -61,6 +64,18 @@
           themeIdentifier: undefined,
           themeCustomCss: undefined,
         });
+      }
+    }
+    const autoLogin = get(autoLoginStore);
+    if (autoLogin) {
+      try {
+        if (autoLogin === "extension") {
+          loginWithExtension().catch(() => {});
+        } else if (NIP05_REGEX.test(autoLogin) || autoLogin.startsWith("bunker://") || autoLogin.includes("#")) {
+          loginWithNostrAddress(autoLogin).catch(() => {});
+        }
+      } catch (e) {
+        console.log(e);
       }
     }
 </script>
