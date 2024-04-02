@@ -4,9 +4,7 @@
   export let listLabel: string = "nostree";
   export let dValue: string = "";
   export let isEditHappens: boolean = false;
-  export let isFork: boolean = false;
-  export let linkListLength: number | undefined = 0;
-  
+  export let isFork: boolean = false; 
   import { nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
   import {
@@ -15,10 +13,9 @@
     sortEventList,
     findOtherTags,
     naddrEncodeATags,
-    filterDbEvents
   } from "$lib/utils/helpers";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-  import { kindLinks } from "$lib/utils/constants";
+  import { kindLinks, outNostrLinksUrl } from "$lib/utils/constants";
   import { page } from "$app/stores";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
   import { ndkActiveUser } from "$lib/stores/provider";
@@ -37,9 +34,11 @@
   import ClipboardButton from "./clipboard-button.svelte";
   import { onDestroy, onMount } from "svelte";
   import RenderLinks from "./render-links.svelte";
+  import PlusSmall from "$lib/elements/icons/plus-small.svelte";
+  import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
+  import LinkOut from "$lib/elements/icons/link-out.svelte";
   
   const modalStore = getModalStore();
-  const toastStore = getToastStore();
   let eventList: NDKEvent[] = [];
   let RawEventList: NDKEvent[] = [];
   let showListsIndex: boolean = false;
@@ -50,27 +49,25 @@
   let eventTitles: string[] = [];
   let eventHashtags: string[] = [];
   let userNpub = nip19.npubEncode(userPub);
+  let loading = true;
   const ndkFilter: NDKFilter = dValue
     ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`] }
     : { kinds: [eventKind], authors: [userPub], "#l": [`${listLabel}`] };
   
   async function fetchCurrentEvents() {
-    console.log("its happening")
     try {
     if (eventKind == kindLinks) {
-      let filterDb: NDKEvent[] | undefined = await filterDbEvents(ndkFilter);
-      filterDb && (RawEventList.push(...filterDb));
-      // TODO: improve this to add events that are not in the db, compare the cache with the fetchedEvents to ensure that we have them all
-      RawEventList.length ? $ndk.fetchEvents(ndkFilter) : RawEventList = Array.from(await $ndk.fetchEvents(ndkFilter));
+      RawEventList = Array.from(await $ndk.fetchEvents(ndkFilter));
       sortEventList(RawEventList);
       for (const event of RawEventList) {
         const tagTitleValue = event.tagValue('title');
-        const tagHashtagValue = event.tagValue('t');
-        
-          eventList.push(event);
-          tagTitleValue != undefined && eventTitles.push(tagTitleValue);
-          tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
+        if (tagTitleValue) {
+          const tagHashtagValue = event.tagValue('t');        
+          eventList.push(event) && eventTitles.push(tagTitleValue);
+          tagHashtagValue && eventHashtags.push(tagHashtagValue);
+        }
       }
+      loading = false
     } else {
       const ndkFilter: NDKFilter = dValue
         ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`], limit: 5 }
@@ -78,13 +75,13 @@
       let fetchedEvent = await $ndk.fetchEvents(ndkFilter)
         eventList = Array.from(fetchedEvent);
         sortEventList(eventList);
+        loading = false
     }
   }
   catch (e) {
     console.error('Error',e);
   }
   }
-  $: linkListLength = RawEventList.length ? RawEventList.length : undefined;
 
   function craftModal(modalTitle:string | undefined = "", modalContent:string) {
     const modal: ModalSettings = {
@@ -119,11 +116,23 @@
     isEditHappens = false;
   })
 </script>
-    {#if eventList.length == 0 && linkListLength != undefined}
-    <PlaceHolderLoading colCount={5} />
+    {#if loading}
+      <PlaceHolderLoading colCount={5} />
+    {:else if !loading && eventList.length == 0}
+    <div class=" flex flex-col gap-2 justify-center common-ring p-4 w-fit m-auto rounded-container-token card">
+      <button class="btn btn-icon variant-filled m-auto" on:click={() => goto(`/new`)}>
+        <PlusSmall size={30} />
+      </button>
+      <p class="text-xl">No links yet</p>
+      <hr/>
+      <div class="flex gap-2 flex-wrap justify-center">
+        <a href="{outNostrLinksUrl}/{userNpub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>
+        <a href="nostr:{userNpub}"><span class="common-badge-ghost gap-2">View profile in native client <OstrichIcon size={18} /></span></a>
+      </div>
+    </div>
     {/if}
-    {#if eventList.length > 0}
-        <div >
+    {#if eventList.length}
+        <div>
           <div class:justify-between={eventList.length > 1} class="flex justify-center">
             <button
               class:disabled={currentIndex === 0}
@@ -157,7 +166,7 @@
             {eventList[currentIndex].tagValue("description")}
           </span>
           <div class:hidden={isEditMode || eventKind != kindLinks}>
-            <button on:click={() => (showListsIndex = !showListsIndex)}>
+            <button class=" variant-soft rounded" on:click={() => (showListsIndex = !showListsIndex)}>
               {#if !showListsIndex}
                 <ChevronIconVertical size={22} flipVertical={true} />
               {:else}
@@ -233,9 +242,9 @@
         <div class="common-container-content">
         <div>
           {#if !isEditMode}
-          <div class="flex flex-col gap-2">
-                <RenderLinks eventTags={eventList[currentIndex].tags} />
-          </div>
+            <div class="flex flex-col gap-2">
+              <RenderLinks eventTags={eventList[currentIndex].tags} />
+            </div>
           {:else}
             <button class="common-btn-sm-ghost"
               on:click={() => {
@@ -251,11 +260,13 @@
               <button
                 class="common-btn-sm-ghost"
                 on:click={() => goto(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}
-                ><code>{label}</code></button
+                ><code>
+                  {label.length > 24 ? `${label.substring(0, 24)}...` : label}
+                </code></button
               >
             {/if}
           {/each}
-          {#each findOtherTags(eventList[currentIndex].tags, "a") as label}
+          {#if findOtherTags(eventList[currentIndex].tags, "a").length}
             <button class="common-btn-sm-ghost" on:click={() => (showForkInfo = !showForkInfo)}>
               {#if !showForkInfo}
                 <ForkIcon size={20} />
@@ -263,7 +274,7 @@
                 <CloseIcon size={20} />
               {/if}
             </button>
-          {/each}
+          {/if}
         </div>
         <div class:hidden={!showForkInfo} class="card p-2">
           {#each findOtherTags(eventList[currentIndex].tags, "a") as label}
@@ -279,6 +290,5 @@
             <code class="text-left">{label}</code>
           {/each}
         </div>
-        </div>
-
-        {/if}
+      </div>
+{/if}

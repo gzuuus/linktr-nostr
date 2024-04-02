@@ -11,7 +11,7 @@
   import LinkIcon from "$lib/elements/icons/link-icon.svelte";
   import TextIcon from "$lib/elements/icons/text-icon.svelte";
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
-  import { buildATags, findHashTags, findListTags, findOtherTags } from "$lib/utils/helpers";
+  import { autoLoginHandler, buildATags, findHashTags, findListTags, findOtherTags } from "$lib/utils/helpers";
   import { v4 as uuidv4 } from "uuid";
   import InfoIcon from "$lib/elements/icons/info-icon.svelte";
   import { goto } from "$app/navigation";
@@ -118,6 +118,7 @@
     linkNameValidationStatus.every((status) => status);
 
   async function handleSubmit() {
+    if (!$ndk.signer) await autoLoginHandler()
     if (!$ndk.signer) return;
     modalStore.trigger({ type: 'component', component: 'modalLoading'});
     const ndkEvent = new NDKEvent($ndk);

@@ -13,7 +13,6 @@ export interface UserCustomTheme {
   themeIdentifier: string | undefined;
   themeCustomCss: string | undefined;
 }
-export const currentUserFollows = writable<string[]>([]);
 export const isNip05Valid = writable<UserProfileIdentifiers>({
   isNip05Valid: null,
   Nip05address: undefined,

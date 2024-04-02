@@ -50,8 +50,14 @@
         showCreateNewList = false;
     }
 
-    async function fetchEvents(): Promise<void> {
+    async function fetchEvents(): Promise<NDKEvent[]> {
         fetchedEvents = await fetchUserEvents($ndkActiveUser?.pubkey!);
+        if (fetchedEvents.length) {
+            return fetchedEvents;
+        } else {
+            selectedTemplate = "blank";
+            return []
+        }
     }
 
     let shareContent = '';
@@ -109,7 +115,6 @@
         fetchedEvents = [];
     });
 </script>
-
 <div class="card p-4 flex flex-col items-center shadow-xl">
 {#if selectedTemplate}
     <div class="text-end w-full">
@@ -119,7 +124,7 @@
     </div>
     <CreateNewList listTemplate={selectedTemplate} />
 {/if}
-{#if fetchedEvents.length > 0}
+{#if fetchedEvents.length}
 <div class="flex flex-col gap-2">
     <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
         <div class="input-group-shim">
@@ -177,9 +182,7 @@
 {/if}
 
 <div class:hidden={selectedTemplate || fetchedEvents.length > 0} class="flex flex-col gap-2 w-full">
-    <!-- TODO/BUG: If user doesnt have lists this doesnt works  -->
     <button class="common-btn-filled w-full" on:click={fetchEvents} type="button">Add a new link to a list</button>
-
     <div class="btn-group variant-filled grid grid-cols-[1fr_auto] w-full">
         <button on:click={() => selectedTemplate = "blank"} type="button">Create new list</button>
         <button on:click={() => showOptions = !showOptions} type="button">

@@ -128,7 +128,7 @@
   </div>
   <CreateNewListWidget bind:showCreateNewList={showCreateNewList} />
 {:else}
-  <Login mode="primary" doGoto={false} />
+  <Login mode="primary"/>
 {/if}
 <!-- Other lists -->
 {#key events.length}

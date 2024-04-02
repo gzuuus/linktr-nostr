@@ -1,13 +1,8 @@
 <script lang="ts">
   export let mode: string | undefined = 'primary';
-  export let doGoto: boolean = true;
-  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
   import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
-  // import { NDKlogin } from "$lib/utils/helpers";
-    import { localStore } from "$lib/stores/stores";
-    import { get } from "svelte/store";
 
   const modalStore = getModalStore();
 	const modal: ModalSettings = {
@@ -15,9 +10,8 @@
 		component: 'modalLogin',
 	}
   async function login() {
-    // TODO: improve ux here, redirect after login
     modalStore.trigger(modal)
-    }
+  }
 
   $: buttonClass =
     mode === 'primary-sm' && $page.url.href !== `${$page.url.origin}/`

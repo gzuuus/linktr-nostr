@@ -106,10 +106,9 @@
 			<span><LogoutIcon size={20} /></span>
 		</button>
 		{:else}
-		<Login mode={"primary-sm"} doGoto={false}/>
+		<Login mode={"primary-sm"}/>
 		{/if}
 	</div>
-<!-- Hamburger Menu -->
 	<button on:click={drawerOpen} class="common-btn-icon-ghost sm:!hidden"
 	>
 		<HamburgerIcon size={20} />

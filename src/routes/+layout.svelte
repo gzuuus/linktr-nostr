@@ -16,11 +16,12 @@
   import { storePreview, storeTheme } from "$lib/stores/stores";
   import { browser } from "$app/environment";
   import { localStore } from "$lib/stores/stores";
-  import { currentUserFollows, userCustomTheme } from "$lib/stores/user";
+  import { userCustomTheme } from "$lib/stores/user";
   import LoginModal from "$lib/components/modals/login-modal.svelte";
-    import { autoLoginStore, loginWithExtension, loginWithNostrAddress } from "$lib/stores/provider";
+    import ndkStore, { autoLoginStore, ndkActiveUser } from "$lib/stores/provider";
     import { get } from "svelte/store";
     import { NIP05_REGEX } from "nostr-tools/nip05";
+    import { autoLoginHandler } from "$lib/utils/helpers";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -35,50 +36,28 @@
 };
 	storePreview.subscribe(setBodyThemeAttribute);
 	storeTheme.subscribe(setBodyThemeAttribute);
-  currentUserFollows.subscribe(setLocalFollows);
-
-  function setLocalFollows(): void {
-    if ($currentUserFollows.length == 0) return;
-      localStore.update((currentState) => {
-        return {
-          lastUserLogged: currentState.lastUserLogged,
-          lastUserTheme: currentState.lastUserTheme,
-          currentUserFollows: $currentUserFollows ? $currentUserFollows : currentState.currentUserFollows || undefined,
-          UserIdentifier: currentState.UserIdentifier
-        };
-      });
-    }
 
 	function setBodyThemeAttribute(): void {
 		if (!browser) return;
 		document.body.setAttribute('data-theme', $storePreview ? 'customTheme' : $storeTheme);
 	}
-    if (browser && $localStore){
-      if ($localStore.currentUserFollows){
-        currentUserFollows.set($localStore.currentUserFollows);
-      }
-      if ($localStore.lastUserTheme) {
-        storeTheme.set($localStore.lastUserTheme);
-        userCustomTheme.set({
-          UserTheme: $localStore.lastUserTheme,
-          themeIdentifier: undefined,
-          themeCustomCss: undefined,
-        });
-      }
+  if (browser && $localStore && get(autoLoginStore)){
+    if ($localStore.lastUserLogged) {
+      let user = $ndkStore.getUser({
+        pubkey: $localStore.lastUserLogged,
+      });
+      ndkActiveUser.set(user);
+      autoLoginHandler();
     }
-    const autoLogin = get(autoLoginStore);
-    // TODO: improve this, bad UX
-    if (autoLogin) {
-      try {
-        if (autoLogin === "extension") {
-          loginWithExtension().catch(() => {});
-        } else if (NIP05_REGEX.test(autoLogin) || autoLogin.startsWith("bunker://") || autoLogin.includes("#")) {
-          loginWithNostrAddress(autoLogin).catch(() => {});
-        }
-      } catch (e) {
-        console.log(e);
-      }
+    if ($localStore.lastUserTheme) {
+      storeTheme.set($localStore.lastUserTheme);
+      userCustomTheme.set({
+        UserTheme: $localStore.lastUserTheme,
+        themeIdentifier: undefined,
+        themeCustomCss: undefined,
+      });
     }
+  }
 </script>
 
 <svelte:head>

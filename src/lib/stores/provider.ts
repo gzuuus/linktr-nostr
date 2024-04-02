@@ -7,8 +7,10 @@ import { bytesToHex } from "@noble/hashes/utils";
 import { generateSecretKey } from "nostr-tools";
 import { localStorageStore } from "@skeletonlabs/skeleton";
 import { emailRegex } from "$lib/utils/constants";
+import { localStore } from "./stores";
+import { fetchUserAssets, isNip05Valid } from "$lib/utils/helpers";
 export const localSignerStore: Writable<string> = localStorageStore("local-signer", "");
-export const autoLoginStore: Writable<string> = localStorageStore("auto-login", "");
+export const autoLoginStore: Writable<boolean> = localStorageStore("auto-login", false);
 
 let cacheAdapter: NDKCacheAdapter | undefined;
 
@@ -32,15 +34,19 @@ const ndk = new NDKSvelte({
 });
 
 export async function fetchUserData() {
-  // TODO add fetchCssAssets and so on
   if (!ndk.signer) return;
-
-  console.log("Fetching user");
   const user = await ndk.signer.user();
-  console.log("Fetching profile");
   await user.fetchProfile();
-  console.log(user);
+  await isNip05Valid(user.profile?.nip05, user.npub);
   ndkActiveUser.set(user);
+  fetchUserAssets(user);
+  console.log("Fetched user",user);
+  localStore.update(current => {
+    return {
+      ...current,
+      lastUserLogged: user?.pubkey
+    }
+  });
 }
 
 export async function loginWithExtension(): Promise<boolean> {
@@ -67,9 +73,8 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
 
     let signer: NDKNip46Signer;
 
-    // manually set remote user and pubkey if using NIP05
     if (emailRegex.test(connectionString)) {
-      const user = await ndk.getUserFromNip05(connectionString);
+      const user = await ndk.getUserFromNip05(connectionString.toLowerCase());
       if (!user?.pubkey) throw new Error("Cant find user");
       signer = new NDKNip46Signer(ndk, connectionString, localSigner);
       signer.remoteUser = user;
@@ -80,7 +85,7 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
       const pubkey = uri.host || uri.pathname.replace("//", "");
       const relays = uri.searchParams.getAll("relay");
       for (let relay of relays) ndk.addExplicitRelay(relay);
-      if (relays.length === 0) throw new Error("Missing relays");
+      if (relays.length == 0) throw new Error("Missing relays");
       signer = new NDKNip46Signer(ndk, pubkey, localSigner);
       signer.relayUrls = relays;
     } else {

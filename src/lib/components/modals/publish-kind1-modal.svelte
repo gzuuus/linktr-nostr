@@ -50,7 +50,7 @@
 				{#if $ndkActiveUser}
 				<button type="submit" class="btn {parent.buttonPositive}">Share</button>
 				{:else}
-				<Login doGoto={false}/>
+				<Login/>
 				{/if}
 				</footer>
 		</form>
