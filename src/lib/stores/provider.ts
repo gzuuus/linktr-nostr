@@ -25,7 +25,6 @@ export const defaulRelaysUrls: string[] = [
   "wss://relay.nostr.band",
   "wss://nos.lol",
   "wss://bouncer.nostree.me",
-  "wss://relay.nsec.app"
 ];
 
 const ndk = new NDKSvelte({
@@ -76,6 +75,7 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
     let signer: NDKNip46Signer;
 
     if (emailRegex.test(connectionString)) {
+      connectionString.endsWith("@nsec.app") && (ndk.addExplicitRelay("wss://relay.nsec.app"));
       const user = await ndk.getUserFromNip05(connectionString.toLowerCase());
       if (!user?.pubkey) throw new Error("Cant find user");
       signer = new NDKNip46Signer(ndk, connectionString, localSigner);
