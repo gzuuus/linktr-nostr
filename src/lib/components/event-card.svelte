@@ -4,23 +4,21 @@
   export let listLabel: string = "nostree";
   export let dValue: string = "";
   export let isEditHappens: boolean = false;
-  export let isFork: boolean = false;
-  export let linkListLength: number | undefined = 0;
-  
+  export let isFork: boolean = false; 
   import { nip19 } from "nostr-tools";
   import ndk from "$lib/stores/provider";
   import {
     unixToDate,
     buildEventPointer,
-    findListTags,
     sortEventList,
     findOtherTags,
     naddrEncodeATags,
   } from "$lib/utils/helpers";
   import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
-  import { kindLinks, oldKindLinks } from "$lib/utils/constants";
+  import { kindLinks, outNostrLinksUrl } from "$lib/utils/constants";
   import { page } from "$app/stores";
-  import { isNip05Valid as isNip05ValidStore, ndkUser } from "$lib/stores/user";
+  import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
+  import { ndkActiveUser } from "$lib/stores/provider";
   import { goto } from "$app/navigation";
   import ChevronIconHorizontal from "$lib/elements/icons/chevron-icon-horizontal.svelte";
   import CreateNewList from "./create-new-list.svelte";
@@ -29,7 +27,6 @@
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
-  import { NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
@@ -37,13 +34,13 @@
   import ClipboardButton from "./clipboard-button.svelte";
   import { onDestroy, onMount } from "svelte";
   import RenderLinks from "./render-links.svelte";
+  import PlusSmall from "$lib/elements/icons/plus-small.svelte";
+  import OstrichIcon from "$lib/elements/icons/ostrich-icon.svelte";
+  import LinkOut from "$lib/elements/icons/link-out.svelte";
   
   const modalStore = getModalStore();
-  const toastStore = getToastStore();
   let eventList: NDKEvent[] = [];
   let RawEventList: NDKEvent[] = [];
-  let oldEventList: NDKEvent[] = [];
-  let showDialog: boolean = false;
   let showListsIndex: boolean = false;
   let showListsIndexSwitchTabs: boolean = false;
   let showForkInfo: boolean = false;
@@ -51,73 +48,34 @@
   let isFormSent: boolean = false;
   let eventTitles: string[] = [];
   let eventHashtags: string[] = [];
-  let retryCounter = 0;
   let userNpub = nip19.npubEncode(userPub);
+  let loading = true;
   const ndkFilter: NDKFilter = dValue
-    ? { kinds: [eventKind, oldKindLinks], authors: [userPub], "#d": [`${dValue}`] }
-    : { kinds: [eventKind, oldKindLinks], authors: [userPub], "#l": [`${listLabel}`] };
+    ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`] }
+    : { kinds: [eventKind], authors: [userPub], "#l": [`${listLabel}`] };
   
-  export const updateEventToast: ToastSettings = {
-    message: 'We are migrating to a new event kind, due a change in the nostr protocol. Please update your events.',
-    background: 'variant-filled-warning',
-    timeout: 5000,
-    hoverable: true,
-    classes: 'flex flex-col gap-2',
-    action: {
-      label: 'Update events',
-      response: () => crafUpdateModal()
-    }
-  };
-
   async function fetchCurrentEvents() {
-    oldEventList = []
     try {
-    if (eventKind == kindLinks || oldKindLinks) {
-      let fetchedEvent = await $ndk.fetchEvents(
-        ndkFilter, 
-        {
-          closeOnEose: true,
-          cacheUsage: NDKSubscriptionCacheUsage.PARALLEL,
-        })
-      RawEventList = Array.from(fetchedEvent);
-      console.log(RawEventList)
-      linkListLength = RawEventList.length ? RawEventList.length : undefined;
+    if (eventKind == kindLinks) {
+      RawEventList = Array.from(await $ndk.fetchEvents(ndkFilter));
       sortEventList(RawEventList);
       for (const event of RawEventList) {
-        const tagDValue = event.tagValue('d');
         const tagTitleValue = event.tagValue('title');
-        const tagHashtagValue = event.tagValue('t');
-        
-        if (event.kind == kindLinks) {
-          eventList.push(event);
-          tagTitleValue != undefined && eventTitles.push(tagTitleValue);
-          tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
-        }
-        const tagDExistsInEventList = eventList.some((e) => e.tagValue('d') === tagDValue);
-
-        if (event.kind == oldKindLinks && !tagDExistsInEventList) {
-          oldEventList.push(event);
-          eventList.push(event);
-          tagTitleValue != undefined && eventTitles.push(tagTitleValue);
-          tagHashtagValue != undefined && eventHashtags.push(tagHashtagValue);
+        if (tagTitleValue) {
+          const tagHashtagValue = event.tagValue('t');        
+          eventList.push(event) && eventTitles.push(tagTitleValue);
+          tagHashtagValue && eventHashtags.push(tagHashtagValue);
         }
       }
-      if (userPub == $ndkUser?.pubkey) {
-        oldEventList.length > 0 && (toastStore.trigger(updateEventToast));
-      }
-
+      loading = false
     } else {
       const ndkFilter: NDKFilter = dValue
         ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`], limit: 5 }
         : { kinds: [eventKind], authors: [userPub], limit: 5 };
-      let fetchedEvent = await $ndk.fetchEvents(
-        ndkFilter, 
-        { 
-          closeOnEose: true, 
-          groupable: true 
-        })
+      let fetchedEvent = await $ndk.fetchEvents(ndkFilter)
         eventList = Array.from(fetchedEvent);
         sortEventList(eventList);
+        loading = false
     }
   }
   catch (e) {
@@ -133,17 +91,6 @@
       component: 'modalPublishKind1',
       meta: {
         noteContent: `Look this cool nostree list '${modalTitle}' from nostr:${$isNip05ValidStore.UserNpub}\n${modalContent}`
-      }
-    };
-    modalStore.trigger(modal);
-  }
-
-  function crafUpdateModal() {
-    const modal: ModalSettings = {
-      type: 'component',
-      component: 'modalUpdateOldKind',
-      meta: {
-        noteContent: oldEventList
       }
     };
     modalStore.trigger(modal);
@@ -166,22 +113,33 @@
   });
 
   onDestroy(() => {
-    retryCounter = 5;
     isEditHappens = false;
   })
 </script>
-    {#if eventList.length == 0 && linkListLength != undefined}
-    <PlaceHolderLoading colCount={5} />
+    {#if loading}
+      <PlaceHolderLoading colCount={5} />
+    {:else if !loading && eventList.length == 0}
+    <div class=" flex flex-col gap-2 justify-center common-ring p-4 w-fit m-auto rounded-container-token card">
+      <button class="btn btn-icon variant-filled m-auto" on:click={() => goto(`/new`)}>
+        <PlusSmall size={30} />
+      </button>
+      <p class="text-xl">No links yet</p>
+      <hr/>
+      <div class="flex gap-2 flex-wrap justify-center">
+        <a href="{outNostrLinksUrl}/{userNpub}" target="_blank" rel="noreferrer"><span class="common-badge-ghost gap-2">View profile in nostr <LinkOut size={18} /></span></a>
+        <a href="nostr:{userNpub}"><span class="common-badge-ghost gap-2">View profile in native client <OstrichIcon size={18} /></span></a>
+      </div>
+    </div>
     {/if}
-    {#if eventList.length > 0}
-        <div >
+    {#if eventList.length}
+        <div>
           <div class:justify-between={eventList.length > 1} class="flex justify-center">
             <button
               class:disabled={currentIndex === 0}
               class:hidden={eventList.length === 1 || isEditMode}
               on:click={() => (currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1))}
             >
-            <span class="common-badge-ghost">
+            <span class="common-badge-soft">
               <ChevronIconHorizontal size={16} flipHorizontal={true} />
                 {currentIndex + 1}</span
               >
@@ -196,7 +154,7 @@
               class:hidden={eventList.length == 1 || isEditMode}
               on:click={() => (currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1))}
             >
-              <span class="common-badge-ghost">
+              <span class="common-badge-soft">
                 {eventList.length + 1 - (currentIndex + 1)}
                 <ChevronIconHorizontal size={16} /></span>
             </button>
@@ -208,7 +166,7 @@
             {eventList[currentIndex].tagValue("description")}
           </span>
           <div class:hidden={isEditMode || eventKind != kindLinks}>
-            <button on:click={() => (showListsIndex = !showListsIndex)}>
+            <button class=" variant-soft rounded hover:variant-filled" on:click={() => (showListsIndex = !showListsIndex)}>
               {#if !showListsIndex}
                 <ChevronIconVertical size={22} flipVertical={true} />
               {:else}
@@ -230,8 +188,8 @@
                 {/each}
                 </div>
               <div>
-                {#if $ndkUser}
-                  {#if eventList[currentIndex].author.npub != $ndkUser?.npub}
+                {#if $ndkActiveUser}
+                  {#if eventList[currentIndex].author.npub != $ndkActiveUser?.npub}
                     <button
                       class="btn btn-sm variant-ghost"
                       on:click={() => {
@@ -284,14 +242,13 @@
         <div class="common-container-content">
         <div>
           {#if !isEditMode}
-          <div class="flex flex-col gap-2">
-                <RenderLinks eventTags={eventList[currentIndex].tags} />
-          </div>
+            <div class="flex flex-col gap-2">
+              <RenderLinks eventTags={eventList[currentIndex].tags} />
+            </div>
           {:else}
             <button class="common-btn-sm-ghost"
               on:click={() => {
                 isEditMode = false;
-                showDialog = false;
               }}>{isFork ? "Forking" : "Editing"} <CloseIcon size={16} /></button
             >
             <CreateNewList bind:isFormSent eventToEdit={eventList[currentIndex]} doGoto={isFork ? true : false} />
@@ -303,11 +260,13 @@
               <button
                 class="common-btn-sm-ghost"
                 on:click={() => goto(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}
-                ><code>{label}</code></button
+                ><code>
+                  {label.length > 24 ? `${label.substring(0, 24)}...` : label}
+                </code></button
               >
             {/if}
           {/each}
-          {#each findOtherTags(eventList[currentIndex].tags, "a") as label}
+          {#if findOtherTags(eventList[currentIndex].tags, "a").length}
             <button class="common-btn-sm-ghost" on:click={() => (showForkInfo = !showForkInfo)}>
               {#if !showForkInfo}
                 <ForkIcon size={20} />
@@ -315,7 +274,7 @@
                 <CloseIcon size={20} />
               {/if}
             </button>
-          {/each}
+          {/if}
         </div>
         <div class:hidden={!showForkInfo} class="card p-2">
           {#each findOtherTags(eventList[currentIndex].tags, "a") as label}
@@ -331,6 +290,5 @@
             <code class="text-left">{label}</code>
           {/each}
         </div>
-        </div>
-
-        {/if}
+      </div>
+{/if}

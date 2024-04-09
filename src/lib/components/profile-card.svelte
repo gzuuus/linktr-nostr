@@ -88,7 +88,9 @@
       <div class="flex flex-col gap-2">
         <h1>
           <a class="no-underline" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}"
-            >{userProfile.displayName ? userProfile.displayName : userProfile.name}</a
+            >{userProfile.name ? 
+            userProfile.name : userProfile.displayName ? 
+            userProfile.displayName : ''}</a
           >
         </h1>
 

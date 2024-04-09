@@ -4,7 +4,7 @@
   import type { NDKEvent, NDKFilter} from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
-  import { kindLinks, oldKindLinks, outNostrLinksUrl } from "$lib/utils/constants";
+  import { kindLinks } from "$lib/utils/constants";
   import ForkIcon from "$lib/elements/icons/fork-icon.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import { nip19 } from "nostr-tools";
@@ -18,10 +18,10 @@
   import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
   import { localStore } from "$lib/stores/stores";
   import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
-  import { ndkUser } from "$lib/stores/user";
+  import { ndkActiveUser } from "$lib/stores/provider";
   import GlobalIcon from "$lib/elements/icons/global-icon.svelte";
   import FriendsIcon from "$lib/elements/icons/friends-icon.svelte";
-    import RenderLinks from "$lib/components/render-links.svelte";
+  import RenderLinks from "$lib/components/render-links.svelte";
   
   let showForkInfo: boolean = false;
   let eventHashtags: string[] = [];
@@ -36,7 +36,7 @@
     let hashtag = $page.params.hashtagvalue;
     let authors = $localStore.currentUserFollows;
     let ndkFilter = {
-      kinds: [kindLinks, oldKindLinks],
+      kinds: [kindLinks],
       ...(exploreNetwork && { authors }),
       ...(hashtag && { "#t": [hashtag] }),
       "#l": ["nostree"],
@@ -83,7 +83,7 @@
       <ExploreIcon size={25} />
     </button>Explore
   </h1>
-  {#if $ndkUser}
+  {#if $ndkActiveUser}
     <RadioGroup background="variant-soft-surface" border="none" active="variant-filled-primary" hover="hover:variant-soft-primary">
       <RadioItem class="btn w-full h-full" bind:group={exploreNetwork} name="select-network" value={false}>
         <span><GlobalIcon size={16} /></span>

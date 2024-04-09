@@ -11,11 +11,11 @@
   import LinkIcon from "$lib/elements/icons/link-icon.svelte";
   import TextIcon from "$lib/elements/icons/text-icon.svelte";
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
-  import { NDKlogin, buildATags, findHashTags, findListTags, findOtherTags } from "$lib/utils/helpers";
+  import { autoLoginHandler, buildATags, findHashTags, findListTags, findOtherTags } from "$lib/utils/helpers";
   import { v4 as uuidv4 } from "uuid";
   import InfoIcon from "$lib/elements/icons/info-icon.svelte";
   import { goto } from "$app/navigation";
-  import { ndkUser } from "$lib/stores/user";
+  import { ndkActiveUser } from "$lib/stores/provider";
   import { kindLinks, specialCharsRegex, validPrefixes } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
   import SlugIcon from "$lib/elements/icons/slug-icon.svelte";
@@ -27,9 +27,7 @@
 	import { getToastStore, Accordion, AccordionItem, focusTrap, InputChip, getModalStore, popup } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
-  import { debounce } from "debounce";
   import { onDestroy } from "svelte";
-
 
   const modalStore = getModalStore();
   const toastStore = getToastStore();
@@ -120,7 +118,8 @@
     linkNameValidationStatus.every((status) => status);
 
   async function handleSubmit() {
-    !$ndk.signer && await NDKlogin();
+    if (!$ndk.signer) await autoLoginHandler()
+    if (!$ndk.signer) return;
     modalStore.trigger({ type: 'component', component: 'modalLoading'});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
@@ -132,13 +131,13 @@
         ["L", formData.nameSpace],
       ];
 
-      if (formData.forkData && eventToEdit.author.npub == $ndkUser?.npub) {
+      if (formData.forkData && eventToEdit.author.npub == $ndkActiveUser?.npub) {
         if (eventToEdit.tagValue("p") != null && eventToEdit.tagValue("a") != null) {
           ndkEvent.tags.push(["p", eventToEdit.tagValue("p")!]);
           ndkEvent.tags.push(["a", eventToEdit.tagValue("a")!]);
         }
       }
-      if (formData.forkData && eventToEdit.author.npub != $ndkUser?.npub) {
+      if (formData.forkData && eventToEdit.author.npub != $ndkActiveUser?.npub) {
         ndkEvent.tags.push(["p", nip19.decode(eventToEdit.author.npub).data.toString()]);
         ndkEvent.tags.push([
           "a",
@@ -157,7 +156,7 @@
         ["d", newDTag],
         ["L", "me.nostree.ontology"],
         ["l", "nostree"],
-        ["l", formData.labels[0].label.trim() ? formData.labels[0].label.toLowerCase().trim() : generateNanoId($ndkUser?.npub)],
+        ["l", formData.labels[0].label.trim() ? formData.labels[0].label.toLowerCase().trim() : generateNanoId($ndkActiveUser?.npub)],
       ];
     }
     for (const linkData of formData.links) {
@@ -236,7 +235,7 @@
   });
 </script>
   <h2>{titleText}</h2>
-  <form use:focusTrap={true} on:submit|preventDefault={debounce(handleSubmit, 200)}>
+  <form use:focusTrap={true} on:submit|preventDefault={handleSubmit}>
     <div class=" flex flex-col gap-2 text-start">
       <label class="label" for="title">
         <span>Title</span>

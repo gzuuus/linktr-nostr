@@ -1,30 +1,17 @@
 <script lang="ts">
   export let mode: string | undefined = 'primary';
-  export let doGoto: boolean = true;
-  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
   import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
-  import { NDKlogin } from "$lib/utils/helpers";
-    import { localStore } from "$lib/stores/stores";
-    import { get } from "svelte/store";
 
   const modalStore = getModalStore();
 	const modal: ModalSettings = {
 		type: 'component',
-		component: 'modalNoNip07',
+		component: 'modalLogin',
 	}
   async function login() {
-      const login = await NDKlogin();
-      if (!login){
-        modalStore.trigger(modal)
-        return;
-      }
-      if (doGoto) {
-        const {UserIdentifier} = get(localStore)
-        goto(`/${UserIdentifier ? UserIdentifier : login.npub}`);
-      }
-    }
+    modalStore.trigger(modal)
+  }
 
   $: buttonClass =
     mode === 'primary-sm' && $page.url.href !== `${$page.url.origin}/`

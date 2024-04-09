@@ -1,8 +1,6 @@
 <script lang="ts">
   import "../app.postcss";
   import Header from "$lib/components/header.svelte";
-  import { onMount } from "svelte";
-  import ndk from "$lib/stores/provider";
   import { ogImageUrl } from "$lib/utils/constants";
   import { AppShell, Modal, Toast, type ModalComponent} from '@skeletonlabs/skeleton';
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
@@ -18,8 +16,12 @@
   import { storePreview, storeTheme } from "$lib/stores/stores";
   import { browser } from "$app/environment";
   import { localStore } from "$lib/stores/stores";
-  import { currentUserFollows, ndkUser, userCustomTheme } from "$lib/stores/user";
-  import UpdateOldKindModal from "$lib/components/modals/update-old-kind-modal.svelte";
+  import { userCustomTheme } from "$lib/stores/user";
+  import LoginModal from "$lib/components/modals/login-modal.svelte";
+    import ndkStore, { autoLoginStore, ndkActiveUser } from "$lib/stores/provider";
+    import { get } from "svelte/store";
+    import { NIP05_REGEX } from "nostr-tools/nip05";
+    import { autoLoginHandler } from "$lib/utils/helpers";
 
   initializeStores();
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -30,46 +32,32 @@
   modalLoading: { ref: LoadingBackdropModal},
   modalCreateList: { ref: CreateNewListWidget},
   modalRelayList: { ref: RelayListModal},
-  modalUpdateOldKind: { ref: UpdateOldKindModal}
+  modalLogin: { ref: LoginModal},
 };
 	storePreview.subscribe(setBodyThemeAttribute);
 	storeTheme.subscribe(setBodyThemeAttribute);
-  currentUserFollows.subscribe(setLocalFollows);
-  function setLocalFollows(): void {
-    if ($currentUserFollows.length == 0) return;
-      localStore.update((currentState) => {
-        return {
-          lastUserLogged: currentState.lastUserLogged,
-          lastUserTheme: currentState.lastUserTheme,
-          currentUserFollows: $currentUserFollows ? $currentUserFollows : currentState.currentUserFollows || undefined,
-          UserIdentifier: currentState.UserIdentifier
-        };
-      });
-    }
 
 	function setBodyThemeAttribute(): void {
 		if (!browser) return;
 		document.body.setAttribute('data-theme', $storePreview ? 'customTheme' : $storeTheme);
 	}
-    if (browser && $localStore.lastUserLogged){
-      let user = $ndk.getUser({
-        npub: $localStore.lastUserLogged,
+  if (browser && $localStore && get(autoLoginStore)){
+    if ($localStore.lastUserLogged) {
+      let user = $ndkStore.getUser({
+        pubkey: $localStore.lastUserLogged,
       });
-      ndkUser.set(user);
-      if ($localStore.currentUserFollows){
-        currentUserFollows.set($localStore.currentUserFollows);
-      }
-      if ($localStore.lastUserTheme) {
-        storeTheme.set($localStore.lastUserTheme);
-        userCustomTheme.set({
-          UserTheme: $localStore.lastUserTheme,
-          themeIdentifier: undefined,
-          themeCustomCss: undefined,
-        });
-      } 
+      ndkActiveUser.set(user);
+      autoLoginHandler();
     }
-
-
+    if ($localStore.lastUserTheme) {
+      storeTheme.set($localStore.lastUserTheme);
+      userCustomTheme.set({
+        UserTheme: $localStore.lastUserTheme,
+        themeIdentifier: undefined,
+        themeCustomCss: undefined,
+      });
+    }
+  }
 </script>
 
 <svelte:head>
@@ -96,7 +84,3 @@
     <slot />
   </div>
 </AppShell>
-
-<style>
-  @import '$lib/elements/animations/general-animations.css';
-</style>

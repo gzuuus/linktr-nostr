@@ -8,30 +8,30 @@ import {
   NDKKind,
   NDKNip07Signer,
 } from "@nostr-dev-kit/ndk";
-import { currentUserFollows, ndkUser, userCustomTheme } from "$lib/stores/user";
-import { goto } from "$app/navigation";
+import { userCustomTheme } from "$lib/stores/user";
+import { autoLoginStore, loginWithExtension, loginWithNostrAddress, ndkActiveUser } from "$lib/stores/provider";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
 import {
+  CORSproxyUrl,
   defaulTheme,
   kindArticles,
   kindCSSReplaceableAsset,
   kindLinks,
   kindNotes,
-  oldKindLinks,
   outNostrLinksUrl,
   validPrefixes,
 } from "./constants";
 import { storeTheme } from "$lib/stores/stores";
 import { browser } from "$app/environment";
 import { db } from "@nostr-dev-kit/ndk-cache-dexie";
-import { get as getStore } from "svelte/store";
+import { get, get as getStore } from "svelte/store";
 import ndkStore from "$lib/stores/provider";
-import type { AddressPointer, EventPointer } from "nostr-tools/lib/types/nip19";
 import { localStore } from "$lib/stores/stores";
 import type { Link } from "$lib/classes/list";
-import { getModalStore } from "@skeletonlabs/skeleton";
-
+import { type AddressPointer, type EventPointer } from "nostr-tools/nip19";
+import type NDKSvelte from "@nostr-dev-kit/ndk-svelte";
+import { NIP05_REGEX } from "nostr-tools/nip05";
 export function unixTimeNow() {
   return Math.floor(new Date().getTime() / 1000);
 }
@@ -40,18 +40,61 @@ export function dateTomorrow() {
   return new Date(Date.now() + 3600 * 1000 * 24);
 }
 
-export function isNip05(input: string | undefined): boolean {
-  if (input === undefined) {
-    return false;
-  }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(input);
+
+export function parseNip05Address(address: string): { name?: string; domain?: string } {
+  const parts = address.trim().toLowerCase().split("@");
+  return { name: parts[0], domain: parts[1] };
 }
+interface nip05response {
+  names: { [name: string]: string };
+  nip46?: string;
+}
+export async function fetchWithFallback(address: string): Promise<nip05response | undefined> {
+  const { name, domain } = parseNip05Address(address);
+  if (!name || !domain) throw new Error("invalid address");
+  const fetchUrl = `https://${domain}/.well-known/nostr.json?name=${name}`;
+  try {
+    const response = await fetch(fetchUrl);
+    let json = (await response.json()) as nip05response;
+    if (json.names[name]) {
+      json.names = { [name]: json.names[name] };
+    } else return undefined;
+    return json;
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("CORS")) {
+      const response = await fetch(CORSproxyUrl + fetchUrl);
+      let json = (await response.json()) as nip05response;
+      if (json.names[name]) {
+        json.names = { [name]: json.names[name] };
+      } else return undefined;
+      return json;
+    } else {
+      throw error;
+    }
+  }
+}
+
+export async function autoLoginHandler(): Promise<boolean> {
+  const autoLogin = get(autoLoginStore);
+  const loginMethod = get(localStore).loginMethod
+  try {
+    if (autoLogin && loginMethod === "extension") {
+      return await loginWithExtension()
+    } else if (autoLogin && loginMethod) {
+      return await loginWithNostrAddress(loginMethod)
+    }
+    return false
+  } catch (e) {
+    console.log(e);
+    return false
+  } 
+}
+
 
 export async function isNip05Valid(nip05: string | undefined = "", npub: string | undefined = ""): Promise<boolean> {
   !npub.startsWith("npub") && (npub = nip19.npubEncode(npub));
   try {
-    if (!isNip05(nip05)) {
+    if (!NIP05_REGEX.test(nip05)) {
       isNip05ValidStore.set({
         isNip05Valid: false,
         Nip05address: undefined,
@@ -67,7 +110,7 @@ export async function isNip05Valid(nip05: string | undefined = "", npub: string 
     const Nip05address = nip05;
     const UserNpub = isNip05Valid ? nip05Promise.npub : npub;
 
-    if (isNip05(Nip05address) && Nip05address.split("@")[1] == "nostree.me") {
+    if (NIP05_REGEX.test(Nip05address) && Nip05address.split("@")[1] == "nostree.me") {
       isNip05ValidStore.set({
         isNip05Valid,
         Nip05address,
@@ -78,7 +121,7 @@ export async function isNip05Valid(nip05: string | undefined = "", npub: string 
       return isNip05Valid;
     }
 
-    if (nip05Promise === undefined && UserNpub.startsWith("npub")) {
+    if (nip05Promise === undefined && UserNpub!.startsWith("npub")) {
       isNip05ValidStore.set({
         isNip05Valid: true,
         Nip05address,
@@ -135,7 +178,7 @@ export function propsBuildPointer(
 
 export function buildEventPointer(event: NDKEvent) {
   let objPointer: EventPointer | AddressPointer;
-  let encodedPointer: string = "";
+  let encodedPointer: string;
   if (event.kind == kindNotes) {
     objPointer = {
       id: event.id,
@@ -143,12 +186,13 @@ export function buildEventPointer(event: NDKEvent) {
       author: event.author.pubkey,
     };
     return (encodedPointer = nip19.neventEncode(objPointer));
-  } else if (event.kind == kindLinks || event.kind == kindArticles || event.kind == oldKindLinks) {
+  } else if (event.kind == kindLinks || event.kind == kindArticles || event.kind == kindLinks) {
+    console.log(event.tagValue("d")!, event.author.pubkey, event.kind, event.relay?.url);
     objPointer = {
       identifier: event.tagValue("d")!,
       pubkey: event.author.pubkey,
       kind: event.kind,
-      relays: [event.relay?.url ?? ""],
+      relays: event.relay?.url ? [event.relay?.url] : [],
     };
     return (encodedPointer = nip19.naddrEncode(objPointer));
   }
@@ -229,12 +273,8 @@ export function parseNostrUrls(rawContent: string): string {
   });
 }
 
-export function truncateString(str?: string): string {
-  if (str === undefined) {
-    return "";
-  } else {
-    return str.substring(0, 12) + ":" + str.substring(str.length - 6);
-  }
+export function truncateString(str: string): string {
+  return str.substring(0, 12) + ":" + str.substring(str.length - 6);
 }
 
 export function truncatedBech(bech32: string, length?: number): string {
@@ -268,34 +308,12 @@ export async function sharePage(urlToShare: string) {
 }
 
 export function logout() {
-  ndkUser.set(null);
-  isNip05ValidStore.set({
-    isNip05Valid: null,
-    Nip05address: undefined,
-    UserNpub: undefined,
-    Vanity: undefined,
-    UserIdentifier: undefined,
-  });
-  userCustomTheme.set({
-    UserTheme: undefined,
-    themeIdentifier: undefined,
-    themeCustomCss: undefined,
-  });
-  storeTheme.set(defaulTheme);
-  localStore.update(() => {
-    return {
-      lastUserLogged: undefined,
-      lastUserTheme: undefined,
-      currentUserFollows: undefined,
-      currentUserLists: undefined,
-      UserIdentifier: undefined,
-    };
-  });
-  goto("/");
+  localStorage.clear();
+  location.reload();
 }
 
-export function sortEventList(eventList: NDKEvent[]) {
-  eventList.sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
+export function sortEventList(eventList: NDKEvent[]): NDKEvent[] {
+  return eventList.sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
 export function generateNanoId(seed: string | undefined = unixTimeNow().toString()) {
@@ -339,56 +357,49 @@ export async function fetchUserProfile(opts: string): Promise<NDKUserProfile | u
 
 export async function fetchCssAsset(user: string) {
   const $ndk = getStore(ndkStore);
-  const $ndkUser = getStore(ndkUser);
+  const activeUserPub = getStore(ndkActiveUser)?.pubkey;
   const $storeTheme = getStore(storeTheme);
   let ndkFilter: NDKFilter = {
     authors: [user],
     kinds: [kindCSSReplaceableAsset as NDKKind],
     "#L": ["nostree-theme"],
   };
-
   try {
     const fetchedEvent = await $ndk.fetchEvent(ndkFilter, {
       closeOnEose: true,
       groupable: true,
     });
-
     if (fetchedEvent) {
+      console.log("fetchedCssAsset", fetchedEvent);
       const userTheme = fetchedEvent.tagValue("l");
       const themeIdentifier = fetchedEvent.tagValue("d");
       const themeCustomCss = fetchedEvent.content;
-
-      if (user == $ndkUser?.pubkey) {
+      if (user == activeUserPub) {
         userCustomTheme.set({
           UserTheme: userTheme || undefined,
           themeIdentifier: themeIdentifier || undefined,
           themeCustomCss: themeCustomCss || undefined,
         });
-        localStore.update((currentState) => {
+        localStore.update(current => {
           return {
-            lastUserLogged: currentState.lastUserLogged,
+            ...current,
             lastUserTheme: userTheme,
-            currentUserFollows: currentState.currentUserFollows,
-            UserIdentifier: currentState.UserIdentifier,
           };
         });
-
         storeTheme.set($storeTheme == defaulTheme ? userTheme! : $storeTheme);
       } else {
         storeTheme.set(userTheme || "");
       }
-
       if (fetchedEvent.content) {
         setCustomStyles(fetchedEvent.content);
       }
     } else {
-      if (user == $ndkUser?.pubkey) {
-        localStore.update((currentState) => {
+      if (user == activeUserPub) {
+        console.log("setTheme", defaulTheme);
+        localStore.update(current => {
           return {
-            lastUserLogged: currentState.lastUserLogged,
+            ...current,
             lastUserTheme: undefined,
-            currentUserFollows: currentState.currentUserFollows,
-            UserIdentifier: currentState.UserIdentifier,
           };
         });
       }
@@ -398,36 +409,20 @@ export async function fetchCssAsset(user: string) {
   }
 }
 
-export async function NDKlogin(): Promise<NDKUser | undefined> {
+export async function fetchUserAssets(user: NDKUser): Promise<NDKUser | null> {
   try {
-    const $ndk = getStore(ndkStore);
-    const signer = new NDKNip07Signer();
-    $ndk.signer = signer;
-    ndkStore.set($ndk);
-    const ndkCurrentUser = await signer.user();
-    let user = $ndk.getUser({
-      npub: ndkCurrentUser.npub,
-    });
-    ndkUser.set(user);
-
     const followsSet = await user.follows();
     const followsArray = Array.from(followsSet as Set<NDKUser>);
-    currentUserFollows.set(followsArray.map((user) => user.pubkey));
-    const userProfile = await user.fetchProfile();
-    await isNip05Valid(userProfile?.nip05, user.npub);
-    const nip05ValidStore = getStore(isNip05ValidStore);
-    localStore.update((currentState) => {
+    localStore.update(currentState => {
       return {
-        lastUserLogged: ndkCurrentUser.npub,
-        lastUserTheme: currentState.lastUserTheme,
-        currentUserFollows: followsArray.map((user) => user.pubkey),
-        UserIdentifier: nip05ValidStore.UserIdentifier,
+        ...currentState,
+        currentUserFollows: followsArray.map((user) => user.pubkey)
       };
     });
     await fetchCssAsset(user.pubkey);
     return user;
   } catch (error) {
-    return undefined;
+    return null;
   }
 }
 
@@ -450,7 +445,7 @@ export function processHashtags(events: NDKEvent[]): string[] {
 export async function fetchUserEvents(userPubKey: string): Promise<NDKEvent[]> {
   const $ndk = getStore(ndkStore);
   let fetchedEvent = await $ndk.fetchEvents({
-    kinds: [kindLinks, oldKindLinks],
+    kinds: [kindLinks],
     authors: [userPubKey],
     "#l": ["nostree"],
   });
@@ -470,7 +465,7 @@ export async function addLinkToList(link: Link, eventToModify: NDKEvent): Promis
 
   let linkTag = ["r", link.url, link.description];
   try {
-    !$ndk.signer && (await NDKlogin());
+    if (!$ndk.signer) return false;
     let eventToPublish = eventToModify;
     eventToPublish.sig = undefined;
     eventToPublish.created_at = unixTimeNow();
@@ -487,7 +482,7 @@ export async function publishKind1(content: string): Promise<boolean> {
   const $ndk = getStore(ndkStore);
   let eventToPublish = new NDKEvent($ndk);
   try {
-    !$ndk.signer && (await NDKlogin());
+    if (!$ndk.signer) return false;
     eventToPublish.kind = NDKKind.Text;
     eventToPublish.content = content;
     eventToPublish.tags.push(["t", "nostree"]);
@@ -497,4 +492,50 @@ export async function publishKind1(content: string): Promise<boolean> {
     console.error(error);
     return false;
   }
+}
+// TODO
+export async function filterDbEvents(filter: NDKFilter): Promise<NDKEvent[]> {
+  if (!browser) return [];
+  console.log("filterDbEvents", filter);
+  const $ndk = getStore(ndkStore);
+  let filterDb: NDKEvent[] = [];
+  try {
+    if (filter.kinds && filter.authors && filter["#l"]) {
+      console.log("filter.kinds && filter.authors && filter['#l']", filter.kinds);
+      const events = await db.events
+        .where("pubkey")
+        .anyOf(filter.authors!)
+        .and((event) => filter.kinds!.includes(event.kind))
+        .toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    } else if (filter.kinds && filter.authors && filter["#d"]) {
+      const events = await db.events
+        .where("id")
+        .startsWith(`${filter.kinds[0]}:${filter.authors[0]}:${filter["#d"]}`)
+        .toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    } else if (filter.authors && filter.kinds) {
+      console.log("filter.authors", filter.authors);
+      const events = await db.events
+        .where("pubkey")
+        .anyOf(filter.authors)
+        .and((event) => filter.kinds!.includes(event.kind))
+        .toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    } else if (filter.authors) {
+      const events = await db.events.where("pubkey").anyOf(filter.authors).toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    } else if (filter.kinds) {
+      const events = await db.events.where("kind").anyOf(filter.kinds).toArray();
+
+      filterDb = events.map((event) => new NDKEvent($ndk, JSON.parse(event.event)));
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  return filterDb;
 }

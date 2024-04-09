@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ndkUser } from "$lib/stores/user";
+  import { ndkActiveUser } from "$lib/stores/provider";
   import { goto } from "$app/navigation";
   import LogoutIcon from "$lib/elements/icons/logout-icon.svelte";
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
@@ -22,12 +22,12 @@
 <div class="flex flex-col justify-between h-full">
   <nav class="list-nav p-4 -m-4 overflow-y-auto">        
     <ul>
-      {#if $ndkUser}
+      {#if $ndkActiveUser}
       <li>
         <button
           class="option w-full h-full variant-soft"
           on:click={() => {
-            goto(`/${$ndkUser?.npub}`)
+            goto(`/${$ndkActiveUser?.npub}`)
             drawerStore.close();}}
         >
           <span><ProfileIcon size={20} /></span>
@@ -58,7 +58,7 @@
       {/if}
       </ul>
       <ul>
-      <li class:hidden={$ndkUser}>
+      <li class:hidden={$ndkActiveUser}>
         <Login mode={"drawer"}/>
       </li>
       <li>
@@ -89,7 +89,7 @@
   </nav>
   <nav class="list-nav p-4 -m-4 overflow-y-auto">
       <ul>
-      <li class:hidden={!$ndkUser}>
+      <li class:hidden={!$ndkActiveUser}>
           <button
             class="option w-full h-full variant-soft-error"
             on:click={() => {

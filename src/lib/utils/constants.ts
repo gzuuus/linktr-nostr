@@ -5,7 +5,6 @@ export const ogLogoImg = "/og-logo.png";
 export const kindNotes = 1;
 export const kindDelete = 5;
 export const kindLinks = 30003 as NDKKind;
-export const oldKindLinks = 30001;
 export const kindArticles = 30023;
 export const kindCSSReplaceableAsset = 35393;
 export const kindCSSAsset = 5393;
@@ -21,8 +20,20 @@ export const succesPublishToast: ToastSettings = {
   hoverable: true,
   background: "variant-filled-success",
 };
+export const succesLogin: ToastSettings = {
+  message: "Login successfully!",
+  timeout: toastTimeOut,
+  hoverable: true,
+  background: "variant-filled-success",
+};
 export const errorPublishToast: ToastSettings = {
   message: "Error on publishing, look at console!",
+  timeout: toastTimeOut,
+  hoverable: true,
+  background: "variant-filled-error",
+};
+export const errorLogin: ToastSettings = {
+  message: "Error on login, look at console!",
   timeout: toastTimeOut,
   hoverable: true,
   background: "variant-filled-error",
@@ -61,3 +72,5 @@ export const validPrefixes: string[] = [
   "irc://",
   "magnet:",
 ];
+
+export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{1,}$/;

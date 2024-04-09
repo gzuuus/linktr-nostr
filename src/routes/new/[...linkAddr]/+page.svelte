@@ -2,14 +2,14 @@
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";
   import CreateNewList from "$lib/components/create-new-list.svelte";
-  import { ndkUser } from "$lib/stores/user";
+  import { ndkActiveUser } from "$lib/stores/provider";
   import { nip19 } from "nostr-tools";
-  import { NDKlogin, findHashTags, findListTags, findOtherTags, sortEventList } from "$lib/utils/helpers";
+  import { findHashTags, findListTags, findOtherTags, sortEventList } from "$lib/utils/helpers";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
   import PinIcon from "$lib/elements/icons/pin-icon.svelte";
   import Login from "$lib/components/login.svelte";
-  import { errorPublishToast, kindLinks, oldKindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
+  import { errorPublishToast, kindLinks, succesDeletingToast, succesPublishToast } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
@@ -26,16 +26,16 @@
   let editIndex: number;
 
   $: {
-    if ($ndkUser) {
+    if ($ndkActiveUser) {
       showEvents();
     }
   }
 
   async function showEvents() {
-    if ($ndkUser) {
-      let userPubDecoded: string = nip19.decode($ndkUser.npub).data.toString();
+    if ($ndkActiveUser) {
+      let userPubDecoded: string = nip19.decode($ndkActiveUser.npub).data.toString();
       let fetchedEvent = await $ndk.fetchEvents({
-          kinds: [kindLinks, oldKindLinks],
+          kinds: [kindLinks],
           authors: [userPubDecoded],
           "#l": ["nostree"],
         })
@@ -46,6 +46,7 @@
   }
 
   async function handleSubmit(eventToPublish: NDKEvent, toDelete: boolean = false) {
+    if (!$ndk.signer) return
     modalStore.trigger({ type: 'component', component: 'modalLoading'});
     const ndkEvent = new NDKEvent($ndk);
     ndkEvent.kind = kindLinks;
@@ -81,9 +82,9 @@
       }
       labels = findOtherTags(eventToPublish.tags, "l").map((tag) => ({ label: tag }));
       if (labels.length === 0) {
-        ndkEvent.tags.push(["l", "nostree"], ["l", generateNanoId($ndkUser?.npub)]);
+        ndkEvent.tags.push(["l", "nostree"], ["l", generateNanoId($ndkActiveUser?.npub)]);
       } else if (labels.length === 1 && eventToPublish.tagValue("l") === "nostree") {
-        ndkEvent.tags.push(["l", generateNanoId($ndkUser?.npub)]);
+        ndkEvent.tags.push(["l", generateNanoId($ndkActiveUser?.npub)]);
       } else {
         for (const labelData of labels) {
           const { label } = labelData;
@@ -91,7 +92,6 @@
         }
       }
     }
-    !$ndk.signer && await NDKlogin();
     try {
       await ndkEvent.publish()
       toDelete && await ndkEvent.delete()
@@ -122,13 +122,13 @@
   <meta property="og:title" content="Manage lists"/>
   <meta property="og:description" content="Manage your nostree lists" />
 </svelte:head>
-{#if $ndkUser}
+{#if $ndkActiveUser}
   <div class:hidden={showCreateNewList} class="flex flex-col gap-2 flex-wrap">
     <h2>Manage your lists</h2>
   </div>
   <CreateNewListWidget bind:showCreateNewList={showCreateNewList} />
 {:else}
-  <Login mode="primary" doGoto={false} />
+  <Login mode="primary"/>
 {/if}
 <!-- Other lists -->
 {#key events.length}
@@ -179,21 +179,6 @@
                       handleSubmit(event, true);
                     }}><BinIcon size={20} /></button
                   >
-                  {#if event.kind == oldKindLinks}
-                    <span 
-                    use:popup={{ event: 'hover', target: 'popupOldKind', placement: 'top' }}
-                    >🔺
-                  </span>
-                  <div class="card p-4 variant-filled" data-popup="popupOldKind">
-                    <p>List in old format, please update it, press </p>
-                    <button
-                    class="common-btn-icon-ghost"
-                    >
-                    <PinIcon size={20} />
-                    </button>
-                    <div class="arrow variant-filled" />
-                  </div>
-                  {/if}
                 </div>
                 <div class:hidden={isEditMode && editIndex == i}>
                   <h3>{event.tagValue("title")}</h3>

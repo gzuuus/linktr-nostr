@@ -3,7 +3,6 @@
     import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
     import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
     import { RadioGroup, RadioItem, focusTrap } from "@skeletonlabs/skeleton";
-    import { debounce } from "debounce";
     export let searchDone: boolean = false;
     export let searchQuery: string = "";
     export let searchKind: string = "profile";
@@ -23,11 +22,11 @@
   <div class="input-group input-group-divider grid-cols-[1fr_auto]">
     <form 
       use:focusTrap={true}
-      on:submit|preventDefault={debounce(submitQuery, 200)}
+      on:submit|preventDefault={submitQuery}
       >
         <input class="input" type="search" bind:value={searchQuery} placeholder="Search..." />
     </form>
-    <button type="submit" class="variant-filled-secondary" on:click={debounce(submitQuery, 200)}>Search</button>
+    <button type="submit" class="variant-filled-secondary" on:click={submitQuery}>Search</button>
   </div>
   {#if isAdvancedSearch}
   <RadioGroup>

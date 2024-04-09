@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import Logo from "$lib/elements/icons/logo.svelte";
-  import { ndkUser } from "$lib/stores/user";
+  import { ndkActiveUser } from "$lib/stores/provider";
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
   import HeartIcon from "$lib/elements/icons/heart-icon.svelte";
   import Login from "$lib/components/login.svelte";
@@ -32,10 +32,10 @@
       <h1>Nostree</h1>
       <p>A Nostr-based application to create, manage and discover link lists, and other stuff.</p>
     </div>
-    {#if !$ndkUser}
+    {#if !$ndkActiveUser}
       <Login mode="primary" />
     {:else}
-      <button class="btn variant-filled" on:click={() => goto(`/${$ndkUser?.npub}`)}>Profile</button>
+      <button class="btn variant-filled" on:click={() => goto(`/${$ndkActiveUser?.npub}`)}>Profile</button>
       <button class="btn variant-filled" on:click={() => goto("/new")}>Manage lists</button>
     {/if}
     <button class="btn variant-filled" on:click={() => goto("/search")}>
