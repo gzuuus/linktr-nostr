@@ -139,7 +139,7 @@
               class:hidden={eventList.length === 1 || isEditMode}
               on:click={() => (currentIndex = clampIndex(currentIndex - 1, 0, eventList.length - 1))}
             >
-            <span class="common-badge-ghost">
+            <span class="common-badge-soft">
               <ChevronIconHorizontal size={16} flipHorizontal={true} />
                 {currentIndex + 1}</span
               >
@@ -154,7 +154,7 @@
               class:hidden={eventList.length == 1 || isEditMode}
               on:click={() => (currentIndex = clampIndex(currentIndex + 1, 0, eventList.length - 1))}
             >
-              <span class="common-badge-ghost">
+              <span class="common-badge-soft">
                 {eventList.length + 1 - (currentIndex + 1)}
                 <ChevronIconHorizontal size={16} /></span>
             </button>
@@ -166,7 +166,7 @@
             {eventList[currentIndex].tagValue("description")}
           </span>
           <div class:hidden={isEditMode || eventKind != kindLinks}>
-            <button class=" variant-soft rounded" on:click={() => (showListsIndex = !showListsIndex)}>
+            <button class=" variant-soft rounded hover:variant-filled" on:click={() => (showListsIndex = !showListsIndex)}>
               {#if !showListsIndex}
                 <ChevronIconVertical size={22} flipVertical={true} />
               {:else}
