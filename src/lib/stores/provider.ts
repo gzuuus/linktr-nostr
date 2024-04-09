@@ -4,7 +4,7 @@ import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 import { browser } from "$app/environment";
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import { bytesToHex } from "@noble/hashes/utils";
-import { generateSecretKey } from "nostr-tools";
+import { generateSecretKey } from 'nostr-tools/pure'
 import { localStorageStore } from "@skeletonlabs/skeleton";
 import { emailRegex } from "$lib/utils/constants";
 import { localStore } from "./stores";
@@ -25,12 +25,14 @@ export const defaulRelaysUrls: string[] = [
   "wss://relay.nostr.band",
   "wss://nos.lol",
   "wss://bouncer.nostree.me",
+  "wss://relay.nsec.app"
 ];
 
 const ndk = new NDKSvelte({
   explicitRelayUrls: defaulRelaysUrls,
   cacheAdapter,
-  enableOutboxModel: false,
+  outboxRelayUrls: ["wss://purplepag.es"],
+  enableOutboxModel: true,
 });
 
 export async function fetchUserData() {
@@ -92,7 +94,7 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
       signer = new NDKNip46Signer(ndk, connectionString, localSigner);
     }
     signer.rpc.on("authUrl", (url: string) => {
-      window.open(url, "_blank");
+      window.open(url, "_blank", "width=600,height=600");
     });
 
     await signer.blockUntilReady();

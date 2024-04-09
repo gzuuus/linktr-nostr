@@ -121,7 +121,7 @@ export async function isNip05Valid(nip05: string | undefined = "", npub: string 
       return isNip05Valid;
     }
 
-    if (nip05Promise === undefined && UserNpub.startsWith("npub")) {
+    if (nip05Promise === undefined && UserNpub!.startsWith("npub")) {
       isNip05ValidStore.set({
         isNip05Valid: true,
         Nip05address,
