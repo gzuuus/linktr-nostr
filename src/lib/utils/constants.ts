@@ -72,5 +72,3 @@ export const validPrefixes: string[] = [
   "irc://",
   "magnet:",
 ];
-
-export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{1,}$/;

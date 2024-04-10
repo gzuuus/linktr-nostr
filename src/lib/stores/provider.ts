@@ -6,9 +6,9 @@ import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import { bytesToHex } from "@noble/hashes/utils";
 import { generateSecretKey } from 'nostr-tools/pure'
 import { localStorageStore } from "@skeletonlabs/skeleton";
-import { emailRegex } from "$lib/utils/constants";
 import { localStore } from "./stores";
 import { fetchUserAssets, isNip05Valid } from "$lib/utils/helpers";
+import { NIP05_REGEX } from "nostr-tools/nip05";
 export const localSignerStore: Writable<string> = localStorageStore("local-signer", "");
 export const autoLoginStore: Writable<boolean> = localStorageStore("auto-login", false);
 
@@ -74,7 +74,7 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
 
     let signer: NDKNip46Signer;
 
-    if (emailRegex.test(connectionString)) {
+    if (NIP05_REGEX.test(connectionString)) {
       connectionString.endsWith("@nsec.app") && (ndk.addExplicitRelay("wss://relay.nsec.app"));
       const user = await ndk.getUserFromNip05(connectionString.toLowerCase());
       if (!user?.pubkey) throw new Error("Cant find user");
