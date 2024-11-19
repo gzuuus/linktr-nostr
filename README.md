@@ -6,11 +6,11 @@
 
 ## Motivation
 
-[nostr](https://github.com/nostr-protocol/) its an open protocol under a public domain licence, which ensures its openness, the protocol aims to be decentralised, uncensorable, sovereign and very portable, these values resonate in the mind of every person seeking freedom in this world that its becoming more and more unfree. Nostree porsuis these values as well, and its the main focus and motivation behind this project, its free to use, data its owned by you and the relays of the network, and signed by yourself, you can use it with whatever nostr key and no more, no emails, phone numbers, personal data, etc.
+[nostr](https://github.com/nostr-protocol/) is an open protocol under a public domain licence, which ensures its openness, the protocol aims to be decentralised, uncensorable, sovereign and very portable, these values resonate in the mind of every person seeking freedom in this world that its becoming more and more unfree. Nostree pursues these values as well, and it's the main focus and motivation behind this project, it's free to use, data is owned by you and the relays of the network, and signed by yourself, you can use it with whatever nostr key and no more, no emails, phone numbers, personal data, etc.
 
-## Filosophy
+## Philosophy
 
-Nostree is an open source client, the actual licence is GPL-3 which ensures the project will remain open source, but the intention is to make it as open as possible without compromising it's open source esence, the project is open to a licence change if the community requires it.
+Nostree is an open-source client, the actual licence is GPL-3 which ensures the project will remain open source, but the intention is to make it as open as possible without compromising its open-source essence, the project is open to a licence change if the community requires it.
 
 As this project was founded by [openSats](https://opensats.org/), PRs and collaboration is encouraged and they will be eligible to receive bounties, please feel free to open PRs or issues.
 
@@ -33,7 +33,7 @@ This roadmap is only a draft of the direction of the project, it can be changed,
 - [ ] Theme generator
 - [ ] Docs
 - [ ] Edit profile
-- [ ] On boarding
+- [ ] On-boarding
 - [ ] Calendar events
 - [ ] Live streaming events
 - [ ] Offline lists
