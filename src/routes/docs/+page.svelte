@@ -140,39 +140,6 @@
         <hr class="my-8">
 
         <section class="mb-12">
-          <h2 class="text-2xl md:text-3xl font-semibold mb-4 mt-8">Migrating Old Lists</h2>
-          <div class="space-y-8">
-            <div class="space-y-4">
-              <p class="text-lg">Moving your existing lists to Nostree is straightforward.<br>
-                We support importing lists from various formats and platforms.</p>
-              
-              <div class="pl-4 space-y-6">
-                <div>
-                  <h4 class="font-semibold mb-2">Import Options</h4>
-                  <ul class="space-y-2 pl-4">
-                    <li><span class="font-medium">Manual Entry</span> - Copy and paste your links</li>
-                    <li><span class="font-medium">Bulk Import</span> - Upload multiple lists at once</li>
-                    <li><span class="font-medium">Platform Import</span> - Import from other services</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 class="font-semibold mb-2">Migration Tips</h4>
-                  <ul class="space-y-2 pl-4">
-                    <li><span class="font-medium">Organize First</span> - Sort links before importing</li>
-                    <li><span class="font-medium">Add Descriptions</span> - Include context for each link</li>
-                    <li><span class="font-medium">Use Tags</span> - Add relevant hashtags during import</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <hr class="my-8">
-
-        <section class="mb-12">
           <h2 class="text-2xl md:text-3xl font-semibold mb-4 mt-8">Technical Details</h2>
           <p class="mb-4">
             Nostree uses the Nostr protocol to store and share your lists. This means:
