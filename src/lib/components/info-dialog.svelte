@@ -1,49 +1,55 @@
 <script lang="ts">
-    import DocListHashtags from "$lib/docsComponents/doc-list-hashtags.svelte";
   export let whatInfo: string | undefined = "";
   export let showInfoIcon: boolean = true;
   export let InfoIconSize: number = 18;
   export let buttonText: string | undefined = "";
-  import DocListNaddrShare from "$lib/docsComponents/doc-list-naddr-share.svelte";
-  import DocListSlugShare from "$lib/docsComponents/doc-list-slug-share .svelte";
-  import DocListSlug from "$lib/docsComponents/doc-list-slug.svelte";
-  import DocNewList from "$lib/docsComponents/doc-new-list.svelte";
-  import DocOldLists from "$lib/docsComponents/doc-old-lists.svelte";
-  import InfoIcon from "$lib/elements/icons/info-icon.svelte";
-
-  let isModalVisible: boolean = false;
 </script>
 
-<button
-  type="button"
-  class="inputWithIcon switchButtons noBorder noPadding"
-  on:click={() => (isModalVisible = !isModalVisible)}
->
-  {buttonText}
+<div class="relative inline-block">
   {#if showInfoIcon}
-    <InfoIcon size={InfoIconSize} />
+    <button
+      class="info-button"
+      on:click={() => {
+        const dialog = document.getElementById(whatInfo) as HTMLDialogElement;
+        dialog?.showModal();
+      }}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={InfoIconSize}
+        height={InfoIconSize}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="feather feather-info"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+      </svg>
+    </button>
+  {:else if buttonText}
+    <button
+      class="text-button"
+      on:click={() => {
+        const dialog = document.getElementById(whatInfo) as HTMLDialogElement;
+        dialog?.showModal();
+      }}
+    >
+      {buttonText}
+    </button>
   {/if}
-</button>
+</div>
 
-{#if isModalVisible}
-  <div class="modal">
-    <div class="modal-content">
-      {#if whatInfo == "list-slug"}
-        <DocListSlug />
-      {:else if whatInfo == "new-list"}
-        <DocNewList />
-      {:else if whatInfo == "list-slug-share"}
-        <DocListSlugShare />
-      {:else if whatInfo == "list-naddr-share"}
-        <DocListNaddrShare />
-      {:else if whatInfo == "list-old-format-migrate"}
-        <DocOldLists />
-      {:else if whatInfo == "list-hashtags"}
-        <DocListHashtags />
-      {/if}
-      <div class="closeModal">
-        <button type="button" on:click={() => (isModalVisible = false)}>👍</button>
-      </div>
-    </div>
-  </div>
-{/if}
+<style>
+  .info-button {
+    @apply inline-flex items-center justify-center p-1 rounded-full text-gray-400 hover:text-gray-500;
+  }
+
+  .text-button {
+    @apply text-gray-400 hover:text-gray-500;
+  }
+</style>
