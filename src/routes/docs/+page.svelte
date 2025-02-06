@@ -1,5 +1,5 @@
 <script lang="ts">
-  import InfoDialog from "$lib/components/info-dialog.svelte";
+  import InfoDialog from "$lib/components/info-dialog.svelte";  // Svelte automatically handles component exports
   import DocListHashtags from "$lib/docsComponents/doc-list-hashtags.svelte";
   import DocListNaddrShare from "$lib/docsComponents/doc-list-naddr-share.svelte";
   import DocListSlugSame from "$lib/docsComponents/doc-list-slug-same.svelte";
