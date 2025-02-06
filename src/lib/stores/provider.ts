@@ -4,7 +4,7 @@ import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
 import { browser } from "$app/environment";
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import { bytesToHex } from "@noble/hashes/utils";
-import { generateSecretKey } from 'nostr-tools/pure'
+import { generateSecretKey } from "nostr-tools/pure";
 import { localStorageStore } from "@skeletonlabs/skeleton";
 import { localStore } from "./stores";
 import { fetchUserAssets, isNip05Valid } from "$lib/utils/helpers";
@@ -24,7 +24,7 @@ export const defaulRelaysUrls: string[] = [
   "wss://purplepag.es",
   "wss://relay.nostr.band",
   "wss://nos.lol",
-  "wss://bouncer.nostree.me",
+  "wss://relay.nostr.net",
 ];
 
 const ndk = new NDKSvelte({
@@ -41,12 +41,12 @@ export async function fetchUserData() {
   await isNip05Valid(user.profile?.nip05, user.npub);
   ndkActiveUser.set(user);
   fetchUserAssets(user);
-  console.log("Fetched user",user);
-  localStore.update(current => {
+  console.log("Fetched user", user);
+  localStore.update((current) => {
     return {
       ...current,
-      lastUserLogged: user?.pubkey
-    }
+      lastUserLogged: user?.pubkey,
+    };
   });
 }
 
@@ -75,13 +75,13 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
     let signer: NDKNip46Signer;
 
     if (NIP05_REGEX.test(connectionString)) {
-      connectionString.endsWith("@nsec.app") && (ndk.addExplicitRelay("wss://relay.nsec.app"));
+      connectionString.endsWith("@nsec.app") && ndk.addExplicitRelay("wss://relay.nsec.app");
       const user = await ndk.getUserFromNip05(connectionString.toLowerCase());
       if (!user?.pubkey) throw new Error("Cant find user");
       signer = new NDKNip46Signer(ndk, connectionString, localSigner);
       signer.remoteUser = user;
       signer.remotePubkey = user.pubkey;
-    } else if (connectionString.startsWith("bunker://" || "nsecbunker://")) {
+    } else if (connectionString.startsWith("bunker://")) {
       const uri = new URL(connectionString);
 
       const pubkey = uri.host || uri.pathname.replace("//", "");

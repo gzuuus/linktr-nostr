@@ -4,8 +4,6 @@
   import { fetchUserProfile, truncateString} from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
   import LnIcon from "$lib/elements/icons/ln-icon.svelte";
-  import { page } from "$app/stores";
-  import { goto } from "$app/navigation";
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";
   import PlaceHolderLoading from "./placeHolderLoading.svelte";
@@ -13,6 +11,8 @@
   import ClipboardButton from "./clipboard-button.svelte";
   import { nip19 } from "nostr-tools";
   import FollowButton from "./follow-button.svelte";
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;

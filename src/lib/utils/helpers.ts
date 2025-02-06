@@ -1,13 +1,5 @@
 import { nip19 } from "nostr-tools";
-import {
-  NDKUser,
-  NDKEvent,
-  type NDKTag,
-  type NDKUserProfile,
-  type NDKFilter,
-  NDKKind,
-  NDKNip07Signer,
-} from "@nostr-dev-kit/ndk";
+import { NDKUser, NDKEvent, type NDKTag, type NDKUserProfile, type NDKFilter, NDKKind } from "@nostr-dev-kit/ndk";
 import { userCustomTheme } from "$lib/stores/user";
 import { autoLoginStore, loginWithExtension, loginWithNostrAddress, ndkActiveUser } from "$lib/stores/provider";
 import { nanoid } from "nanoid";
@@ -39,7 +31,6 @@ export function unixTimeNow() {
 export function dateTomorrow() {
   return new Date(Date.now() + 3600 * 1000 * 24);
 }
-
 
 export function parseNip05Address(address: string): { name?: string; domain?: string } {
   const parts = address.trim().toLowerCase().split("@");
@@ -76,20 +67,19 @@ export async function fetchWithFallback(address: string): Promise<nip05response 
 
 export async function autoLoginHandler(): Promise<boolean> {
   const autoLogin = get(autoLoginStore);
-  const loginMethod = get(localStore).loginMethod
+  const loginMethod = get(localStore).loginMethod;
   try {
     if (autoLogin && loginMethod === "extension") {
-      return await loginWithExtension()
+      return await loginWithExtension();
     } else if (autoLogin && loginMethod) {
-      return await loginWithNostrAddress(loginMethod)
+      return await loginWithNostrAddress(loginMethod);
     }
-    return false
+    return false;
   } catch (e) {
     console.log(e);
-    return false
-  } 
+    return false;
+  }
 }
-
 
 export async function isNip05Valid(nip05: string | undefined = "", npub: string | undefined = ""): Promise<boolean> {
   !npub.startsWith("npub") && (npub = nip19.npubEncode(npub));
@@ -331,8 +321,8 @@ export function setCustomStyles(cssTheme: string) {
 
 export async function fetchUserProfile(opts: string): Promise<NDKUserProfile | undefined> {
   try {
-    if (browser) {
-      const user = await db.users.where({ pubkey: opts }).first();
+    if (browser && opts.trim()) {
+      const user = await db.users?.where({ pubkey: opts }).first();
       if (!user) {
         const ndk = getStore(ndkStore);
         const ndkUser = ndk.getUser({ pubkey: opts });
@@ -380,7 +370,7 @@ export async function fetchCssAsset(user: string) {
           themeIdentifier: themeIdentifier || undefined,
           themeCustomCss: themeCustomCss || undefined,
         });
-        localStore.update(current => {
+        localStore.update((current) => {
           return {
             ...current,
             lastUserTheme: userTheme,
@@ -396,7 +386,7 @@ export async function fetchCssAsset(user: string) {
     } else {
       if (user == activeUserPub) {
         console.log("setTheme", defaulTheme);
-        localStore.update(current => {
+        localStore.update((current) => {
           return {
             ...current,
             lastUserTheme: undefined,
@@ -413,10 +403,10 @@ export async function fetchUserAssets(user: NDKUser): Promise<NDKUser | null> {
   try {
     const followsSet = await user.follows();
     const followsArray = Array.from(followsSet as Set<NDKUser>);
-    localStore.update(currentState => {
+    localStore.update((currentState) => {
       return {
         ...currentState,
-        currentUserFollows: followsArray.map((user) => user.pubkey)
+        currentUserFollows: followsArray.map((user) => user.pubkey),
       };
     });
     await fetchCssAsset(user.pubkey);
