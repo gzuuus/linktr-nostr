@@ -14,9 +14,35 @@ export const autoLoginStore: Writable<boolean> = localStorageStore("auto-login",
 
 let cacheAdapter: NDKCacheAdapter | undefined;
 
+const DB_CONFIG = {
+  name: "nostreeV02",
+  version: 1,
+  storageKey: "db_version",
+} as const;
+
+async function initializeDatabase(): Promise<void> {
+  if (!browser) return;
+
+  const storedVersion = localStorage.getItem(DB_CONFIG.storageKey);
+  const currentVersion = parseInt(storedVersion || "0");
+
+  if (storedVersion && currentVersion < DB_CONFIG.version) {
+    try {
+      indexedDB.deleteDatabase(DB_CONFIG.name);
+      console.log("Database reset due to version update");
+    } catch (error) {
+      console.error("Failed to reset database:", error);
+      throw new Error("Database reset failed. Please reload the application.");
+    }
+  }
+
+  localStorage.setItem(DB_CONFIG.storageKey, DB_CONFIG.version.toString());
+  cacheAdapter = new NDKCacheAdapterDexie({ dbName: DB_CONFIG.name });
+}
+
 if (browser) {
-  cacheAdapter = new NDKCacheAdapterDexie({
-    dbName: "nostreeV02",
+  initializeDatabase().catch((error) => {
+    console.error("Database initialization failed:", error);
   });
 }
 
