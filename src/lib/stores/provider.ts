@@ -50,7 +50,6 @@ export const defaulRelaysUrls: string[] = [
   "wss://purplepag.es",
   "wss://relay.nostr.band",
   "wss://nos.lol",
-  "wss://relay.nostr.net",
 ];
 
 const ndk = new NDKSvelte({
