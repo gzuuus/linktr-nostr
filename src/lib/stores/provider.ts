@@ -1,7 +1,5 @@
 import { get, writable, type Writable } from "svelte/store";
-import { NDKNip07Signer, type NDKCacheAdapter, NDKPrivateKeySigner, NDKNip46Signer } from "@nostr-dev-kit/ndk";
-import NDKCacheAdapterDexie from "@nostr-dev-kit/ndk-cache-dexie";
-import { browser } from "$app/environment";
+import { NDKNip07Signer, NDKPrivateKeySigner, NDKNip46Signer } from "@nostr-dev-kit/ndk";
 import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
 import { bytesToHex } from "@noble/hashes/utils";
 import { generateSecretKey } from "nostr-tools/pure";
@@ -12,40 +10,6 @@ import { NIP05_REGEX } from "nostr-tools/nip05";
 export const localSignerStore: Writable<string> = localStorageStore("local-signer", "");
 export const autoLoginStore: Writable<boolean> = localStorageStore("auto-login", false);
 
-let cacheAdapter: NDKCacheAdapter | undefined;
-
-const DB_CONFIG = {
-  name: "nostreeV02",
-  version: 1,
-  storageKey: "db_version",
-} as const;
-
-async function initializeDatabase(): Promise<void> {
-  if (!browser) return;
-
-  const storedVersion = localStorage.getItem(DB_CONFIG.storageKey);
-  const currentVersion = parseInt(storedVersion || "0");
-
-  if (storedVersion && currentVersion < DB_CONFIG.version) {
-    try {
-      indexedDB.deleteDatabase(DB_CONFIG.name);
-      console.log("Database reset due to version update");
-    } catch (error) {
-      console.error("Failed to reset database:", error);
-      throw new Error("Database reset failed. Please reload the application.");
-    }
-  }
-
-  localStorage.setItem(DB_CONFIG.storageKey, DB_CONFIG.version.toString());
-  cacheAdapter = new NDKCacheAdapterDexie({ dbName: DB_CONFIG.name });
-}
-
-if (browser) {
-  initializeDatabase().catch((error) => {
-    console.error("Database initialization failed:", error);
-  });
-}
-
 export const defaulRelaysUrls: string[] = [
   "wss://purplepag.es",
   "wss://relay.nostr.band",
@@ -54,7 +18,6 @@ export const defaulRelaysUrls: string[] = [
 
 const ndk = new NDKSvelte({
   explicitRelayUrls: defaulRelaysUrls,
-  cacheAdapter,
   outboxRelayUrls: ["wss://purplepag.es"],
   enableOutboxModel: true,
 });

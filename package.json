@@ -49,7 +49,6 @@
     "@floating-ui/dom": "^1.6.13",
     "@noble/hashes": "^1.7.1",
     "@nostr-dev-kit/ndk": "^2.11.0",
-    "@nostr-dev-kit/ndk-cache-dexie": "^2.5.9",
     "@nostr-dev-kit/ndk-svelte": "^2.4.0",
     "dexie": "^3.2.7",
     "linkify-it": "^4.0.1",
