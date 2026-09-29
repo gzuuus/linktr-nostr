@@ -1,7 +1,7 @@
 import { nip19 } from "nostr-tools";
 import { NDKUser, NDKEvent, type NDKTag, type NDKUserProfile, type NDKFilter, NDKKind } from "@nostr-dev-kit/ndk";
 import { userCustomTheme } from "$lib/stores/user";
-import { autoLoginStore, loginWithExtension, loginWithNostrAddress, ndkActiveUser } from "$lib/stores/provider";
+import { autoLoginStore, loginWithExtension, loginWithNostrAddress, ndkActiveUser, ndkReady } from "$lib/stores/provider";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
 import {
@@ -320,6 +320,7 @@ export function setCustomStyles(cssTheme: string) {
 export async function fetchUserProfile(opts: string): Promise<NDKUserProfile | undefined> {
   try {
     if (browser && opts.trim()) {
+      await ndkReady;
       const ndk = getStore(ndkStore);
       const ndkUser = ndk.getUser({ pubkey: opts });
 
@@ -337,6 +338,7 @@ export async function fetchUserProfile(opts: string): Promise<NDKUserProfile | u
 }
 
 export async function fetchCssAsset(user: string) {
+  await ndkReady;
   const $ndk = getStore(ndkStore);
   const activeUserPub = getStore(ndkActiveUser)?.pubkey;
   const $storeTheme = getStore(storeTheme);
@@ -424,6 +426,7 @@ export function processHashtags(events: NDKEvent[]): string[] {
 }
 
 export async function fetchUserEvents(userPubKey: string): Promise<NDKEvent[]> {
+  await ndkReady;
   const $ndk = getStore(ndkStore);
   let fetchedEvent = await $ndk.fetchEvents({
     kinds: [kindLinks],

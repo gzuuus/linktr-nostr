@@ -1,5 +1,6 @@
 <script lang="ts">
   import ndk from "$lib/stores/provider";
+  import { ndkReady } from "$lib/stores/provider";
   import { unixToDate, findListTags, findOtherTags, naddrEncodeATags, processHashtags } from "$lib/utils/helpers";
   import type { NDKEvent, NDKFilter} from "@nostr-dev-kit/ndk";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
@@ -51,6 +52,7 @@
 
   async function fetchEvents(filter: NDKFilter) {
     try {
+      await ndkReady;
       exploreResults = $ndk.storeSubscribe(filter, { closeOnEose: true, groupable: false, autoStart: false });
       if (exploreResults) {
           exploreResults.onEose(() => {

@@ -18,7 +18,7 @@
   import { kindLinks, outNostrLinksUrl } from "$lib/utils/constants";
   import { page } from "$app/stores";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
-  import { ndkActiveUser } from "$lib/stores/provider";
+  import { ndkActiveUser, ndkReady } from "$lib/stores/provider";
   import { goto } from "$app/navigation";
   import ChevronIconHorizontal from "$lib/elements/icons/chevron-icon-horizontal.svelte";
   import CreateNewList from "./create-new-list.svelte";
@@ -56,6 +56,7 @@
   
   async function fetchCurrentEvents() {
     try {
+    await ndkReady;
     if (eventKind == kindLinks) {
       RawEventList = Array.from(await $ndk.fetchEvents(ndkFilter));
       sortEventList(RawEventList);

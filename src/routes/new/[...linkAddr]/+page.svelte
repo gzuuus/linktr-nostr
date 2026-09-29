@@ -2,7 +2,7 @@
   import { NDKEvent } from "@nostr-dev-kit/ndk";
   import ndk from "$lib/stores/provider";
   import CreateNewList from "$lib/components/create-new-list.svelte";
-  import { ndkActiveUser } from "$lib/stores/provider";
+  import { ndkActiveUser, ndkReady } from "$lib/stores/provider";
   import { nip19 } from "nostr-tools";
   import { findHashTags, findListTags, findOtherTags, sortEventList } from "$lib/utils/helpers";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
@@ -33,6 +33,7 @@
 
   async function showEvents() {
     if ($ndkActiveUser) {
+      await ndkReady;
       let userPubDecoded: string = nip19.decode($ndkActiveUser.npub).data.toString();
       let fetchedEvent = await $ndk.fetchEvents({
           kinds: [kindLinks],
