@@ -26,6 +26,7 @@ const ndk = new NDKSvelte({
 export async function fetchUserData() {
   if (!ndk.signer) return;
   const user = await ndk.signer.user();
+  await ndkReady;
   await user.fetchProfile();
   await isNip05Valid(user.profile?.nip05, user.npub);
   ndkActiveUser.set(user);
@@ -100,7 +101,9 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
 
 export const ndkActiveUser = writable(ndk.activeUser);
 
-ndk.connect().then(() => console.log("ndk connected successfully"));
+export const ndkReady: Promise<void> = ndk
+  .connect(5000)
+  .then(() => console.log("ndk connected successfully"));
 
 const ndkStore = writable(ndk);
 
