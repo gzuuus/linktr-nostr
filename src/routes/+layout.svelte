@@ -18,7 +18,7 @@
   import { localStore } from "$lib/stores/stores";
   import { userCustomTheme } from "$lib/stores/user";
   import LoginModal from "$lib/components/modals/login-modal.svelte";
-    import ndkStore, { autoLoginStore, ndkActiveUser } from "$lib/stores/provider";
+    import nostrClientStore, { autoLoginStore, activeUser } from "$lib/stores/provider";
     import { get } from "svelte/store";
     import { NIP05_REGEX } from "nostr-tools/nip05";
     import { autoLoginHandler } from "$lib/utils/helpers";
@@ -43,10 +43,10 @@
 	}
   if (browser && $localStore && get(autoLoginStore)){
     if ($localStore.lastUserLogged) {
-      let user = $ndkStore.getUser({
+      let user = $nostrClientStore.getUser({
         pubkey: $localStore.lastUserLogged,
       });
-      ndkActiveUser.set(user);
+      activeUser.set(user);
       autoLoginHandler();
     }
     if ($localStore.lastUserTheme) {

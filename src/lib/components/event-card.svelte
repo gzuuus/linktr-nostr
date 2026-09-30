@@ -6,7 +6,7 @@
   export let isEditHappens: boolean = false;
   export let isFork: boolean = false; 
   import { nip19 } from "nostr-tools";
-  import ndk from "$lib/stores/provider";
+  import nostrClient from "$lib/stores/provider";
   import {
     unixToDate,
     buildEventPointer,
@@ -14,11 +14,12 @@
     findOtherTags,
     naddrEncodeATags,
   } from "$lib/utils/helpers";
-  import type { NDKEvent, NDKFilter } from "@nostr-dev-kit/ndk";
+  import type { NostrEvent } from "$lib/nostr/client";
+  import type { Filter } from "nostr-tools";
   import { kindLinks, outNostrLinksUrl } from "$lib/utils/constants";
   import { page } from "$app/stores";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
-  import { ndkActiveUser, ndkReady } from "$lib/stores/provider";
+  import { activeUser, clientReady } from "$lib/stores/provider";
   import { goto } from "$app/navigation";
   import ChevronIconHorizontal from "$lib/elements/icons/chevron-icon-horizontal.svelte";
   import CreateNewList from "./create-new-list.svelte";
@@ -39,8 +40,8 @@
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   
   const modalStore = getModalStore();
-  let eventList: NDKEvent[] = [];
-  let RawEventList: NDKEvent[] = [];
+  let eventList: NostrEvent[] = [];
+  let RawEventList: NostrEvent[] = [];
   let showListsIndex: boolean = false;
   let showListsIndexSwitchTabs: boolean = false;
   let showForkInfo: boolean = false;
@@ -50,15 +51,15 @@
   let eventHashtags: string[] = [];
   let userNpub = nip19.npubEncode(userPub);
   let loading = true;
-  const ndkFilter: NDKFilter = dValue
+  const nostrFilter: Filter = dValue
     ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`] }
     : { kinds: [eventKind], authors: [userPub], "#l": [`${listLabel}`] };
   
   async function fetchCurrentEvents() {
     try {
-    await ndkReady;
+    await clientReady;
     if (eventKind == kindLinks) {
-      RawEventList = Array.from(await $ndk.fetchEvents(ndkFilter));
+      RawEventList = Array.from(await $nostrClient.fetchEvents(nostrFilter));
       sortEventList(RawEventList);
       for (const event of RawEventList) {
         const tagTitleValue = event.tagValue('title');
@@ -70,10 +71,10 @@
       }
       loading = false
     } else {
-      const ndkFilter: NDKFilter = dValue
+      const nostrFilter: Filter = dValue
         ? { kinds: [eventKind], authors: [userPub], "#d": [`${dValue}`], limit: 5 }
         : { kinds: [eventKind], authors: [userPub], limit: 5 };
-      let fetchedEvent = await $ndk.fetchEvents(ndkFilter)
+      let fetchedEvent = await $nostrClient.fetchEvents(nostrFilter)
         eventList = Array.from(fetchedEvent);
         sortEventList(eventList);
         loading = false
@@ -189,8 +190,8 @@
                 {/each}
                 </div>
               <div>
-                {#if $ndkActiveUser}
-                  {#if eventList[currentIndex].author.npub != $ndkActiveUser?.npub}
+                {#if $activeUser}
+                  {#if eventList[currentIndex].author.npub != $activeUser?.npub}
                     <button
                       class="btn btn-sm variant-ghost"
                       on:click={() => {
