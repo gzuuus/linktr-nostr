@@ -16,6 +16,10 @@ const config = {
         exclude: ["<all>"],
       },
     }),
+    // Mount under a path prefix (e.g. NOSTREE_BASE=/nostree on Vercel)
+    paths: {
+      base: process.env.NOSTREE_BASE ?? "",
+    },
   },
 };
 export default config;
