@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   export let userPub: string;
   export let userProfile: UserProfile | undefined = undefined;
   import type { UserProfile } from "$lib/nostr/client";
@@ -26,7 +27,7 @@
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
-  let userNpub: string = nip19.npubEncode(userPub);
+  let userNpub: string = userPub?.length === 64 ? nip19.npubEncode(userPub) : userPub ?? "";
   async function fetchUser() {
     try {
       const user = await fetchUserProfile(userPub);
@@ -56,7 +57,7 @@
 {#if userProfile}
   <div class="mx-auto w-fit flex flex-col gap-2">
     <div class="relative">
-      <a class="text-color" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}">
+      <a class="text-color" href="{$page.url.origin}{base}/{$isNip05ValidStore.UserIdentifier}">
         <Avatar
           class={showQR ? "hidden" : "common-ring"}
           border="border-2 border-surface-300-600-token"
@@ -81,20 +82,20 @@
     <div>
       <button
         class="common-btn-icon-ghost"
-        on:click={() => generateQRCode(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
+        on:click={() => generateQRCode(`${$page.url.origin}{base}/${$isNip05ValidStore.UserIdentifier}`)}
         ><QrIcon size={16} /></button
       >
       <a href="lightning:{userProfile.lud16}"><button class="common-btn-icon-ghost"><LnIcon size={16} /></button></a>
       <button
         class="common-btn-icon-ghost"
-        on:click={() => sharePage(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`)}
+        on:click={() => sharePage(`${$page.url.origin}{base}/${$isNip05ValidStore.UserIdentifier}`)}
         ><ShareIcon size={16} /></button
       >
     </div>
   </div>
   <div class="flex flex-col gap-2">
     <h1>
-      <a class="no-underline" href="{$page.url.origin}/{$isNip05ValidStore.UserIdentifier}"
+      <a class="no-underline" href="{$page.url.origin}{base}/{$isNip05ValidStore.UserIdentifier}"
         >{userProfile.name ? userProfile.name : userProfile.displayName ? userProfile.displayName : ""}</a
       >
     </h1>
@@ -102,7 +103,7 @@
     <div>
       <span class="common-badge-soft">
         <ClipboardButton
-          contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}`}
+          contentToCopy={`${$page.url.origin}{base}/${$isNip05ValidStore.UserIdentifier}`}
           buttonText={$isNip05ValidStore.isNip05Valid
             ? userProfile.nip05
               ? userProfile.nip05

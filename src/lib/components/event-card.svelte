@@ -12,6 +12,7 @@
   import type { Filter } from "nostr-tools";
   import { kindLinks, outNostrLinksUrl } from "$lib/utils/constants";
   import { page } from "$app/stores";
+  import { base } from "$app/paths";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
   import { activeUser, clientReady } from "$lib/stores/provider";
   import { goto } from "$app/navigation";
@@ -116,7 +117,7 @@
   <PlaceHolderLoading colCount={5} />
 {:else if !loading && eventList.length == 0}
   <div class=" flex flex-col gap-2 justify-center common-ring p-4 w-fit m-auto rounded-container-token card">
-    <button class="btn btn-icon variant-filled m-auto" on:click={() => goto(`/new`)}>
+    <button class="btn btn-icon variant-filled m-auto" on:click={() => goto(`${base}/new`)}>
       <PlusSmall size={30} />
     </button>
     <p class="text-xl">No links yet</p>
@@ -185,7 +186,7 @@
               <div class="flex flex-col gap-2">
                 <div class="flex flex-wrap justify-center gap-1">
                   {#each findOtherTags(eventList[currentIndex].tags, "t") as hashtag}
-                    <button on:click={() => goto(`/explore/${hashtag}`)}
+                    <button on:click={() => goto(`${base}/explore/${hashtag}`)}
                       ><span class="badge variant-soft hover:variant-filled"
                         ><HashtagIconcopy size={16} />{hashtag}</span
                       ></button
@@ -214,18 +215,18 @@
                   {/if}
                   <ClipboardButton
                     buttonIcon="copy"
-                    contentToCopy={`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`}
+                    contentToCopy={`${$page.url.origin}{base}/${$isNip05ValidStore.UserIdentifier}/${label}`}
                   />
                   <ClipboardButton
                     buttonIcon="id"
-                    contentToCopy={`${$page.url.origin}/a/${buildEventPointer(eventList[currentIndex])}`}
+                    contentToCopy={`${$page.url.origin}{base}/a/${buildEventPointer(eventList[currentIndex])}`}
                   />
                   <button
                     class="common-btn-sm-ghost gap-1"
                     on:click={() =>
                       craftModal(
                         eventList[currentIndex].tagValue("title"),
-                        `${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`,
+                        `${$page.url.origin}{base}/${$isNip05ValidStore.UserIdentifier}/${label}`,
                       )}
                     ><ShareIcon size={16} /> Share on nostr!
                   </button>
@@ -276,7 +277,7 @@
         {#if label !== "nostree" && !label.startsWith(userNpub.slice(-3)) && label.trim() !== ""}
           <button
             class="common-btn-sm-ghost"
-            on:click={() => goto(`${$page.url.origin}/${$isNip05ValidStore.UserIdentifier}/${label}`)}
+            on:click={() => goto(`${$page.url.origin}{base}/${$isNip05ValidStore.UserIdentifier}/${label}`)}
             ><code>
               {label.length > 24 ? `${label.substring(0, 24)}...` : label}
             </code></button
@@ -295,7 +296,7 @@
     </div>
     <div class:hidden={!showForkInfo} class="card p-2">
       {#each findOtherTags(eventList[currentIndex].tags, "a") as label}
-        <button class="inline-flex" on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}
+        <button class="inline-flex" on:click={() => goto(`${$page.url.origin}{base}/a/${naddrEncodeATags(label)}`)}
           ><span>Go to forked list</span> <ForkIcon size={18} /></button
         >
         <h3 class="text-left">Fork info:</h3>

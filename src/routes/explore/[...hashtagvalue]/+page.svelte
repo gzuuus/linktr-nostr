@@ -14,6 +14,7 @@
   import { nip19 } from "nostr-tools";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import { base } from "$app/paths";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
   import SearchBar from "$lib/components/search-bar.svelte";
@@ -98,7 +99,7 @@
 </svelte:head>
 
 <h1 class="inline-flex justify-center">
-  <button type="button" on:click={() => goto("/explore")}>
+  <button type="button" on:click={() => goto(`${base}/explore`)}>
     <ExploreIcon size={25} />
   </button>Explore
 </h1>
@@ -123,7 +124,7 @@
 <div class="flex flex-col gap-2">
   <div>
     {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag}
-      <button on:click={() => goto(`/explore/${eventHashtag}`)}>
+      <button on:click={() => goto(`${base}/explore/${eventHashtag}`)}>
         <span class="common-badge-soft m-1">
           <HashtagIconcopy size={16} />
           {eventHashtag}
@@ -170,7 +171,7 @@
         <div class:hidden={!showForkInfo}>
           <button
             class="common-btn-icon-ghost inline-flex"
-            on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}
+            on:click={() => goto(`${$page.url.origin}{base}/a/${naddrEncodeATags(label)}`)}
             ><span>Go to forked list</span> <ForkIcon size={18} /></button
           >
           <h3 class="text-start">Fork info:</h3>
@@ -183,7 +184,7 @@
     </div>
     <div class=" inline-flex gap-2 flex-wrap items-center justify-center">
       {#each findOtherTags(event.tags, "t") as hashtag}
-        <button class="common-badge-soft w-fit" on:click={() => goto(`/explore/${hashtag}`)}>
+        <button class="common-badge-soft w-fit" on:click={() => goto(`${base}/explore/${hashtag}`)}>
           <HashtagIconcopy size={16} />{hashtag}
         </button>
       {/each}

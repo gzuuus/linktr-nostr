@@ -13,6 +13,7 @@
   import FollowButton from "./follow-button.svelte";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import { base } from "$app/paths";
 
   let qrImageUrl: string = "";
   let showQR: boolean = false;
@@ -35,7 +36,7 @@
 {:then value}
   <div transition:fade class="flex gap-2 text-left justify-start items-center flex-wrap">
     <div class=" relative">
-      <a href="/{userPub}">
+      <a href="{base}/{userPub}">
         <Avatar
           class={showQR ? "hidden" : "common-ring"}
           border="border-2 border-surface-300-600-token hover:border-primary-500!"
@@ -61,21 +62,21 @@
       </section>
     </div>
     <div class="flex flex-col gap-1 break-all">
-      <a class="no-underline text-base font-bold" href="/{userPub}">{value?.name ? value?.name : value?.displayName}</a>
+      <a class="no-underline text-base font-bold" href="{base}/{userPub}">{value?.name ? value?.name : value?.displayName}</a>
       <span class="common-badge-soft w-fit">
         <ClipboardButton
-          contentToCopy={`${$page.url.origin}/${userPub}`}
+          contentToCopy={`${$page.url.origin}{base}/${userPub}`}
           buttonText={value?.nip05 ? value?.nip05 : truncateString(userPub)}
           isButton={false}
           buttonIcon="none"
         />
       </span>
       <div class="inline-flex gap-2 w-fit">
-        <button on:click={() => goto(`/${userPub}`)}><ProfileIcon size={16} /></button>
+        <button on:click={() => goto(`${base}/${userPub}`)}><ProfileIcon size={16} /></button>
         {#if value?.lud16}
           <a href="lightning:{value?.lud16}"><LnIcon size={16} /></a>
         {/if}
-        <button on:click={() => generateQRCode(`${$page.url.origin}/${userPub}`)}><QrIcon size={16} /></button>
+        <button on:click={() => generateQRCode(`${$page.url.origin}{base}/${userPub}`)}><QrIcon size={16} /></button>
       </div>
     </div>
   </div>

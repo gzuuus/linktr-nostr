@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   import { ogImageUrl } from "$lib/utils/constants";
 </script>
 
@@ -11,7 +12,7 @@
     property="og:description"
     content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff."
   />
-  <meta property="og:image" content={ogImageUrl} />
+  <meta property="og:image" content={`${base}${ogImageUrl}`} />
 </svelte:head>
 <div class="common-container common-ring">
   <div class="common-container-content">

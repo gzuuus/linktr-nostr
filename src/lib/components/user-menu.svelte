@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   import { activeUser } from "$lib/stores/provider";
   import { goto } from "$app/navigation";
   import LogoutIcon from "$lib/elements/icons/logout-icon.svelte";
@@ -28,7 +29,7 @@
           <button
             class="option w-full h-full variant-soft"
             on:click={() => {
-              goto(`/${$activeUser?.npub}`);
+              goto(`${base}/${$activeUser?.npub}`);
               drawerStore.close();
             }}
           >
@@ -41,7 +42,7 @@
             <button
               class="justify-self-start"
               on:click={() => {
-                goto("/new");
+                goto(`${base}/new`);
                 drawerStore.close();
               }}
             >
@@ -69,7 +70,7 @@
         <button
           class="option w-full h-full variant-soft"
           on:click={() => {
-            goto("/search");
+            goto(`${base}/search`);
             drawerStore.close();
           }}
         >
@@ -81,7 +82,7 @@
         <button
           class="option w-full h-full variant-soft"
           on:click={() => {
-            goto("/explore");
+            goto(`${base}/explore`);
             drawerStore.close();
           }}
         >

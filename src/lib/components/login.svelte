@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   export let mode: string | undefined = "primary";
   import { page } from "$app/stores";
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
@@ -14,11 +15,11 @@
   }
 
   $: buttonClass =
-    mode === "primary-sm" && $page.url.href !== `${$page.url.origin}/`
+    mode === "primary-sm" && $page.url.href !== `${$page.url.origin}{base}/`
       ? "common-btn-sm-filled"
       : mode === "primary"
         ? "common-btn-filled"
-        : mode === "secondary" && $page.url.href !== `${$page.url.origin}/`
+        : mode === "secondary" && $page.url.href !== `${$page.url.origin}{base}/`
           ? "common-btn-sm-ghost"
           : mode === "drawer"
             ? "common-btn-filled justify-start w-full hover:text-current"

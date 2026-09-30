@@ -1,4 +1,5 @@
 <script>
+  import { base } from "$app/paths";
   import LinkOut from "$lib/elements/icons/link-out.svelte";
   import OpenDrawerIcon from "$lib/elements/icons/open-drawer-icon.svelte";
   import ShareIcon from "$lib/elements/icons/share-icon.svelte";
@@ -15,6 +16,6 @@
   <p>
     > <ShareIcon size={18} /> This will open a dialog menu to share the slug (only available on mobile).
   </p>
-  <p>💡You can modify this slug at any time on the <a href="/new">Manage page</a>.</p>
+  <p>💡You can modify this slug at any time on the <a href="{base}/new">Manage page</a>.</p>
   <p>💡If you use the same slug for two different lists, both lists will appear on the same page.</p>
 </div>

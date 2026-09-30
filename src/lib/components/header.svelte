@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   import Logo from "$lib/elements/icons/logo.svelte";
   import { goto } from "$app/navigation";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
@@ -52,13 +53,13 @@
 <header class="app-bar sm:backdrop-blur sm:border-b border-opacity-20 border-surface-500">
   <div class="flex items-center justify-between gap-4 px-4 py-2">
     <div class="flex items-center space-x-4">
-      <a class="lg:ml-0! w-fit lg:w-auto overflow-hidden" href="/" title="Go to Homepage">
+      <a class="lg:ml-0! w-fit lg:w-auto overflow-hidden" href="{base}/" title="Go to Homepage">
         <Logo size={36} />
       </a>
     </div>
     <div class="flex items-center space-x-2!">
       <div class="hidden gap-2 sm:inline-flex">
-        <button class="common-btn-sm-ghost" on:click={() => goto("/explore")}>
+        <button class="common-btn-sm-ghost" on:click={() => goto(`${base}/explore`)}>
           <span><ExploreIcon size={18} /></span>
           <span class="hidden sm2:inline-flex">Explore</span>
         </button>
@@ -84,7 +85,7 @@
             <button
               class="text-sm! hover:variant-filled hover:text-surface-50-900-token!"
               type="button"
-              on:click={() => goto("/new")}
+              on:click={() => goto(`${base}/new`)}
             >
               <span><EditIcon size={20} /></span>
               <span class="hidden sm2:inline-flex">Manage Lists</span>
@@ -99,7 +100,7 @@
           </div>
           <button
             class="common-btn-sm-ghost"
-            on:click={() => goto(`/${$localStore.UserIdentifier ? $localStore.UserIdentifier : $activeUser?.npub}`)}
+            on:click={() => goto(`${base}/${$localStore.UserIdentifier ? $localStore.UserIdentifier : $activeUser?.npub}`)}
           >
             <span><ProfileIcon size={20} /></span>
             <span class="hidden sm2:inline-flex">Profile</span>

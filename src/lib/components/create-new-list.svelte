@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   export let isFormSent: boolean = false;
   export let doGoto: boolean = true;
   export let eventToEdit: NostrEvent | null = null;
@@ -179,7 +180,7 @@
       })
       .then(() => {
         if (doGoto) {
-          goto(`/${$isNip05ValidStore.UserIdentifier}`);
+          goto(`${base}/${$isNip05ValidStore.UserIdentifier}`);
         }
       })
       .catch((error) => {

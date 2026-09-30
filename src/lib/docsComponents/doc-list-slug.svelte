@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   import { page } from "$app/stores";
 </script>
 
@@ -10,8 +11,8 @@
   <p>
     On the other hand, you can write your own to have a memorable way to share your nostree list. <br />For example:
     <code
-      ><a href="{$page.url.origin}/gzuuus/projects" target="_blank" rel="noopener noreferrer"
-        >{$page.url.origin}/gzuuus/projects</a
+      ><a href="{$page.url.origin}{base}/gzuuus/projects" target="_blank" rel="noopener noreferrer"
+        >{$page.url.origin}{base}/gzuuus/projects</a
       ></code
     >
   </p>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   import { goto } from "$app/navigation";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import ProfileIcon from "$lib/elements/icons/profile-icon.svelte";
@@ -11,9 +12,9 @@
     if (searchQuery.trim() !== "") {
       searchQuery = searchQuery.toLowerCase().trim();
       if (searchKind == "hashtag") {
-        goto(`/explore/${searchQuery}`);
+        goto(`${base}/explore/${searchQuery}`);
       } else {
-        goto(`/search/${searchQuery}`);
+        goto(`${base}/search/${searchQuery}`);
       }
     }
     searchDone = true;

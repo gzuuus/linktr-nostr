@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
   import CreateNewList from "./create-new-list.svelte";
@@ -84,7 +85,7 @@
     const eventTitle = eventToEdit ? eventToEdit.tagValue("title") : "";
     const linkDescription = addLink.description ? addLink.description : "<Link description>";
     const linkUrl = addLink.url ? addLink.url : "<Link url>";
-    const origin = $page.url.origin;
+    const origin = $page.url.origin + base;
     const userIdentifier = $localStore.UserIdentifier ? $localStore.UserIdentifier : $activeUser?.npub;
     const slug = eventToEdit ? findSlugTag(eventToEdit) : "";
 

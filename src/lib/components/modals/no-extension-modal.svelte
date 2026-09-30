@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   import { goto } from "$app/navigation";
   import { getModalStore } from "$lib/ui";
   export let parent: any;
@@ -20,7 +21,7 @@
   <button
     class="w-fit underline"
     on:click={() => {
-      goto("/explore/nostr");
+      goto(`${base}/explore/nostr`);
       parent.onClose;
     }}
     >Also you can explore hashtag #nostr

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   import { page } from "$app/stores";
 </script>
 
@@ -11,8 +12,8 @@
     On the other hand, you can add as many hashtags as you want; They allow people to find your list along with others
     with the same hashtag in the Explore section. <br />For example:
     <code
-      ><a href="{$page.url.origin}/explore/music" target="_blank" rel="noopener noreferrer"
-        >{$page.url.origin}/explore/music</a
+      ><a href="{$page.url.origin}{base}/explore/music" target="_blank" rel="noopener noreferrer"
+        >{$page.url.origin}{base}/explore/music</a
       ></code
     >
   </p>
