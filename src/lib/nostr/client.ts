@@ -32,7 +32,11 @@ function unixNow(): number {
 }
 
 export class NostrUser {
-  constructor(public readonly client: NostrClient, public readonly pubkey: string, public profile?: UserProfile) {}
+  constructor(
+    public readonly client: NostrClient,
+    public readonly pubkey: string,
+    public profile?: UserProfile,
+  ) {}
 
   get npub(): string {
     return nip19.npubEncode(this.pubkey);
@@ -105,7 +109,10 @@ export class NostrEvent {
   tags: NostrTag[] = [];
   content = "";
 
-  constructor(private client: NostrClient, raw?: Partial<Event>) {
+  constructor(
+    private client: NostrClient,
+    raw?: Partial<Event>,
+  ) {
     if (raw) {
       if (raw.id !== undefined) this.id = raw.id;
       if (raw.pubkey !== undefined) this.pubkey = raw.pubkey;
@@ -199,7 +206,11 @@ export class NostrEventStore implements Readable<NostrEvent[]> {
   public eosed = false;
   readonly subscribe = this.inner.subscribe;
 
-  constructor(private client: NostrClient, private filter: Filter, private opts: StoreSubscribeOptions = {}) {
+  constructor(
+    private client: NostrClient,
+    private filter: Filter,
+    private opts: StoreSubscribeOptions = {},
+  ) {
     if (opts.autoStart !== false) this.startSubscription();
   }
 

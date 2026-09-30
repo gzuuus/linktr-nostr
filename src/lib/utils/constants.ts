@@ -1,4 +1,4 @@
-import type { ToastSettings } from "@skeletonlabs/skeleton";
+import type { ToastSettings } from "$lib/ui";
 export const ogImageUrl = "/og-banner.jpg";
 export const ogLogoImg = "/og-logo.png";
 export const kindNotes = 1;

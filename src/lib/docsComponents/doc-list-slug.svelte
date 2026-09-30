@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/stores";
 </script>
+
 <div class="DocsContentContainer">
   <h2>Slug</h2>
   <h3>Slugs are a memorable way to identify your nostree lists.</h3>

@@ -7,21 +7,21 @@
   import Login from "$lib/components/login.svelte";
   import { ogImageUrl } from "$lib/utils/constants";
   import GhIcon from "$lib/elements/icons/gh-icon.svelte";
-  
 </script>
-<svelte:head>
-<title>Nostree</title>
-<meta
-  name="description"
-  content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff."
-/>
 
-<meta property="og:title" content="Nostree" />
-<meta
-  property="og:description"
-  content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff."
-/>
-<meta property="og:image" content={ogImageUrl} />
+<svelte:head>
+  <title>Nostree</title>
+  <meta
+    name="description"
+    content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff."
+  />
+
+  <meta property="og:title" content="Nostree" />
+  <meta
+    property="og:description"
+    content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff."
+  />
+  <meta property="og:image" content={ogImageUrl} />
 </svelte:head>
 <div class="common-container common-ring">
   <div class="common-container-content">
@@ -44,17 +44,16 @@
     <button class="btn variant-filled" on:click={() => goto("/explore")}>Explore</button>
     <button class="btn variant-filled" on:click={() => goto("/docs")}>Docs</button>
     <!-- <button class="btn variant-filled" on:click={() => goto("/theming")}>Theming</button> -->
-  <div>
-    <a href="lightning:gzuuus@getalby.com"
-      ><button class="common-btn-icon-ghost"><LnIcon size={16} /></button></a
-    >
-    <button class="common-btn-icon-ghost"
-      on:click={() => goto("/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5ds")}
-      ><HeartIcon size={16} /></button
-    >
-    <a href="https://github.com/gzuuus/linktr-nostr" target="_blank" rel="noopener noreferrer"
-    ><button class="common-btn-icon-ghost"><GhIcon size={16} /></button></a
-    >
+    <div>
+      <a href="lightning:gzuuus@getalby.com"><button class="common-btn-icon-ghost"><LnIcon size={16} /></button></a>
+      <button
+        class="common-btn-icon-ghost"
+        on:click={() => goto("/npub1gzuushllat7pet0ccv9yuhygvc8ldeyhrgxuwg744dn5khnpk3gs3ea5ds")}
+        ><HeartIcon size={16} /></button
+      >
+      <a href="https://github.com/gzuuus/linktr-nostr" target="_blank" rel="noopener noreferrer"
+        ><button class="common-btn-icon-ghost"><GhIcon size={16} /></button></a
+      >
     </div>
-</div>
+  </div>
 </div>

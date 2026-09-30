@@ -1,5 +1,5 @@
 <script lang="ts">
-    import DocListHashtags from "$lib/docsComponents/doc-list-hashtags.svelte";
+  import DocListHashtags from "$lib/docsComponents/doc-list-hashtags.svelte";
   export let whatInfo: string | undefined = "";
   export let showInfoIcon: boolean = true;
   export let InfoIconSize: number = 18;

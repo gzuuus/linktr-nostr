@@ -24,8 +24,8 @@
   import ChevronIconVertical from "$lib/elements/icons/chevron-icon-vertical.svelte";
   import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
   import { FormData, type Link } from "$lib/classes/list";
-	import { getToastStore, Accordion, AccordionItem, focusTrap, InputChip, getModalStore, popup } from '@skeletonlabs/skeleton';
-	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
+  import { getToastStore, Accordion, AccordionItem, focusTrap, InputChip, getModalStore, popup } from "$lib/ui";
+  import { succesPublishToast, errorPublishToast } from "$lib/utils/constants";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import { onDestroy } from "svelte";
 
@@ -41,7 +41,7 @@
       title: listTemplate,
       description: `A list about ${listTemplate}`,
       links: [{ url: "", description: "" }],
-      labels: [{label: listTemplate }],
+      labels: [{ label: listTemplate }],
       nameSpace: "me.nostree.ontology",
       forkData: { forkPubKey: "", forkEventoPointer: "" },
       hashtags: [`${listTemplate}`],
@@ -50,7 +50,9 @@
 
   if (eventToEdit) {
     let title = eventToEdit.tagValue("title");
-    let description = eventToEdit.tagValue("summary") ? eventToEdit.tagValue("summary") : eventToEdit.tagValue("description");
+    let description = eventToEdit.tagValue("summary")
+      ? eventToEdit.tagValue("summary")
+      : eventToEdit.tagValue("description");
 
     const rTags = findListTags(eventToEdit.tags);
     if (addLink) {
@@ -58,18 +60,14 @@
     }
     const links = rTags.map((tag) => ({ url: tag.url, description: tag.description }));
     const labels = findOtherTags(eventToEdit.tags, "l").map((tag) => ({ label: tag }));
-    const nameSpace = eventToEdit.tagValue("L")
+    const nameSpace = eventToEdit.tagValue("L");
     const tTags = findHashTags(eventToEdit.tags);
     const hashtags = tTags.map((tag) => tag.text);
     const forkedFrom = eventToEdit.tagValue("p");
-    
+
     const ForkData = {
       forkedPubkey: forkedFrom,
-      forkedEventoPointer: buildATags(
-        eventToEdit.author.pubkey,
-        eventToEdit.kind!,
-        eventToEdit.tagValue("d")!
-      ),
+      forkedEventoPointer: buildATags(eventToEdit.author.pubkey, eventToEdit.kind!, eventToEdit.tagValue("d")!),
     };
 
     formData = {
@@ -118,9 +116,9 @@
     linkNameValidationStatus.every((status) => status);
 
   async function handleSubmit() {
-    if (!$nostrClient.signer) await autoLoginHandler()
+    if (!$nostrClient.signer) await autoLoginHandler();
     if (!$nostrClient.signer) return;
-    modalStore.trigger({ type: 'component', component: 'modalLoading'});
+    modalStore.trigger({ type: "component", component: "modalLoading" });
     const nostrEvent = new NostrEvent($nostrClient);
     nostrEvent.kind = kindLinks;
     if (eventToEdit) {
@@ -146,9 +144,8 @@
       }
       for (const labelData of formData.labels) {
         const { label } = labelData;
-        nostrEvent.tags.push(["l", label.trim().replace(specialCharsRegex, '-').toLowerCase()]);
+        nostrEvent.tags.push(["l", label.trim().replace(specialCharsRegex, "-").toLowerCase()]);
       }
-
     } else {
       nostrEvent.tags = [
         ["title", formData.title],
@@ -156,7 +153,12 @@
         ["d", newDTag],
         ["L", "me.nostree.ontology"],
         ["l", "nostree"],
-        ["l", formData.labels[0].label.trim() ? formData.labels[0].label.toLowerCase().trim() : generateNanoId($activeUser?.npub)],
+        [
+          "l",
+          formData.labels[0].label.trim()
+            ? formData.labels[0].label.toLowerCase().trim()
+            : generateNanoId($activeUser?.npub),
+        ],
       ];
     }
     for (const linkData of formData.links) {
@@ -167,7 +169,7 @@
       if (hashtag.trim() !== "") {
         nostrEvent.tags.push(["t", hashtag.trim().toLowerCase()]);
       }
-  }
+    }
     nostrEvent
       .publish()
       .then(() => {
@@ -176,13 +178,13 @@
         toastStore.trigger(succesPublishToast);
       })
       .then(() => {
-      if (doGoto) {
+        if (doGoto) {
           goto(`/${$isNip05ValidStore.UserIdentifier}`);
         }
       })
       .catch((error) => {
         modalStore.clear();
-        toastStore.trigger(errorPublishToast)
+        toastStore.trigger(errorPublishToast);
         console.log("Error:", error);
       });
   }
@@ -226,7 +228,7 @@
   function handleBlur() {
     focusedIndex = -1;
   }
-  $: isFormValid = areAllLinksValid && formData.title.trim() != ""
+  $: isFormValid = areAllLinksValid && formData.title.trim() != "";
   if (autoPublish) {
     handleSubmit();
   }
@@ -234,21 +236,32 @@
     handleReset();
   });
 </script>
-  <h2>{titleText}</h2>
-  <form use:focusTrap={true} on:submit|preventDefault={handleSubmit}>
-    <div class=" flex flex-col gap-2 text-start">
-      <label class="label" for="title">
-        <span>Title</span>
-        <input class="input" type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
-      </label>
-      <label class="label" for="description">
-        Description
-        <input class="input" type="text" id="description" placeholder="Brief description of your list" bind:value={formData.description} maxlength="120"/>
-      </label>
-      <label class="label" for="links">
-        Links
-        {#each formData.links as linkData, index}
-        <div class="flex flex-col gap-2 pb-2 rounded-container-token" class:variant-soft-surface={focusedIndex == index}>
+
+<h2>{titleText}</h2>
+<form use:focusTrap={true} on:submit|preventDefault={handleSubmit}>
+  <div class=" flex flex-col gap-2 text-start">
+    <label class="label" for="title">
+      <span>Title</span>
+      <input class="input" type="text" id="title" placeholder="Ex. My links" bind:value={formData.title} />
+    </label>
+    <label class="label" for="description">
+      Description
+      <input
+        class="input"
+        type="text"
+        id="description"
+        placeholder="Brief description of your list"
+        bind:value={formData.description}
+        maxlength="120"
+      />
+    </label>
+    <label class="label" for="links">
+      Links
+      {#each formData.links as linkData, index}
+        <div
+          class="flex flex-col gap-2 pb-2 rounded-container-token"
+          class:variant-soft-surface={focusedIndex == index}
+        >
           <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
             <div class="input-group-shim">
               <TextIcon size={18} />
@@ -262,7 +275,10 @@
             />
           </div>
           <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-            <div class="input-group-shim cursor-pointer" use:popup={{ event: 'click', target: 'popupPrefix', placement: 'top' }}>
+            <div
+              class="input-group-shim cursor-pointer"
+              use:popup={{ event: "click", target: "popupPrefix", placement: "top" }}
+            >
               <LinkIcon size={18} />
             </div>
             <input
@@ -274,25 +290,31 @@
             />
           </div>
           <div class="card p-4 variant-filled max-w-lg" data-popup="popupSlug">
-            <p>Slugs are a memorable way to identify your Nostree lists. It gives you a link to your list like nostree.me/user/SLUG</p>
-            <div class="arrow variant-filled" />
+            <p>
+              Slugs are a memorable way to identify your Nostree lists. It gives you a link to your list like
+              nostree.me/user/SLUG
+            </p>
+            <div class="arrow variant-filled"></div>
           </div>
           <div class="card p-4 variant-filled max-w-lg" data-popup="popupPrefix">
             <ol class="list">
               Allowed prefixes:
-              <hr class="!border-t-2" />
-              {#each validPrefixes as prefix }
-              <li>
-                <span class="flex-auto">{prefix}</span>
-              </li>
-              <hr class=" opacity-50"/>
+              <hr class="border-t-2!" />
+              {#each validPrefixes as prefix}
+                <li>
+                  <span class="flex-auto">{prefix}</span>
+                </li>
+                <hr class=" opacity-50" />
               {/each}
             </ol>
-            <div class="arrow variant-filled" />
+            <div class="arrow variant-filled"></div>
           </div>
 
           {#if !linkValidationStatus[index] && linkData.url.trim()}
-            <span class="badge variant-ghost-error flex flex-row gap-1 w-fit m-auto" class:hidden={linkData.url.trim() && linkValidationStatus[index]}>
+            <span
+              class="badge variant-ghost-error flex flex-row gap-1 w-fit m-auto"
+              class:hidden={linkData.url.trim() && linkValidationStatus[index]}
+            >
               <InfoIcon size={18} /> Prefix needed
             </span>
           {/if}
@@ -326,79 +348,86 @@
           {/if}
         </div>
       {/each}
-      </label>
-      <Accordion regionControl=" variant-soft">
-        <AccordionItem>
-          <svelte:fragment slot="lead"><HashtagIconcopy size={18}/></svelte:fragment>
-          <svelte:fragment slot="summary">Slug - Hashtags</svelte:fragment>
-          <svelte:fragment slot="content">
-      <hr/>
-      {#each formData.labels as linkLabel, index}
-        {#if linkLabel.label.trim() != "nostree"}
-        <label class="label" for={`slug-${index}`}>
-          <span class=" inline-flex gap-1">Slug
-            <button type="button" 
-            use:popup={{ event: 'click', target: 'popupSlug', placement: 'top' }}>
-            <InfoIcon size={18} />
-            </button>
-          </span>
-        <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]" >
-          <div class="input-group-shim">
-            <SlugIcon size={18} />
-          </div>
-          <input type="text" id={`slug-${index}`} placeholder="short-slug" bind:value={linkLabel.label} maxlength="24" />
-        </div>
-        </label>
-        {/if}
-      {/each}
-      <label class="label" for="hashtags">
-        <span class=" inline-flex gap-1">Hashtags 
-          <button type="button" 
-          use:popup={{ event: 'click', target: 'popupHashtag', placement: 'top' }}>
-          <InfoIcon size={18} />
-          </button>
-        </span>
-      <InputChip bind:value={formData.hashtags} name="chips" placeholder="Enter any value...(intro to add)"/>
-      <div class="card p-4 variant-filled" data-popup="popupHashtag">
-        <p>Hashtags are a way to categorize your nostree list in order to increase discoverability.</p>
-        <div class="arrow variant-filled" />
+    </label>
+    <Accordion regionControl=" variant-soft">
+      <AccordionItem>
+        <svelte:fragment slot="lead"><HashtagIconcopy size={18} /></svelte:fragment>
+        <svelte:fragment slot="summary">Slug - Hashtags</svelte:fragment>
+        <svelte:fragment slot="content">
+          <hr />
+          {#each formData.labels as linkLabel, index}
+            {#if linkLabel.label.trim() != "nostree"}
+              <label class="label" for={`slug-${index}`}>
+                <span class=" inline-flex gap-1"
+                  >Slug
+                  <button type="button" use:popup={{ event: "click", target: "popupSlug", placement: "top" }}>
+                    <InfoIcon size={18} />
+                  </button>
+                </span>
+                <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
+                  <div class="input-group-shim">
+                    <SlugIcon size={18} />
+                  </div>
+                  <input
+                    type="text"
+                    id={`slug-${index}`}
+                    placeholder="short-slug"
+                    bind:value={linkLabel.label}
+                    maxlength="24"
+                  />
+                </div>
+              </label>
+            {/if}
+          {/each}
+          <label class="label" for="hashtags">
+            <span class=" inline-flex gap-1"
+              >Hashtags
+              <button type="button" use:popup={{ event: "click", target: "popupHashtag", placement: "top" }}>
+                <InfoIcon size={18} />
+              </button>
+            </span>
+            <InputChip bind:value={formData.hashtags} name="chips" placeholder="Enter any value...(intro to add)" />
+            <div class="card p-4 variant-filled" data-popup="popupHashtag">
+              <p>Hashtags are a way to categorize your nostree list in order to increase discoverability.</p>
+              <div class="arrow variant-filled"></div>
+            </div>
+          </label>
+        </svelte:fragment>
+      </AccordionItem>
+    </Accordion>
+    <div class="flex flex-col gap-2">
+      <div class="btn-group variant-ghost grid grid-cols-[auto_auto]">
+        <button
+          type="button"
+          class:opacity-50={!isFormValid}
+          disabled={!isFormValid}
+          on:click={() => addLinkField(true)}
+          use:popup={{ event: "hover", target: "popupIsertTop", placement: "top" }}
+        >
+          <InsertIcon size={18} />
+        </button>
+        <button
+          type="button"
+          class:opacity-50={!isFormValid}
+          disabled={!isFormValid}
+          on:click={() => addLinkField(false)}
+          use:popup={{ event: "hover", target: "popupIsertBottom", placement: "top" }}
+        >
+          <InsertIcon size={18} flipVertical={true} />
+        </button>
       </div>
-      </label>
-    </svelte:fragment>
-  </AccordionItem>
-</Accordion>
-      <div class="flex flex-col gap-2">
-          <div class="btn-group variant-ghost grid grid-cols-[auto_auto]">
-            <button 
-              type="button" 
-              class:opacity-50={!isFormValid}  
-              disabled={!isFormValid} 
-              on:click={() => addLinkField(true)}
-              use:popup={{ event: 'hover', target: 'popupIsertTop', placement: 'top' }}
-              >
-              <InsertIcon size={18} />
-            </button>
-            <button 
-              type="button" 
-              class:opacity-50={!isFormValid}  
-              disabled={!isFormValid} on:click={() => addLinkField(false)}
-              use:popup={{ event: 'hover', target: 'popupIsertBottom', placement: 'top' }}
-              >
-              <InsertIcon size={18} flipVertical={true} />
-            </button>
-          </div>
-          <div class="card p-4 variant-filled" data-popup="popupIsertTop">
-            <p>Insert link at the top of the list</p>
-            <div class="arrow variant-filled" />
-          </div>
-          <div class="card p-4 variant-filled" data-popup="popupIsertBottom">
-            <p>Insert link at the bottom of the list</p>
-            <div class="arrow variant-filled" />
-          </div>
-          <div class="btn-group variant-filled grid grid-cols-[1fr_auto]">
-            <button class:opacity-50={!isFormValid}  disabled={!isFormValid} type="submit">Publish</button>
-            <button type="button" on:click={handleReset}><ResetIcon size={18} /></button>
-          </div>
-        </div>
+      <div class="card p-4 variant-filled" data-popup="popupIsertTop">
+        <p>Insert link at the top of the list</p>
+        <div class="arrow variant-filled"></div>
       </div>
+      <div class="card p-4 variant-filled" data-popup="popupIsertBottom">
+        <p>Insert link at the bottom of the list</p>
+        <div class="arrow variant-filled"></div>
+      </div>
+      <div class="btn-group variant-filled grid grid-cols-[1fr_auto]">
+        <button class:opacity-50={!isFormValid} disabled={!isFormValid} type="submit">Publish</button>
+        <button type="button" on:click={handleReset}><ResetIcon size={18} /></button>
+      </div>
+    </div>
+  </div>
 </form>

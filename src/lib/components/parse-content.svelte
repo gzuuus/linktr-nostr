@@ -24,12 +24,12 @@
         } else if (isVideoLink(match.url)) {
           rawContent = rawContent.replace(
             match.text,
-            `<video src="${match.url}" alt="${match.text}" controls></video>`
+            `<video src="${match.url}" alt="${match.text}" controls></video>`,
           );
         } else {
           rawContent = rawContent.replace(
             match.text,
-            `<a href="${match.url}" target="_blank" rel="noopener noreferrer">${match.text}</a>`
+            `<a href="${match.url}" target="_blank" rel="noopener noreferrer">${match.text}</a>`,
           );
         }
       }
@@ -56,14 +56,15 @@
     return parsedContent.length > charLimit ? parsedContent.slice(0, charLimit) + "..." : parsedContent;
   }
 </script>
-  {@html showMore ? parsedContent : getTruncatedContent()}
 
-  {#if parsedContent.length > charLimit}
-    <button class="common-btn-icon-ghost" on:click={toggleShowMore}>
-      {#if showMore}
-        <MinusSmall size={20} />
-      {:else}
-        <PlusSmall size={20} />
-      {/if}
-    </button>
-  {/if}
+{@html showMore ? parsedContent : getTruncatedContent()}
+
+{#if parsedContent.length > charLimit}
+  <button class="common-btn-icon-ghost" on:click={toggleShowMore}>
+    {#if showMore}
+      <MinusSmall size={20} />
+    {:else}
+      <PlusSmall size={20} />
+    {/if}
+  </button>
+{/if}
