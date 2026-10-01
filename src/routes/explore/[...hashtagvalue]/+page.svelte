@@ -1,8 +1,9 @@
 <script lang="ts">
-  import ndk from "$lib/stores/provider";
-  import { ndkReady } from "$lib/stores/provider";
+  import nostrClient from "$lib/stores/provider";
+  import { clientReady } from "$lib/stores/provider";
   import { unixToDate, findListTags, findOtherTags, naddrEncodeATags, processHashtags } from "$lib/utils/helpers";
-  import type { NDKEvent, NDKFilter} from "@nostr-dev-kit/ndk";
+  import type { Filter } from "nostr-tools";
+  import type { NostrEventStore } from "$lib/nostr/client";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
   import { kindLinks } from "$lib/utils/constants";
@@ -16,10 +17,9 @@
   import SearchBar from "$lib/components/search-bar.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
   import { onDestroy } from "svelte";
-  import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
   import { localStore } from "$lib/stores/stores";
   import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
-  import { ndkActiveUser } from "$lib/stores/provider";
+  import { activeUser } from "$lib/stores/provider";
   import GlobalIcon from "$lib/elements/icons/global-icon.svelte";
   import FriendsIcon from "$lib/elements/icons/friends-icon.svelte";
   import RenderLinks from "$lib/components/render-links.svelte";
@@ -30,13 +30,13 @@
   let initialHashtagCount: number = 15;
   let showAllHashtags:boolean = false;
   let showSearchBar: boolean = false;
-  let exploreResults: NDKEventStore<ExtendedBaseType<NDKEvent>>
+  let exploreResults: NostrEventStore
   let exploreNetwork: boolean = false;
 
   $: {
     let hashtag = $page.params.hashtagvalue;
     let authors = $localStore.currentUserFollows;
-    let ndkFilter = {
+    let nostrFilter = {
       kinds: [kindLinks],
       ...(exploreNetwork && { authors }),
       ...(hashtag && { "#t": [hashtag] }),
@@ -44,16 +44,16 @@
       limit: 75,
     };
 
-    fetchEvents(ndkFilter).then(() => {
+    fetchEvents(nostrFilter).then(() => {
       exploreResults?.startSubscription();
       isSubscribe = true;
     });
   }
 
-  async function fetchEvents(filter: NDKFilter) {
+  async function fetchEvents(filter: Filter) {
     try {
-      await ndkReady;
-      exploreResults = $ndk.storeSubscribe(filter, { closeOnEose: true, groupable: false, autoStart: false });
+      await clientReady;
+      exploreResults = $nostrClient.storeSubscribe(filter, { closeOnEose: true, autoStart: false });
       if (exploreResults) {
           exploreResults.onEose(() => {
             isSubscribe = false;
@@ -85,7 +85,7 @@
       <ExploreIcon size={25} />
     </button>Explore
   </h1>
-  {#if $ndkActiveUser}
+  {#if $activeUser}
     <RadioGroup background="variant-soft-surface" border="none" active="variant-filled-primary" hover="hover:variant-soft-primary">
       <RadioItem class="btn w-full h-full" bind:group={exploreNetwork} name="select-network" value={false}>
         <span><GlobalIcon size={16} /></span>

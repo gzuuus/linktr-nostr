@@ -4,8 +4,8 @@
     import CreateNewList from "./create-new-list.svelte";
     import { Autocomplete, getToastStore, type AutocompleteOption } from '@skeletonlabs/skeleton';
     import { addLinkToList, fetchUserEvents, findSlugTag, publishKind1, validateURL, validateURLTitle } from "$lib/utils/helpers";
-    import { ndkActiveUser } from "$lib/stores/provider";
-    import type { NDKEvent } from "@nostr-dev-kit/ndk";
+    import { activeUser } from "$lib/stores/provider";
+    import type { NostrEvent } from "$lib/nostr/client";
     import { onDestroy } from "svelte";
     import TextIcon from "$lib/elements/icons/text-icon.svelte";
     import LinkIcon from "$lib/elements/icons/link-icon.svelte";
@@ -19,8 +19,8 @@
     const modalStore = getModalStore();
     const toastStore = getToastStore();
     let selectedTemplate:string;
-    let fetchedEvents: NDKEvent[] = [];
-    let eventToEdit: NDKEvent
+    let fetchedEvents: NostrEvent[] = [];
+    let eventToEdit: NostrEvent
     let isTitleValid: boolean = false;
     let isURLValid: boolean = false;
     let shareLinkAdded:boolean = false
@@ -50,8 +50,8 @@
         showCreateNewList = false;
     }
 
-    async function fetchEvents(): Promise<NDKEvent[]> {
-        fetchedEvents = await fetchUserEvents($ndkActiveUser?.pubkey!);
+    async function fetchEvents(): Promise<NostrEvent[]> {
+        fetchedEvents = await fetchUserEvents($activeUser?.pubkey!);
         if (fetchedEvents.length) {
             return fetchedEvents;
         } else {
@@ -78,7 +78,7 @@
     const linkDescription = addLink.description ? addLink.description : '<Link description>';
     const linkUrl = addLink.url ? addLink.url : '<Link url>';
     const origin = $page.url.origin;
-    const userIdentifier = $localStore.UserIdentifier ? $localStore.UserIdentifier : $ndkActiveUser?.npub;
+    const userIdentifier = $localStore.UserIdentifier ? $localStore.UserIdentifier : $activeUser?.npub;
     const slug = eventToEdit ? findSlugTag(eventToEdit) : '';
 
     return `${baseText} ${eventTitle}! 🎉.\n${linkDescription}, ${linkUrl}\nCheck it out: ${origin}/${userIdentifier}/${slug}`;

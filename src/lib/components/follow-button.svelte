@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { ndkActiveUser } from "$lib/stores/provider";
-    import ndk from "$lib/stores/provider";
-    import type { NDKUser } from "@nostr-dev-kit/ndk";
+    import { activeUser } from "$lib/stores/provider";
+    import nostrClient from "$lib/stores/provider";
+    import type { NostrUser } from "$lib/nostr/client";
     import { getModalStore, getToastStore, popup} from "@skeletonlabs/skeleton";
-    import { NDKEvent, NDKKind, type NDKTag } from "@nostr-dev-kit/ndk";
+    import { NostrEvent, type NostrTag } from "$lib/nostr/client";
     import { autoLoginHandler, unixTimeNow } from "$lib/utils/helpers";
     import FollowIcon from "$lib/elements/icons/follow-icon.svelte";
     import { errorPublishToast, toastTimeOut } from "$lib/utils/constants";
@@ -17,22 +17,22 @@
     const modalStore = getModalStore();
 
     if (userPub.startsWith("npub")) userPub = nip19.decode(userPub).data.toString();
-    let user = $ndk.getUser({
+    let user = $nostrClient.getUser({
       pubkey: userPub,
     });
     
     async function handleFollow() {
         modalStore.trigger({ type: 'component', component: 'modalLoading',});
-        if (!$ndk.signer) await autoLoginHandler()
-        if (!$ndk.signer) return;
+        if (!$nostrClient.signer) await autoLoginHandler()
+        if (!$nostrClient.signer) return;
         try {
-        const followResult = await $ndkActiveUser?.follow(user);
+        const followResult = await $activeUser?.follow(user);
         if (followResult) {
             modalStore.close();
             toastStore.trigger({message: "Followed!", timeout: toastTimeOut, background: "variant-filled-success"});
-            const followsSet = await $ndkActiveUser?.follows();
+            const followsSet = await $activeUser?.follows();
             console.log(followsSet);
-            const followsArray = Array.from(followsSet as Set<NDKUser>);
+            const followsArray = Array.from(followsSet as Set<NostrUser>);
             $localStore.currentUserFollows = followsArray.map((user) => user.pubkey);
         } else {
             modalStore.close();
@@ -47,16 +47,16 @@
     async function handleUnfollow() {
         modalStore.trigger({ type: 'component', component: 'modalLoading',});
         const newFollowsArray = $localStore.currentUserFollows?.filter((pubkey) => pubkey !== user.pubkey);
-        const tags: NDKTag[] = newFollowsArray.map((pubkey) => ["p", pubkey] as NDKTag);
-        const event = new NDKEvent($ndk, {
-            pubkey: $ndkActiveUser!.pubkey,
-            kind: NDKKind.Contacts,
+        const tags: NostrTag[] = newFollowsArray.map((pubkey) => ["p", pubkey] as NostrTag);
+        const event = new NostrEvent($nostrClient, {
+            pubkey: $activeUser!.pubkey,
+            kind: 3,
             tags: tags,
             created_at: unixTimeNow(),
             content: "",
         });
-        if (!$ndk.signer) await autoLoginHandler()
-        if (!$ndk.signer) return;
+        if (!$nostrClient.signer) await autoLoginHandler()
+        if (!$nostrClient.signer) return;
         try {
             await event.publish()
             $localStore.currentUserFollows = newFollowsArray;
@@ -73,7 +73,7 @@
 </script>
 
 {#key user.pubkey}
-    {#if $ndkActiveUser}
+    {#if $activeUser}
         {#if $localStore.currentUserFollows.includes(user.pubkey)}
             <button
                 on:click={handleUnfollow}

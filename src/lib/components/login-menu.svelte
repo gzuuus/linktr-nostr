@@ -1,6 +1,6 @@
 <script lang="ts">
   import CheckIcon from "$lib/elements/icons/check-icon.svelte";
-  import { autoLoginStore, loginWithExtension, loginWithNostrAddress, ndkActiveUser } from "$lib/stores/provider";
+  import { autoLoginStore, loginWithExtension, loginWithNostrAddress, activeUser } from "$lib/stores/provider";
     import { localStore } from "$lib/stores/stores";
   import { errorLogin, succesLogin } from "$lib/utils/constants";
   import { fetchWithFallback } from "$lib/utils/helpers";

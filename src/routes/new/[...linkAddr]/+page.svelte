@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import ndk from "$lib/stores/provider";
+  import { NostrEvent } from "$lib/nostr/client";
+  import nostrClient from "$lib/stores/provider";
   import CreateNewList from "$lib/components/create-new-list.svelte";
-  import { ndkActiveUser, ndkReady } from "$lib/stores/provider";
+  import { activeUser, clientReady } from "$lib/stores/provider";
   import { nip19 } from "nostr-tools";
   import { findHashTags, findListTags, findOtherTags, sortEventList } from "$lib/utils/helpers";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
@@ -18,7 +18,7 @@
   
   const toastStore = getToastStore();
   const modalStore = getModalStore();
-  let events: NDKEvent[] = [];
+  let events: NostrEvent[] = [];
   let fetchedEvents: boolean = false;
   let showCreateNewList: boolean = false;
   let deletedEventsIds: string[] = [];
@@ -26,16 +26,16 @@
   let editIndex: number;
 
   $: {
-    if ($ndkActiveUser) {
+    if ($activeUser) {
       showEvents();
     }
   }
 
   async function showEvents() {
-    if ($ndkActiveUser) {
-      await ndkReady;
-      let userPubDecoded: string = nip19.decode($ndkActiveUser.npub).data.toString();
-      let fetchedEvent = await $ndk.fetchEvents({
+    if ($activeUser) {
+      await clientReady;
+      let userPubDecoded: string = nip19.decode($activeUser.npub).data.toString();
+      let fetchedEvent = await $nostrClient.fetchEvents({
           kinds: [kindLinks],
           authors: [userPubDecoded],
           "#l": ["nostree"],
@@ -46,15 +46,15 @@
     }
   }
 
-  async function handleSubmit(eventToPublish: NDKEvent, toDelete: boolean = false) {
-    if (!$ndk.signer) return
+  async function handleSubmit(eventToPublish: NostrEvent, toDelete: boolean = false) {
+    if (!$nostrClient.signer) return
     modalStore.trigger({ type: 'component', component: 'modalLoading'});
-    const ndkEvent = new NDKEvent($ndk);
-    ndkEvent.kind = kindLinks;
+    const nostrEvent = new NostrEvent($nostrClient);
+    nostrEvent.kind = kindLinks;
     const title = eventToPublish.tagValue("title");
     const description = eventToPublish.tagValue("summary") ? eventToPublish.tagValue("summary") :  eventToPublish.tagValue("description");
     const nameSpace = eventToPublish.tagValue("L");
-    ndkEvent.tags = [
+    nostrEvent.tags = [
       ["title", title!],
       description ? ["description", description] : ["description", ""],
       ["d", eventToPublish.tagValue("d")!],
@@ -64,8 +64,8 @@
     let labels;
     let hashtags;
     if (toDelete) {
-      ndkEvent.kind = eventToPublish.kind;
-      ndkEvent.tags = [["d", eventToPublish.tagValue("d")!]];
+      nostrEvent.kind = eventToPublish.kind;
+      nostrEvent.tags = [["d", eventToPublish.tagValue("d")!]];
     }
     if (!toDelete) {
       links = findListTags(eventToPublish.tags).map((tag) => ({
@@ -75,28 +75,28 @@
       hashtags = findOtherTags(eventToPublish.tags, "t").map((tag) => ({ hashtag: tag }));
       for (const linkData of links) {
         const { link, description } = linkData;
-        ndkEvent.tags.push(["r", link, description]);
+        nostrEvent.tags.push(["r", link, description]);
       }
       for (const hashtagData of hashtags) {
         const { hashtag } = hashtagData;
-        ndkEvent.tags.push(["t", hashtag]);
+        nostrEvent.tags.push(["t", hashtag]);
       }
       labels = findOtherTags(eventToPublish.tags, "l").map((tag) => ({ label: tag }));
       if (labels.length === 0) {
-        ndkEvent.tags.push(["l", "nostree"], ["l", generateNanoId($ndkActiveUser?.npub)]);
+        nostrEvent.tags.push(["l", "nostree"], ["l", generateNanoId($activeUser?.npub)]);
       } else if (labels.length === 1 && eventToPublish.tagValue("l") === "nostree") {
-        ndkEvent.tags.push(["l", generateNanoId($ndkActiveUser?.npub)]);
+        nostrEvent.tags.push(["l", generateNanoId($activeUser?.npub)]);
       } else {
         for (const labelData of labels) {
           const { label } = labelData;
-          ndkEvent.tags.push(["l", label]);
+          nostrEvent.tags.push(["l", label]);
         }
       }
     }
     try {
-      await ndkEvent.publish()
-      toDelete && await ndkEvent.delete()
-      if (eventToPublish.kind != ndkEvent.kind){
+      await nostrEvent.publish()
+      toDelete && await nostrEvent.delete()
+      if (eventToPublish.kind != nostrEvent.kind){
         await eventToPublish.delete()
         deletedEventsIds.push(eventToPublish.tagValue("d")!);
       }
@@ -123,7 +123,7 @@
   <meta property="og:title" content="Manage lists"/>
   <meta property="og:description" content="Manage your nostree lists" />
 </svelte:head>
-{#if $ndkActiveUser}
+{#if $activeUser}
   <div class:hidden={showCreateNewList} class="flex flex-col gap-2 flex-wrap">
     <h2>Manage your lists</h2>
   </div>
