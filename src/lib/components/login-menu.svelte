@@ -1,6 +1,9 @@
 <script lang="ts">
   import CheckIcon from "$lib/elements/icons/check-icon.svelte";
   import { autoLoginStore, loginWithExtension, loginWithNostrAddress, activeUser } from "$lib/stores/provider";
+  import { goto } from "$app/navigation";
+  import { base } from "$app/paths";
+  import { get } from "svelte/store";
   import { localStore } from "$lib/stores/stores";
   import { errorLogin, succesLogin } from "$lib/utils/constants";
   import { fetchWithFallback } from "$lib/utils/helpers";
@@ -17,6 +20,8 @@
     try {
       const login = await loginWithExtension();
       if (login) {
+        const npub = get(activeUser)?.npub;
+        if (npub) goto(`${base}/${npub}`);
         toastStore.trigger(succesLogin);
         modalStore.close();
         localStore.update((current) => {
@@ -45,6 +50,8 @@
       if (address) {
         const login = await loginWithNostrAddress(address);
         if (login) {
+          const npub = get(activeUser)?.npub;
+          if (npub) goto(`${base}/${npub}`);
           toastStore.trigger(succesLogin);
           modalStore.close();
           localStore.update((current) => {

@@ -2,7 +2,7 @@ import { nip19, type Event, type EventTemplate, type Filter } from "nostr-tools"
 import { queryProfile } from "nostr-tools/nip05";
 import { RelayPool } from "applesauce-relay";
 import type { Subscription } from "rxjs";
-import { lastValueFrom, toArray, defaultIfEmpty } from "rxjs";
+import { lastValueFrom, toArray, defaultIfEmpty, takeUntil, timer } from "rxjs";
 import { writable, type Readable } from "svelte/store";
 import type { NostrSigner } from "./signers";
 
@@ -278,7 +278,9 @@ export class NostrClient {
   }
 
   async request(relays: string[], filter: Filter): Promise<Event[]> {
-    return lastValueFrom(this.pool.request(relays, filter).pipe(toArray(), defaultIfEmpty([])));
+    return lastValueFrom(
+      this.pool.request(relays, filter).pipe(takeUntil(timer(10_000)), toArray(), defaultIfEmpty([]))
+    );
   }
 
   async fetchEvent(filter: Filter, opts: { relays?: string[] } = {}): Promise<NostrEvent | null> {

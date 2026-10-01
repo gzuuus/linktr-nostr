@@ -72,7 +72,7 @@
 <Modal components={modalRegistry} />
 <Toast position="t" />
 <Drawers />
-<div class="flex flex-col h-full scroll-smooth">
+<div class="flex flex-col h-full scroll-smooth overflow-y-auto">
   <header class="fixed sm:sticky top-0 z-10 w-full">
     <Header />
   </header>

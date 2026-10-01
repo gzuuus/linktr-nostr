@@ -2,7 +2,9 @@
   import { goto } from "$app/navigation";
   import LoginMenu from "$lib/components/login-menu.svelte";
   import CloseIcon from "$lib/elements/icons/close-icon.svelte";
-  import { loginWithExtension } from "$lib/stores/provider";
+  import { loginWithExtension, activeUser } from "$lib/stores/provider";
+  import { base } from "$app/paths";
+  import { get } from "svelte/store";
   import { getModalStore, getToastStore } from "$lib/ui";
   import { errorLogin, succesLogin } from "$lib/utils/constants";
   export let parent: any;
@@ -25,6 +27,8 @@
 
     if (success) {
       parent.onClose();
+      const npub = get(activeUser)?.npub;
+      if (npub) goto(`${base}/${npub}`);
     }
 
     isExtensionLoggingIn = false;

@@ -138,7 +138,7 @@
 {#key events.length}
   {#if events.length > 0 && !showCreateNewList}
     <Accordion regionControl="variant-ghost">
-      <AccordionItem>
+      <AccordionItem open={true}>
         <svelte:fragment slot="summary">Show your all lists</svelte:fragment>
         <svelte:fragment slot="content">
           {#key fetchedEvents}
