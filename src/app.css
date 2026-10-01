@@ -144,7 +144,7 @@
 }
 
 @utility btn-icon {
-  composes: btn;
+  @apply btn;
   padding: 0;
   aspect-ratio: 1 / 1;
   width: 43px;
