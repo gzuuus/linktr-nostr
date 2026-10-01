@@ -202,8 +202,8 @@
 
   function handleRemoveLink(index: number) {
     formData.links = formData.links.filter((_, i) => i !== index);
-    linkValidationStatus.splice(index, 1);
-    linkNameValidationStatus.splice(index, 1);
+    linkValidationStatus = linkValidationStatus.filter((_, i) => i !== index);
+    linkNameValidationStatus = linkNameValidationStatus.filter((_, i) => i !== index);
   }
 
   function handleReset() {

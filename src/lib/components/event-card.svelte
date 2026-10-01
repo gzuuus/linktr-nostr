@@ -60,8 +60,9 @@
           const tagTitleValue = event.tagValue("title");
           if (tagTitleValue) {
             const tagHashtagValue = event.tagValue("t");
-            eventList.push(event) && eventTitles.push(tagTitleValue);
-            tagHashtagValue && eventHashtags.push(tagHashtagValue);
+            eventList = [...eventList, event];
+            eventTitles = [...eventTitles, tagTitleValue];
+            if (tagHashtagValue) eventHashtags = [...eventHashtags, tagHashtagValue];
           }
         }
         loading = false;

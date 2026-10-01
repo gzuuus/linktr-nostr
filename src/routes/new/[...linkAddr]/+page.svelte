@@ -100,13 +100,13 @@
       toDelete && (await nostrEvent.delete());
       if (eventToPublish.kind != nostrEvent.kind) {
         await eventToPublish.delete();
-        deletedEventsIds.push(eventToPublish.tagValue("d")!);
+        deletedEventsIds = [...deletedEventsIds, eventToPublish.tagValue("d")!];
       }
       events = [];
       fetchedEvents = false;
       modalStore.clear();
       if (toDelete) {
-        deletedEventsIds.push(eventToPublish.tagValue("d")!);
+        deletedEventsIds = [...deletedEventsIds, eventToPublish.tagValue("d")!];
         toastStore.trigger(succesDeletingToast);
       } else {
         toastStore.trigger(succesPublishToast);
