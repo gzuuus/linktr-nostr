@@ -1,6 +1,6 @@
 <script lang="ts">
   import InfoDialog from "$lib/components/info-dialog.svelte";
-    import DocListHashtags from "$lib/docsComponents/doc-list-hashtags.svelte";
+  import DocListHashtags from "$lib/docsComponents/doc-list-hashtags.svelte";
   import DocListNaddrShare from "$lib/docsComponents/doc-list-naddr-share.svelte";
   import DocListSlugSame from "$lib/docsComponents/doc-list-slug-same.svelte";
   import DocListSlugShare from "$lib/docsComponents/doc-list-slug-share .svelte";

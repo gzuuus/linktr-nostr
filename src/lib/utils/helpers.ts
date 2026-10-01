@@ -1,7 +1,14 @@
 import { nip19 } from "nostr-tools";
-import { NDKUser, NDKEvent, type NDKTag, type NDKUserProfile, type NDKFilter, NDKKind } from "@nostr-dev-kit/ndk";
+import type { Filter } from "nostr-tools";
+import { NostrUser, NostrEvent, type NostrTag, type UserProfile } from "$lib/nostr/client";
 import { userCustomTheme } from "$lib/stores/user";
-import { autoLoginStore, loginWithExtension, loginWithNostrAddress, ndkActiveUser, ndkReady } from "$lib/stores/provider";
+import {
+  autoLoginStore,
+  loginWithExtension,
+  loginWithNostrAddress,
+  activeUser,
+  clientReady,
+} from "$lib/stores/provider";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
 import {
@@ -17,7 +24,7 @@ import {
 import { storeTheme } from "$lib/stores/stores";
 import { browser } from "$app/environment";
 import { get, get as getStore } from "svelte/store";
-import ndkStore from "$lib/stores/provider";
+import nostrClientStore from "$lib/stores/provider";
 import { localStore } from "$lib/stores/stores";
 import type { Link } from "$lib/classes/list";
 import { type AddressPointer, type EventPointer } from "nostr-tools/nip19";
@@ -44,7 +51,7 @@ export async function fetchWithFallback(address: string): Promise<nip05response 
   const fetchUrl = `https://${domain}/.well-known/nostr.json?name=${name}`;
   try {
     const response = await fetch(fetchUrl);
-    let json = (await response.json()) as nip05response;
+    const json = (await response.json()) as nip05response;
     if (json.names[name]) {
       json.names = { [name]: json.names[name] };
     } else return undefined;
@@ -52,7 +59,7 @@ export async function fetchWithFallback(address: string): Promise<nip05response 
   } catch (error) {
     if (error instanceof Error && error.message.includes("CORS")) {
       const response = await fetch(CORSproxyUrl + fetchUrl);
-      let json = (await response.json()) as nip05response;
+      const json = (await response.json()) as nip05response;
       if (json.names[name]) {
         json.names = { [name]: json.names[name] };
       } else return undefined;
@@ -93,7 +100,7 @@ export async function isNip05Valid(nip05: string | undefined = "", npub: string 
       return false;
     }
 
-    const nip05Promise = await NDKUser.fromNip05(nip05.toLowerCase(), get(ndkStore));
+    const nip05Promise = await NostrUser.fromNip05(nip05.toLowerCase(), get(nostrClientStore));
     const isNip05Valid = nip05Promise !== undefined;
     const Nip05address = nip05;
     const UserNpub = isNip05Valid ? nip05Promise.npub : npub;
@@ -129,7 +136,7 @@ export async function isNip05Valid(nip05: string | undefined = "", npub: string 
     });
 
     return isNip05Valid;
-  } catch (error) {
+  } catch {
     isNip05ValidStore.set({
       isNip05Valid: false,
       Nip05address: undefined,
@@ -154,7 +161,7 @@ export function propsBuildPointer(
   relays: string[] | undefined = [],
   author: string,
   kind?: number,
-  identifier: string | undefined = ""
+  identifier: string | undefined = "",
 ): string {
   const objPointer: EventPointer | AddressPointer =
     kind === kindNotes ? { id, relays, author, kind } : { identifier, pubkey: author, kind: kind || 0, relays };
@@ -164,16 +171,15 @@ export function propsBuildPointer(
     : nip19.naddrEncode(objPointer as AddressPointer);
 }
 
-export function buildEventPointer(event: NDKEvent) {
+export function buildEventPointer(event: NostrEvent) {
   let objPointer: EventPointer | AddressPointer;
-  let encodedPointer: string;
   if (event.kind == kindNotes) {
     objPointer = {
       id: event.id,
       relays: [event.relay?.url ?? ""],
       author: event.author.pubkey,
     };
-    return (encodedPointer = nip19.neventEncode(objPointer));
+    return nip19.neventEncode(objPointer);
   } else if (event.kind == kindLinks || event.kind == kindArticles || event.kind == kindLinks) {
     console.log(event.tagValue("d")!, event.author.pubkey, event.kind, event.relay?.url);
     objPointer = {
@@ -182,7 +188,7 @@ export function buildEventPointer(event: NDKEvent) {
       kind: event.kind,
       relays: event.relay?.url ? [event.relay?.url] : [],
     };
-    return (encodedPointer = nip19.naddrEncode(objPointer));
+    return nip19.naddrEncode(objPointer);
   }
 }
 export function buildATags(author: string, kind: number, identifier: string): string {
@@ -195,10 +201,10 @@ export function buildATags(author: string, kind: number, identifier: string): st
 }
 
 export function naddrEncodeATags(EventPointer: string) {
-  let objPointer = EventPointer.split(":");
-  let eventKind: number = parseInt(objPointer[0]);
-  let eventAuthor: string = objPointer[1];
-  let eventIdentifier: string = objPointer[2];
+  const objPointer = EventPointer.split(":");
+  const eventKind: number = parseInt(objPointer[0]);
+  const eventAuthor: string = objPointer[1];
+  const eventIdentifier: string = objPointer[2];
 
   return propsBuildPointer(undefined, [], eventAuthor, eventKind, eventIdentifier);
 }
@@ -208,7 +214,7 @@ export function decodeEventPointer(encodedPointer: string) {
   return objPointer;
 }
 
-export function findListTags(tags: NDKTag[]) {
+export function findListTags(tags: NostrTag[]) {
   const matchingTags = tags.filter((tag) => tag[0] == "r");
   return matchingTags.map((tag) => {
     const [url, description] = tag.slice(1);
@@ -216,7 +222,7 @@ export function findListTags(tags: NDKTag[]) {
   });
 }
 
-export function findHashTags(tags: NDKTag[]) {
+export function findHashTags(tags: NostrTag[]) {
   const matchingTags = tags.filter((tag) => tag[0] == "t");
 
   return matchingTags.map((tag) => {
@@ -227,7 +233,7 @@ export function findHashTags(tags: NDKTag[]) {
 export function unique<T>(arr: T[]): T[] {
   return Array.from(new Set(arr));
 }
-export function findOtherTags(tags: NDKTag[], tagName: string) {
+export function findOtherTags(tags: NostrTag[], tagName: string) {
   const matchingTags = tags.filter((tag) => tag[0] === tagName);
 
   return matchingTags.map((tag) => {
@@ -236,9 +242,9 @@ export function findOtherTags(tags: NDKTag[], tagName: string) {
   });
 }
 
-export function findSlugTag(event: NDKEvent): string {
+export function findSlugTag(event: NostrEvent): string {
   const matchingTags = event.tags.filter((tag) => tag[0] == "l");
-  let slugTag = matchingTags.filter((tag) => tag[1] != "nostree")[0];
+  const slugTag = matchingTags.filter((tag) => tag[1] != "nostree")[0];
   return slugTag[1];
 }
 
@@ -246,8 +252,8 @@ export function parseNostrUrls(rawContent: string): string {
   const nostrPattern = /nostr:(nprofile|nevent|naddr|npub1)(\w+)/g;
 
   return rawContent.replace(nostrPattern, (match, type, id) => {
-    let nostrEntity = type + id;
-    let nostrEntityUrl = `${outNostrLinksUrl}/${nostrEntity}`;
+    const nostrEntity = type + id;
+    const nostrEntityUrl = `${outNostrLinksUrl}/${nostrEntity}`;
 
     switch (type) {
       case "nprofile":
@@ -280,7 +286,7 @@ export async function copyToClipboard(textToCopy: string) {
 
 export async function sharePage(urlToShare: string) {
   if (navigator && typeof navigator !== "undefined" && "share" in navigator && typeof navigator.share === "function") {
-    let url = urlToShare;
+    const url = urlToShare;
     try {
       await navigator.share({
         url,
@@ -300,7 +306,7 @@ export function logout() {
   location.reload();
 }
 
-export function sortEventList(eventList: NDKEvent[]): NDKEvent[] {
+export function sortEventList(eventList: NostrEvent[]): NostrEvent[] {
   return eventList.sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
@@ -311,25 +317,21 @@ export function generateNanoId(seed: string | undefined = unixTimeNow().toString
 }
 
 export function setCustomStyles(cssTheme: string) {
-  let styleTag = document.createElement("style");
+  const styleTag = document.createElement("style");
   styleTag.id = "custom-style";
   styleTag.textContent = `${cssTheme}`;
   document.head.appendChild(styleTag);
 }
 
-export async function fetchUserProfile(opts: string): Promise<NDKUserProfile | undefined> {
+export async function fetchUserProfile(opts: string): Promise<UserProfile | undefined> {
   try {
     if (browser && opts.trim()) {
-      await ndkReady;
-      const ndk = getStore(ndkStore);
-      const ndkUser = ndk.getUser({ pubkey: opts });
+      await clientReady;
+      const client = getStore(nostrClientStore);
+      const nostrUser = client.getUser({ pubkey: opts });
 
-      await ndkUser.fetchProfile({
-        closeOnEose: true,
-        groupable: false,
-        groupableDelay: 200,
-      });
-      return ndkUser.profile as NDKUserProfile;
+      await nostrUser.fetchProfile();
+      return nostrUser.profile as UserProfile;
     }
   } catch (error) {
     console.error(error);
@@ -338,20 +340,17 @@ export async function fetchUserProfile(opts: string): Promise<NDKUserProfile | u
 }
 
 export async function fetchCssAsset(user: string) {
-  await ndkReady;
-  const $ndk = getStore(ndkStore);
-  const activeUserPub = getStore(ndkActiveUser)?.pubkey;
+  await clientReady;
+  const client = getStore(nostrClientStore);
+  const activeUserPub = getStore(activeUser)?.pubkey;
   const $storeTheme = getStore(storeTheme);
-  let ndkFilter: NDKFilter = {
+  const filter: Filter = {
     authors: [user],
-    kinds: [kindCSSReplaceableAsset as NDKKind],
+    kinds: [kindCSSReplaceableAsset],
     "#L": ["nostree-theme"],
   };
   try {
-    const fetchedEvent = await $ndk.fetchEvent(ndkFilter, {
-      closeOnEose: true,
-      groupable: true,
-    });
+    const fetchedEvent = await client.fetchEvent(filter);
     if (fetchedEvent) {
       console.log("fetchedCssAsset", fetchedEvent);
       const userTheme = fetchedEvent.tagValue("l");
@@ -392,10 +391,10 @@ export async function fetchCssAsset(user: string) {
   }
 }
 
-export async function fetchUserAssets(user: NDKUser): Promise<NDKUser | null> {
+export async function fetchUserAssets(user: NostrUser): Promise<NostrUser | null> {
   try {
     const followsSet = await user.follows();
-    const followsArray = Array.from(followsSet as Set<NDKUser>);
+    const followsArray = Array.from(followsSet as Set<NostrUser>);
     localStore.update((currentState) => {
       return {
         ...currentState,
@@ -404,17 +403,17 @@ export async function fetchUserAssets(user: NDKUser): Promise<NDKUser | null> {
     });
     await fetchCssAsset(user.pubkey);
     return user;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
 
-export function processHashtags(events: NDKEvent[]): string[] {
+export function processHashtags(events: NostrEvent[]): string[] {
   const newHashtagsSet = new Set<string>();
 
   events.forEach((event) => {
     const newHashtags = event.tags.flatMap((tag: string[]) =>
-      tag[0] === "t" && !newHashtagsSet.has(tag[1]) ? [tag[1]] : []
+      tag[0] === "t" && !newHashtagsSet.has(tag[1]) ? [tag[1]] : [],
     );
 
     if (newHashtags.length > 0) {
@@ -425,15 +424,15 @@ export function processHashtags(events: NDKEvent[]): string[] {
   return [...newHashtagsSet];
 }
 
-export async function fetchUserEvents(userPubKey: string): Promise<NDKEvent[]> {
-  await ndkReady;
-  const $ndk = getStore(ndkStore);
-  let fetchedEvent = await $ndk.fetchEvents({
+export async function fetchUserEvents(userPubKey: string): Promise<NostrEvent[]> {
+  await clientReady;
+  const client = getStore(nostrClientStore);
+  const fetchedEvent = await client.fetchEvents({
     kinds: [kindLinks],
     authors: [userPubKey],
     "#l": ["nostree"],
   });
-  let events = Array.from(fetchedEvent);
+  const events = Array.from(fetchedEvent);
   return events;
 }
 
@@ -444,13 +443,13 @@ export function validateURL(url: string): boolean {
 export function validateURLTitle(title: string): boolean {
   return title.trim() !== "";
 }
-export async function addLinkToList(link: Link, eventToModify: NDKEvent): Promise<boolean> {
-  const $ndk = getStore(ndkStore);
+export async function addLinkToList(link: Link, eventToModify: NostrEvent): Promise<boolean> {
+  const client = getStore(nostrClientStore);
 
-  let linkTag = ["r", link.url, link.description];
+  const linkTag = ["r", link.url, link.description];
   try {
-    if (!$ndk.signer) return false;
-    let eventToPublish = eventToModify;
+    if (!client.signer) return false;
+    const eventToPublish = eventToModify;
     eventToPublish.sig = undefined;
     eventToPublish.created_at = unixTimeNow();
     eventToPublish.tags.push(linkTag);
@@ -463,11 +462,11 @@ export async function addLinkToList(link: Link, eventToModify: NDKEvent): Promis
 }
 
 export async function publishKind1(content: string): Promise<boolean> {
-  const $ndk = getStore(ndkStore);
-  let eventToPublish = new NDKEvent($ndk);
+  const client = getStore(nostrClientStore);
+  const eventToPublish = new NostrEvent(client);
   try {
-    if (!$ndk.signer) return false;
-    eventToPublish.kind = NDKKind.Text;
+    if (!client.signer) return false;
+    eventToPublish.kind = 1;
     eventToPublish.content = content;
     eventToPublish.tags.push(["t", "nostree"]);
     await eventToPublish.publish();

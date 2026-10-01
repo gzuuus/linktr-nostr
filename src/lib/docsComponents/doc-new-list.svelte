@@ -1,4 +1,5 @@
 <script>
+  import { base } from "$app/paths";
   import BinIcon from "$lib/elements/icons/bin-icon.svelte";
   import EditIcon from "$lib/elements/icons/edit-icon.svelte";
   import PinIcon from "$lib/elements/icons/pin-icon.svelte";
@@ -9,7 +10,7 @@
 <div class="DocsContentContainer">
   <h2>Create New List</h2>
   <h3>Lists are a way to organize your links</h3>
-  <p>You can create, edit and manage in the <a href="/new">Manage page</a></p>
+  <p>You can create, edit and manage in the <a href="{base}/new">Manage page</a></p>
   <hr />
   <h4>Form</h4>
   <p>Here you can find a basic form that you can fill with as many links as you want.</p>

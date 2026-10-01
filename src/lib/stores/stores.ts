@@ -1,8 +1,8 @@
 import { writable, type Writable } from "svelte/store";
 import { browser } from "$app/environment";
-import { localStorageStore } from "@skeletonlabs/skeleton";
+import { localStorageStore } from "./local-storage";
 
-export const storeTheme = writable(browser ? document.body.getAttribute("data-theme") ?? "" : "nostree-theme");
+export const storeTheme = writable(browser ? (document.body.getAttribute("data-theme") ?? "") : "nostree-theme");
 export const storePreview = writable(false);
 export const storeLivePreview = writable("");
 

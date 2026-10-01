@@ -1,16 +1,19 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   import { page } from "$app/stores";
 </script>
+
 <div class="DocsContentContainer">
   <h2>Hashtags</h2>
   <h3>Hashtags are a way to categorize your nostree list in order to increase discoverability.</h3>
   <hr />
   <p>Hashtags are not an obligatory field; you can leave it blank.</p>
   <p>
-    On the other hand, you can add as many hashtags as you want; They allow people to find your list along with others with the same hashtag in the Explore section. <br />For example:
+    On the other hand, you can add as many hashtags as you want; They allow people to find your list along with others
+    with the same hashtag in the Explore section. <br />For example:
     <code
-      ><a href="{$page.url.origin}/explore/music" target="_blank" rel="noopener noreferrer"
-        >{$page.url.origin}/explore/music</a
+      ><a href="{$page.url.origin}{base}/explore/music" target="_blank" rel="noopener noreferrer"
+        >{$page.url.origin}{base}/explore/music</a
       ></code
     >
   </p>

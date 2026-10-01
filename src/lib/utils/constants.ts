@@ -1,10 +1,9 @@
-import type { NDKKind } from "@nostr-dev-kit/ndk";
-import type { ToastSettings } from "@skeletonlabs/skeleton";
+import type { ToastSettings } from "$lib/ui";
 export const ogImageUrl = "/og-banner.jpg";
 export const ogLogoImg = "/og-logo.png";
 export const kindNotes = 1;
 export const kindDelete = 5;
-export const kindLinks = 30003 as NDKKind;
+export const kindLinks = 30003;
 export const kindArticles = 30023;
 export const kindCSSReplaceableAsset = 35393;
 export const kindCSSAsset = 5393;
