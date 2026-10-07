@@ -1,5 +1,5 @@
 import { type Event, type EventTemplate } from "nostr-tools";
-import { NIP05_REGEX } from "nostr-tools/nip05";
+import { parseBunkerInput, toBunkerURL, type BunkerPointer } from "nostr-tools/nip46";
 import { bytesToHex } from "@noble/hashes/utils";
 import {
   ExtensionSigner,
@@ -82,32 +82,21 @@ export class PrivateKeySigner implements NostrSigner {
 
 type AuthUrlHandler = (url: string) => void;
 
-/** Resolve a NIP-05 address to its NIP-46 bunker pointer (nostr.json "nip46" section). */
-async function nip05ToBunkerURI(address: string): Promise<string | null> {
-  const match = address.match(NIP05_REGEX);
-  if (!match) return null;
-  const [, name = "_", domain] = match;
-  try {
-    const res = await fetch(`https://${domain}/.well-known/nostr.json?name=${name}`);
-    if (!res.ok) return null;
-    const json = await res.json();
-    const nip46 = json?.nip46;
-    if (!nip46) return null;
-    const pubkey = nip46.names?.[name] ?? nip46.names?.[name.toLowerCase()] ?? nip46.pubkey;
-    const relays: string[] = nip46.relays ?? [];
-    if (!pubkey || relays.length === 0) return null;
-    const params = new URLSearchParams();
-    for (const relay of relays) params.append("relay", relay);
-    return `bunker://${pubkey}?${params.toString()}`;
-  } catch {
-    return null;
+/** Resolve any NIP-46 connection input (bunker:// URI, NIP-05 identifier, or remote signer pubkey) to a bunker pointer. */
+export async function resolveBunkerPointer(
+  input: string,
+  fallbackRelays: string[] = []
+): Promise<BunkerPointer | null> {
+  const trimmed = input.trim();
+  const normalized = trimmed.toLowerCase().startsWith("bunker://") ? trimmed : trimmed.toLowerCase();
+  if (/^[0-9a-f]{64}$/.test(normalized)) {
+    return { pubkey: normalized, relays: [...fallbackRelays], secret: null };
   }
-}
-
-function bunkerUriFromInput(input: string): string | null {
-  const match = input.trim().match(/^bunker:\/\/([0-9a-f]{64})\??(.*)$/i);
-  if (!match) return null;
-  return `bunker://${match[1].toLowerCase()}?${match[2] ?? ""}`;
+  const pointer = await parseBunkerInput(normalized);
+  if (!pointer?.pubkey) return null;
+  // applesauce's bunker URI parser rejects URIs without relays, fall back to the client's relays
+  if (pointer.relays.length === 0) pointer.relays = [...fallbackRelays];
+  return pointer;
 }
 
 export class Nip46Signer implements NostrSigner {
@@ -139,25 +128,10 @@ export class Nip46Signer implements NostrSigner {
       },
     };
 
-    let connectSigner: NostrConnectSigner;
+    const pointer = await resolveBunkerPointer(input, client.relayUrls);
+    if (!pointer) throw new Error("No NIP-46 remote signer found for this address");
 
-    const bunkerUri = bunkerUriFromInput(input);
-    const trimmed = input.trim();
-    if (bunkerUri) {
-      connectSigner = await NostrConnectSigner.fromBunkerURI(bunkerUri, opts);
-    } else if (NIP05_REGEX.test(trimmed)) {
-      const uri = await nip05ToBunkerURI(trimmed.toLowerCase());
-      if (!uri) throw new Error("No NIP-46 remote signer found for this address");
-      connectSigner = await NostrConnectSigner.fromBunkerURI(uri, opts);
-    } else if (/^[0-9a-f]{64}$/i.test(trimmed)) {
-      connectSigner = new NostrConnectSigner({
-        ...opts,
-        relays: [...client.relayUrls],
-        remote: trimmed.toLowerCase(),
-      });
-    } else {
-      throw new Error("Invalid NIP-46 connection string");
-    }
+    const connectSigner = await NostrConnectSigner.fromBunkerURI(toBunkerURL(pointer), opts);
 
     for (const relay of connectSigner.relays) client.addExplicitRelay(relay);
     const signer = new Nip46Signer(connectSigner, localSigner);
