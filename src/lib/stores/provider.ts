@@ -57,9 +57,9 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
   try {
     const trimmed = connectionString.trim();
     if (trimmed.startsWith("nsec1")) {
+      // keep the user's secret in memory only (client.signer), never persisted
       const signer = new PrivateKeySigner(trimmed);
       client.signer = signer;
-      localSignerStore.set(signer.privateKey ?? "");
       await fetchUserData();
       return true;
     }

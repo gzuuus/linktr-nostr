@@ -57,7 +57,8 @@
           localStore.update((current) => {
             return {
               ...current,
-              loginMethod: address,
+              // never persist secrets (nsec keys); without a loginMethod auto-login simply asks again
+              loginMethod: address.trim().startsWith("nsec1") ? undefined : address,
             };
           });
         } else {
