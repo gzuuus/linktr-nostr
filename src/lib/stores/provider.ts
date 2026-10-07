@@ -57,7 +57,6 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
   try {
     const localKey = get(localSignerStore) || undefined;
     const localSigner = new PrivateKeySigner(localKey);
-    console.log("Local key", localSigner.privateKey);
 
     const signer = await Nip46Signer.connect(client, connectionString, localSigner);
     signer.rpc.on("authUrl", (url: string) => {
