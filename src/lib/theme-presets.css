@@ -1,5 +1,5 @@
 /* Skeleton theme presets, re-encoded as plain CSS variables */
-[data-theme='skeleton'] {
+[data-theme="skeleton"] {
   --theme-font-family-base: system-ui;
   --theme-font-family-heading: system-ui;
   --theme-font-color-base: rgb(0 0 0);
@@ -86,9 +86,10 @@
   --color-surface-900: rgb(36 44 70);
 }
 
-[data-theme='crimson'] {
-  --theme-font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-		'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+[data-theme="crimson"] {
+  --theme-font-family-base:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --theme-font-family-heading: system-ui;
   --theme-font-color-base: var(--color-surface-900);
   --theme-font-color-dark: var(--color-surface-50);
@@ -174,9 +175,9 @@
   --color-surface-900: rgb(21 23 31);
 }
 
-[data-theme='modern'] {
-  --theme-font-family-base: 'Quicksand', sans-serif;
-  --theme-font-family-heading: 'Quicksand', sans-serif;
+[data-theme="modern"] {
+  --theme-font-family-base: "Quicksand", sans-serif;
+  --theme-font-family-heading: "Quicksand", sans-serif;
   --theme-font-color-base: var(--color-surface-900);
   --theme-font-color-dark: var(--color-tertiary-50);
   --theme-rounded-base: 9999px;
@@ -261,9 +262,9 @@
   --color-surface-900: rgb(49 50 118);
 }
 
-[data-theme='rocket'] {
+[data-theme="rocket"] {
   --theme-font-family-base: system-ui;
-  --theme-font-family-heading: 'Space Grotesk', sans-serif;
+  --theme-font-family-heading: "Space Grotesk", sans-serif;
   --theme-font-color-base: var(--color-primary-900);
   --theme-font-color-dark: var(--color-primary-100);
   --theme-rounded-base: 0px;
@@ -348,11 +349,13 @@
   --color-surface-900: rgb(49 57 68);
 }
 
-[data-theme='sahara'] {
-  --theme-font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-		'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --theme-font-family-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-		Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+[data-theme="sahara"] {
+  --theme-font-family-base:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --theme-font-family-heading:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --theme-font-color-base: var(--color-secondary-900);
   --theme-font-color-dark: var(--color-primary-100);
   --theme-rounded-base: 9999px;
@@ -437,7 +440,7 @@
   --color-surface-900: rgb(107 38 49);
 }
 
-[data-theme='wintry'] {
+[data-theme="wintry"] {
   --theme-font-family-heading: Inter, system-ui, sans-serif;
   --theme-font-family-base: system-ui;
   --theme-font-color-base: rgb(23 37 84);
@@ -524,10 +527,11 @@
   --color-surface-900: rgb(17 24 39);
 }
 
-[data-theme='seafoam'] {
-  --theme-font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-		'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --theme-font-family-heading: 'Playfair Display', serif;
+[data-theme="seafoam"] {
+  --theme-font-family-base:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --theme-font-family-heading: "Playfair Display", serif;
   --theme-font-color-base: var(--color-surface-900);
   --theme-font-color-dark: var(--color-secondary-100);
   --theme-rounded-base: 16px;
@@ -612,10 +616,11 @@
   --color-surface-900: rgb(18 102 104);
 }
 
-[data-theme='vintage'] {
-  --theme-font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-		'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --theme-font-family-heading: 'Abril Fatface', cursive;
+[data-theme="vintage"] {
+  --theme-font-family-base:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --theme-font-family-heading: "Abril Fatface", cursive;
   --theme-font-color-base: var(--color-primary-900);
   --theme-font-color-dark: var(--color-primary-100);
   --theme-rounded-base: 2px;
@@ -700,9 +705,10 @@
   --color-surface-900: rgb(31 27 24);
 }
 
-[data-theme='hamlindigo'] {
-  --theme-font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-		'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+[data-theme="hamlindigo"] {
+  --theme-font-family-base:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --theme-font-family-heading: serif;
   --theme-font-color-base: rgb(0 0 0);
   --theme-font-color-dark: rgb(255 255 255);
@@ -788,9 +794,9 @@
   --color-surface-900: rgb(49 58 80);
 }
 
-[data-theme='gold-nouveau'] {
+[data-theme="gold-nouveau"] {
   --theme-font-family-base: system-ui, sans-serif;
-  --theme-font-family-heading: 'Quicksand', sans-serif;
+  --theme-font-family-heading: "Quicksand", sans-serif;
   --theme-font-color-base: var(--color-surface-900);
   --theme-font-color-dark: var(--color-surface-50);
   --theme-rounded-base: 4px;
@@ -874,4 +880,3 @@
   --color-surface-800: rgb(35 22 49);
   --color-surface-900: rgb(18 11 24);
 }
-

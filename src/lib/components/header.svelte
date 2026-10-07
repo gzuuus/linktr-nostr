@@ -100,7 +100,8 @@
           </div>
           <button
             class="common-btn-sm-ghost"
-            on:click={() => goto(`${base}/${$localStore.UserIdentifier ? $localStore.UserIdentifier : $activeUser?.npub}`)}
+            on:click={() =>
+              goto(`${base}/${$localStore.UserIdentifier ? $localStore.UserIdentifier : $activeUser?.npub}`)}
           >
             <span><ProfileIcon size={20} /></span>
             <span class="hidden sm2:inline-flex">Profile</span>

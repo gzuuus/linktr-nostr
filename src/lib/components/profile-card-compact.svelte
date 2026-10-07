@@ -62,7 +62,9 @@
       </section>
     </div>
     <div class="flex flex-col gap-1 break-all">
-      <a class="no-underline text-base font-bold" href="{base}/{userPub}">{value?.name ? value?.name : value?.displayName}</a>
+      <a class="no-underline text-base font-bold" href="{base}/{userPub}"
+        >{value?.name ? value?.name : value?.displayName}</a
+      >
       <span class="common-badge-soft w-fit">
         <ClipboardButton
           contentToCopy={`${$page.url.origin}{base}/${userPub}`}

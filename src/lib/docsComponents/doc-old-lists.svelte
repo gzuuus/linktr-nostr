@@ -12,8 +12,8 @@
   <h2>Migrating Old Lists</h2>
   <h3>If you still have old lists that you need to migrate to the new format, don't worry, it's easy.</h3>
   <p>
-    Just go to the <a href="{base}/new">Manage page</a> page and if you have lists to migrate, they will automatically appear there
-    under the title '🔺 List in old format'.
+    Just go to the <a href="{base}/new">Manage page</a> page and if you have lists to migrate, they will automatically appear
+    there under the title '🔺 List in old format'.
   </p>
   <hr />
   <p>

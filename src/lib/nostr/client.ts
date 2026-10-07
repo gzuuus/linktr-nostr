@@ -279,7 +279,7 @@ export class NostrClient {
 
   async request(relays: string[], filter: Filter): Promise<Event[]> {
     return lastValueFrom(
-      this.pool.request(relays, filter).pipe(takeUntil(timer(10_000)), toArray(), defaultIfEmpty([]))
+      this.pool.request(relays, filter).pipe(takeUntil(timer(10_000)), toArray(), defaultIfEmpty([])),
     );
   }
 

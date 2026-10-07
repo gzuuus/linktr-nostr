@@ -27,7 +27,7 @@
   let qrImageUrl: string = "";
   let showQR: boolean = false;
   let showAbout: boolean = false;
-  let userNpub: string = userPub?.length === 64 ? nip19.npubEncode(userPub) : userPub ?? "";
+  let userNpub: string = userPub?.length === 64 ? nip19.npubEncode(userPub) : (userPub ?? "");
   async function fetchUser() {
     try {
       const user = await fetchUserProfile(userPub);
