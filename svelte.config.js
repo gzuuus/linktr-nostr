@@ -1,5 +1,16 @@
-import adapter from "@sveltejs/adapter-cloudflare";
+import adapterCloudflare from "@sveltejs/adapter-cloudflare";
+import adapterVercel from "@sveltejs/adapter-vercel";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+
+const adapter = process.env.VERCEL
+  ? adapterVercel({ runtime: "nodejs22.x" })
+  : adapterCloudflare({
+      // See below for an explanation of these options
+      routes: {
+        include: ["/*"],
+        exclude: ["<all>"],
+      },
+    });
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -9,13 +20,7 @@ const config = {
   preprocess: [vitePreprocess()],
 
   kit: {
-    adapter: adapter({
-      // See below for an explanation of these options
-      routes: {
-        include: ["/*"],
-        exclude: ["<all>"],
-      },
-    }),
+    adapter,
     // Mount under a path prefix (e.g. NOSTREE_BASE=/nostree on Vercel)
     paths: {
       base: process.env.NOSTREE_BASE ?? "",
