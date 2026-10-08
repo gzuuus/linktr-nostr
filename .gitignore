@@ -15,3 +15,6 @@ try
 
 # vercel local
 .vercel/
+
+# playwright artifacts
+test-results/

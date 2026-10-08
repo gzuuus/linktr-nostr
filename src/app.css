@@ -1,0 +1,759 @@
+@import "./lib/theme-presets.css";
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --breakpoint-sm: 464px;
+  --breakpoint-sm2: 896px;
+
+  --radius-base: 9999px;
+  --radius-container: 16px;
+
+  /* primary | #ffa348 */
+  --color-primary-50: #fff1e4;
+  --color-primary-100: #ffedda;
+  --color-primary-200: #ffe8d1;
+  --color-primary-300: #ffdab6;
+  --color-primary-400: #ffbf7f;
+  --color-primary-500: #ffa348;
+  --color-primary-600: #e69341;
+  --color-primary-700: #bf7a36;
+  --color-primary-800: #99622b;
+  --color-primary-900: #7d5023;
+  /* secondary | #6bc187 */
+  --color-secondary-50: #e9f6ed;
+  --color-secondary-100: #e1f3e7;
+  --color-secondary-200: #daf0e1;
+  --color-secondary-300: #c4e6cf;
+  --color-secondary-400: #97d4ab;
+  --color-secondary-500: #6bc187;
+  --color-secondary-600: #60ae7a;
+  --color-secondary-700: #509165;
+  --color-secondary-800: #407451;
+  --color-secondary-900: #345f42;
+  /* tertiary | #3584e4 */
+  --color-tertiary-50: #e1edfb;
+  --color-tertiary-100: #d7e6fa;
+  --color-tertiary-200: #cde0f8;
+  --color-tertiary-300: #aecef4;
+  --color-tertiary-400: #72a9ec;
+  --color-tertiary-500: #3584e4;
+  --color-tertiary-600: #3077cd;
+  --color-tertiary-700: #2863ab;
+  --color-tertiary-800: #204f89;
+  --color-tertiary-900: #1a4170;
+  /* success | #6bc187 */
+  --color-success-50: #e9f6ed;
+  --color-success-100: #e1f3e7;
+  --color-success-200: #daf0e1;
+  --color-success-300: #c4e6cf;
+  --color-success-400: #97d4ab;
+  --color-success-500: #6bc187;
+  --color-success-600: #60ae7a;
+  --color-success-700: #509165;
+  --color-success-800: #407451;
+  --color-success-900: #345f42;
+  /* warning | #f8e45c */
+  --color-warning-50: #fefbe7;
+  --color-warning-100: #fefade;
+  --color-warning-200: #fdf8d6;
+  --color-warning-300: #fcf4be;
+  --color-warning-400: #faec8d;
+  --color-warning-500: #f8e45c;
+  --color-warning-600: #dfcd53;
+  --color-warning-700: #baab45;
+  --color-warning-800: #958937;
+  --color-warning-900: #7a702d;
+  /* error | #f66151 */
+  --color-error-50: #fee7e5;
+  --color-error-100: #fddfdc;
+  --color-error-200: #fdd8d4;
+  --color-error-300: #fbc0b9;
+  --color-error-400: #f99085;
+  --color-error-500: #f66151;
+  --color-error-600: #dd5749;
+  --color-error-700: #b9493d;
+  --color-error-800: #943a31;
+  --color-error-900: #793028;
+  /* surface | #8743db */
+  --color-surface-50: #ede3fa;
+  --color-surface-100: #e7d9f8;
+  --color-surface-200: #e1d0f6;
+  --color-surface-300: #cfb4f1;
+  --color-surface-400: #ab7be6;
+  --color-surface-500: #8743db;
+  --color-surface-600: #7a3cc5;
+  --color-surface-700: #6532a4;
+  --color-surface-800: #512883;
+  --color-surface-900: #42216b;
+
+  /* on-* (text color on filled backgrounds) */
+  --color-on-primary: #000000;
+  --color-on-secondary: #000000;
+  --color-on-tertiary: #000000;
+  --color-on-success: #000000;
+  --color-on-warning: #000000;
+  --color-on-error: #000000;
+  --color-on-surface: #ffffff;
+}
+
+/* ===== Skeleton-compatible component classes ===== */
+
+@utility btn {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  padding: 9px 1.25rem;
+  white-space: nowrap;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-left: 0.5rem;
+  }
+  &:hover {
+    filter: brightness(1.15);
+  }
+  &:active {
+    scale: 0.95;
+    filter: brightness(0.9);
+  }
+  &:disabled,
+  &:disabled:hover,
+  &:disabled:active {
+    cursor: not-allowed;
+    opacity: 0.5;
+    filter: none;
+    scale: none;
+  }
+}
+
+@utility btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+@utility btn-icon {
+  @apply btn;
+  padding: 0;
+  aspect-ratio: 1 / 1;
+  width: 43px;
+  border-radius: 9999px;
+}
+
+@utility btn-icon-sm {
+  aspect-ratio: 1 / 1;
+  width: 33px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+@utility btn-group {
+  display: inline-flex;
+  flex-direction: row;
+  overflow: hidden;
+  border-radius: var(--radius-base);
+  isolation: isolate;
+  & button,
+  & a {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    padding: 9px 1.25rem;
+    white-space: nowrap;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    &:hover {
+      filter: brightness(1.15);
+    }
+  }
+  & > * + * {
+    border-left-width: 1px;
+    border-color: color-mix(in srgb, var(--color-surface-500) 20%, transparent);
+  }
+}
+
+@utility badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-base);
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-left: 0.5rem;
+  }
+}
+
+@utility card {
+  background-color: var(--color-surface-100);
+  border-radius: var(--radius-container);
+  box-shadow: inset 0 0 0 1px rgb(23 23 23 / 0.05);
+  @variant dark {
+    background-color: var(--color-surface-800);
+  }
+}
+
+@utility input {
+  width: 100%;
+  background-color: var(--color-surface-50);
+  border: 1px solid var(--color-surface-300);
+  border-radius: var(--radius-container);
+  padding: 0.5rem 0.75rem;
+  color: inherit;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+  @variant dark {
+    background-color: var(--color-surface-800);
+    border-color: var(--color-surface-600);
+  }
+  &:focus {
+    border-color: var(--color-primary-500);
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-500) 30%, transparent);
+  }
+}
+
+@utility textarea {
+  width: 100%;
+  background-color: var(--color-surface-50);
+  border: 1px solid var(--color-surface-300);
+  border-radius: var(--radius-container);
+  padding: 0.5rem 0.75rem;
+  color: inherit;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+  @variant dark {
+    background-color: var(--color-surface-800);
+    border-color: var(--color-surface-600);
+  }
+  &:focus {
+    border-color: var(--color-primary-500);
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-500) 30%, transparent);
+  }
+}
+
+@utility checkbox {
+  appearance: auto;
+  accent-color: var(--color-primary-500);
+  width: 1rem;
+  height: 1rem;
+  border-radius: 4px;
+}
+
+@utility label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: block;
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.25rem;
+  }
+}
+
+@utility input-group {
+  display: flex;
+  border-radius: var(--radius-container);
+  overflow: hidden;
+  border: 1px solid var(--color-surface-300);
+  background-color: var(--color-surface-50);
+  @variant dark {
+    border-color: var(--color-surface-600);
+    background-color: var(--color-surface-800);
+  }
+}
+
+@utility input-group-divider {
+  & > * + * {
+    border-left: 1px solid var(--color-surface-300);
+    @variant dark {
+      border-color: var(--color-surface-600);
+    }
+  }
+  & input,
+  & select {
+    border: none;
+    background: transparent;
+    padding: 0.5rem 0.75rem;
+    color: inherit;
+    width: 100%;
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+@utility input-group-shim {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.75rem;
+  background-color: color-mix(in srgb, var(--color-surface-500) 8%, transparent);
+  color: inherit;
+}
+
+@utility list-nav {
+  & ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  & li {
+    margin: 0;
+  }
+}
+
+@utility option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  &:hover {
+    background-color: color-mix(in srgb, var(--color-surface-500) 12%, transparent);
+  }
+}
+
+@utility w-modal {
+  width: 100%;
+  max-width: 640px;
+}
+
+@utility rounded-container-token {
+  border-radius: var(--radius-container);
+}
+
+@utility rounded-token {
+  border-radius: var(--radius-container);
+}
+
+@utility h1 {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+}
+@utility h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+}
+@utility h3 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+}
+
+@utility chip {
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 0.375rem 0.75rem;
+  text-align: center;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  border-radius: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== Skeleton-compatible variant classes ===== */
+
+@utility variant-filled {
+  background-color: var(--color-surface-900);
+  color: var(--color-surface-50);
+  @variant dark {
+    background-color: var(--color-surface-50);
+    color: var(--color-surface-900);
+  }
+}
+
+@utility variant-filled-primary {
+  background-color: var(--color-primary-500);
+  color: var(--color-on-primary);
+}
+@utility variant-filled-secondary {
+  background-color: var(--color-secondary-500);
+  color: var(--color-on-secondary);
+}
+@utility variant-filled-tertiary {
+  background-color: var(--color-tertiary-500);
+  color: var(--color-on-tertiary);
+}
+@utility variant-filled-success {
+  background-color: var(--color-success-500);
+  color: var(--color-on-success);
+}
+@utility variant-filled-warning {
+  background-color: var(--color-warning-500);
+  color: var(--color-on-warning);
+}
+@utility variant-filled-error {
+  background-color: var(--color-error-500);
+  color: var(--color-on-error);
+}
+@utility variant-filled-surface {
+  background-color: var(--color-surface-400);
+  color: var(--color-on-surface);
+  @variant dark {
+    background-color: var(--color-surface-500);
+  }
+}
+
+@utility variant-soft {
+  background-color: color-mix(in srgb, var(--color-surface-400) 20%, transparent);
+  color: var(--color-surface-800);
+  box-shadow: none !important;
+  @variant dark {
+    background-color: color-mix(in srgb, var(--color-surface-500) 20%, transparent);
+    color: var(--color-surface-100);
+  }
+}
+
+@utility variant-soft-primary {
+  background-color: color-mix(in srgb, var(--color-primary-400) 20%, transparent);
+  color: var(--color-primary-700);
+  box-shadow: none !important;
+  @variant dark {
+    background-color: color-mix(in srgb, var(--color-primary-500) 20%, transparent);
+    color: var(--color-primary-200);
+  }
+}
+@utility variant-soft-secondary {
+  background-color: color-mix(in srgb, var(--color-secondary-400) 20%, transparent);
+  color: var(--color-secondary-700);
+  box-shadow: none !important;
+  @variant dark {
+    background-color: color-mix(in srgb, var(--color-secondary-500) 20%, transparent);
+    color: var(--color-secondary-200);
+  }
+}
+@utility variant-soft-tertiary {
+  background-color: color-mix(in srgb, var(--color-tertiary-400) 20%, transparent);
+  color: var(--color-tertiary-700);
+  box-shadow: none !important;
+  @variant dark {
+    background-color: color-mix(in srgb, var(--color-tertiary-500) 20%, transparent);
+    color: var(--color-tertiary-200);
+  }
+}
+@utility variant-soft-success {
+  background-color: color-mix(in srgb, var(--color-success-400) 20%, transparent);
+  color: var(--color-success-700);
+  box-shadow: none !important;
+  @variant dark {
+    background-color: color-mix(in srgb, var(--color-success-500) 20%, transparent);
+    color: var(--color-success-200);
+  }
+}
+@utility variant-soft-warning {
+  background-color: color-mix(in srgb, var(--color-warning-400) 20%, transparent);
+  color: var(--color-warning-700);
+  box-shadow: none !important;
+  @variant dark {
+    background-color: color-mix(in srgb, var(--color-warning-500) 20%, transparent);
+    color: var(--color-warning-200);
+  }
+}
+@utility variant-soft-error {
+  background-color: color-mix(in srgb, var(--color-error-400) 20%, transparent);
+  color: var(--color-error-700);
+  box-shadow: none !important;
+  @variant dark {
+    background-color: color-mix(in srgb, var(--color-error-500) 20%, transparent);
+    color: var(--color-error-200);
+  }
+}
+@utility variant-soft-surface {
+  background-color: color-mix(in srgb, var(--color-surface-400) 20%, transparent);
+  color: var(--color-surface-800);
+  box-shadow: none !important;
+  @variant dark {
+    background-color: color-mix(in srgb, var(--color-surface-500) 20%, transparent);
+    color: var(--color-surface-200);
+  }
+}
+
+@utility variant-ghost {
+  box-shadow: inset 0 0 0 1px var(--color-surface-500);
+  background-color: color-mix(in srgb, var(--color-surface-500) 20%, transparent);
+  color: inherit;
+}
+@utility variant-ghost-primary {
+  box-shadow: inset 0 0 0 1px var(--color-primary-500);
+  background-color: color-mix(in srgb, var(--color-primary-500) 20%, transparent);
+  color: inherit;
+}
+@utility variant-ghost-secondary {
+  box-shadow: inset 0 0 0 1px var(--color-secondary-500);
+  background-color: color-mix(in srgb, var(--color-secondary-500) 20%, transparent);
+  color: inherit;
+}
+@utility variant-ghost-tertiary {
+  box-shadow: inset 0 0 0 1px var(--color-tertiary-500);
+  background-color: color-mix(in srgb, var(--color-tertiary-500) 20%, transparent);
+  color: inherit;
+}
+@utility variant-ghost-success {
+  box-shadow: inset 0 0 0 1px var(--color-success-500);
+  background-color: color-mix(in srgb, var(--color-success-500) 20%, transparent);
+  color: inherit;
+}
+@utility variant-ghost-warning {
+  box-shadow: inset 0 0 0 1px var(--color-warning-500);
+  background-color: color-mix(in srgb, var(--color-warning-500) 20%, transparent);
+  color: inherit;
+}
+@utility variant-ghost-error {
+  box-shadow: inset 0 0 0 1px var(--color-error-500);
+  background-color: color-mix(in srgb, var(--color-error-500) 20%, transparent);
+  color: inherit;
+}
+
+@utility variant-glass {
+  background-color: color-mix(in srgb, var(--color-surface-50) 30%, transparent);
+  backdrop-filter: blur(16px);
+  @variant dark {
+    background-color: color-mix(in srgb, var(--color-surface-900) 30%, transparent);
+  }
+}
+@utility variant-glass-surface {
+  background-color: color-mix(in srgb, var(--color-surface-500) 20%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+@utility variant-outline {
+  box-shadow: inset 0 0 0 1px var(--color-surface-500);
+}
+@utility variant-outline-primary {
+  box-shadow: inset 0 0 0 1px var(--color-primary-500);
+}
+@utility variant-outline-secondary {
+  box-shadow: inset 0 0 0 1px var(--color-secondary-500);
+}
+@utility variant-outline-tertiary {
+  box-shadow: inset 0 0 0 1px var(--color-tertiary-500);
+}
+@utility variant-outline-success {
+  box-shadow: inset 0 0 0 1px var(--color-success-500);
+}
+@utility variant-outline-warning {
+  box-shadow: inset 0 0 0 1px var(--color-warning-500);
+}
+@utility variant-outline-error {
+  box-shadow: inset 0 0 0 1px var(--color-error-500);
+}
+
+/* ===== paired token utilities ===== */
+
+@utility text-surface-50-900-token {
+  color: var(--color-surface-50);
+  @variant dark {
+    color: var(--color-surface-900);
+  }
+}
+
+@utility bg-surface-50-900-token {
+  background-color: var(--color-surface-50);
+  color: var(--color-surface-900);
+  @variant dark {
+    background-color: var(--color-surface-900);
+    color: var(--color-surface-50);
+  }
+}
+
+@utility bg-surface-100-900-token {
+  background-color: var(--color-surface-100);
+  @variant dark {
+    background-color: var(--color-surface-900);
+  }
+}
+
+@utility border-surface-300-600-token {
+  border-color: var(--color-surface-300);
+  @variant dark {
+    border-color: var(--color-surface-600);
+  }
+}
+
+@utility bg-surface-400-500-token {
+  background-color: var(--color-surface-400);
+  @variant dark {
+    background-color: var(--color-surface-500);
+  }
+}
+
+@utility bg-primary-active-token {
+  background-color: var(--color-primary-300);
+  @variant dark {
+    background-color: var(--color-primary-700);
+  }
+}
+
+@utility placeholder {
+  min-height: 1.5rem;
+  background-color: var(--color-surface-300);
+  border-radius: var(--radius-base);
+  @variant dark {
+    background-color: var(--color-surface-700);
+  }
+}
+
+@utility placeholder-circle {
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  background-color: var(--color-surface-300);
+  @variant dark {
+    background-color: var(--color-surface-700);
+  }
+}
+
+/* ===== base ===== */
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-sans);
+    color: rgb(0 0 0);
+    background-color: var(--color-surface-50);
+    background-image:
+      radial-gradient(at 0% 0%, rgb(107 193 135 / 0.15) 0px, transparent 50%),
+      radial-gradient(at 98% 1%, rgb(246 97 81 / 0.15) 0px, transparent 60%);
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  body.dark,
+  .dark body {
+    color: rgb(255 255 255);
+    background-color: var(--color-surface-900);
+  }
+
+  h1 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+  }
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+  }
+  h4 {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 300;
+  }
+  a {
+    text-decoration: underline;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+  p {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+}
+
+/* ===== app component classes ===== */
+
+@layer components {
+  .common-2xl-header {
+    @apply text-2xl font-bold;
+  }
+  .common-container {
+    @apply w-screen backdrop-blur max-w-sm mx-2 content-center justify-center text-center rounded-container-token px-3 py-5 sm:bg-surface-50/30 sm:dark:bg-surface-900/30 sm:shadow-lg;
+  }
+  .common-container-3xl {
+    @apply w-screen backdrop-blur max-w-3xl mx-2 content-center justify-center text-center rounded-container-token px-3 py-5 sm:bg-surface-50/30 sm:dark:bg-surface-900/30 sm:shadow-lg;
+  }
+  .common-container-content {
+    @apply flex flex-col gap-2 break-words;
+  }
+  .common-ring {
+    @apply sm:ring-1 sm:variant-outline;
+  }
+  .common-btn-icon-filled {
+    @apply btn-icon btn-icon-sm variant-filled hover:variant-filled;
+  }
+  .common-btn-icon-ghost {
+    @apply btn-icon btn-icon-sm variant-ghost hover:variant-filled;
+  }
+  .common-btn-icon-ghost-error {
+    @apply btn-icon btn-icon-sm variant-ghost-error hover:variant-filled;
+  }
+  .common-btn-sm-ghost {
+    @apply btn btn-sm variant-ghost hover:variant-filled;
+  }
+  .common-btn-sm-ghost-error {
+    @apply btn btn-sm variant-ghost-error hover:variant-filled;
+  }
+  .common-btn-sm-soft {
+    @apply btn btn-sm variant-soft hover:variant-filled;
+  }
+  .common-btn-filled {
+    @apply btn variant-filled;
+  }
+  .common-btn-sm-filled {
+    @apply btn btn-sm variant-filled;
+  }
+  .common-badge-filled {
+    @apply badge variant-filled;
+  }
+  .common-badge-ghost {
+    @apply badge variant-ghost hover:variant-filled;
+  }
+  .common-badge-soft {
+    @apply badge variant-soft hover:variant-filled;
+  }
+  .common-badge-glass {
+    @apply badge variant-glass;
+  }
+  .common-list-btn-filled {
+    @apply btn variant-filled w-full whitespace-pre-wrap hover:ring-1;
+  }
+  .common-modal-base {
+    @apply card p-4 w-modal shadow-xl space-y-4;
+  }
+}

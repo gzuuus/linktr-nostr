@@ -4,6 +4,8 @@
   import { unixToDate, findListTags, findOtherTags, naddrEncodeATags, processHashtags } from "$lib/utils/helpers";
   import type { Filter } from "nostr-tools";
   import type { NostrEventStore } from "$lib/nostr/client";
+  import { writable, type Readable } from "svelte/store";
+  import type { NostrEvent } from "$lib/nostr/client";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import ExploreIcon from "$lib/elements/icons/explore-icon.svelte";
   import { kindLinks } from "$lib/utils/constants";
@@ -12,53 +14,59 @@
   import { nip19 } from "nostr-tools";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import { base } from "$app/paths";
   import HashtagIconcopy from "$lib/elements/icons/hashtag-icon copy.svelte";
   import PlaceHolderLoading from "$lib/components/placeHolderLoading.svelte";
   import SearchBar from "$lib/components/search-bar.svelte";
   import SearchIcon from "$lib/elements/icons/search-icon.svelte";
   import { onDestroy } from "svelte";
+  import { browser } from "$app/environment";
   import { localStore } from "$lib/stores/stores";
-  import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
+  import { RadioGroup, RadioItem } from "$lib/ui";
   import { activeUser } from "$lib/stores/provider";
   import GlobalIcon from "$lib/elements/icons/global-icon.svelte";
   import FriendsIcon from "$lib/elements/icons/friends-icon.svelte";
   import RenderLinks from "$lib/components/render-links.svelte";
-  
+
   let showForkInfo: boolean = false;
   let eventHashtags: string[] = [];
   let isSubscribe: boolean = false;
   let initialHashtagCount: number = 15;
-  let showAllHashtags:boolean = false;
+  let showAllHashtags: boolean = false;
   let showSearchBar: boolean = false;
-  let exploreResults: NostrEventStore
+  let exploreResults: Readable<NostrEvent[]> &
+    Partial<Pick<NostrEventStore, "startSubscription" | "onEose" | "unsubscribe">> = writable([]);
   let exploreNetwork: boolean = false;
 
+  let lastFilterKey = "";
   $: {
     let hashtag = $page.params.hashtagvalue;
     let authors = $localStore.currentUserFollows;
-    let nostrFilter = {
-      kinds: [kindLinks],
-      ...(exploreNetwork && { authors }),
-      ...(hashtag && { "#t": [hashtag] }),
-      "#l": ["nostree"],
-      limit: 75,
-    };
-
-    fetchEvents(nostrFilter).then(() => {
-      exploreResults?.startSubscription();
-      isSubscribe = true;
-    });
+    const key = `${hashtag ?? ""}|${exploreNetwork}|${authors.length}`;
+    if (key !== lastFilterKey) {
+      lastFilterKey = key;
+      refetch(hashtag, exploreNetwork ? authors : undefined);
+    }
   }
 
-  async function fetchEvents(filter: Filter) {
+  async function refetch(hashtag: string | undefined, authors: string[] | undefined) {
+    if (!browser) return;
     try {
+      exploreResults?.unsubscribe?.();
+      const filter: Filter = {
+        kinds: [kindLinks],
+        ...(authors && { authors }),
+        ...(hashtag && { "#t": [hashtag] }),
+        "#l": ["nostree"],
+        limit: 75,
+      };
       await clientReady;
       exploreResults = $nostrClient.storeSubscribe(filter, { closeOnEose: true, autoStart: false });
-      if (exploreResults) {
-          exploreResults.onEose(() => {
-            isSubscribe = false;
-          });
-        }
+      exploreResults.onEose?.(() => {
+        isSubscribe = false;
+      });
+      exploreResults.startSubscription?.();
+      isSubscribe = true;
     } catch (error) {
       console.error(error);
     }
@@ -69,110 +77,125 @@
   }
 
   onDestroy(() => {
-    exploreResults?.unsubscribe();
+    exploreResults?.unsubscribe?.();
     isSubscribe = false;
-  })
+  });
 </script>
+
 <svelte:head>
-  <title>{$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}</title>
-  <meta name="description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
-  <meta property="og:title" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'}/>
-  <meta property="og:description" content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : 'Explore'} />
+  <title>{$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : "Explore"}</title>
+  <meta
+    name="description"
+    content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : "Explore"}
+  />
+  <meta
+    property="og:title"
+    content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : "Explore"}
+  />
+  <meta
+    property="og:description"
+    content={$page.params.hashtagvalue ? `Exploring: ${$page.params.hashtagvalue}` : "Explore"}
+  />
 </svelte:head>
 
-  <h1 class="inline-flex justify-center">
-    <button type="button" on:click={() => goto('/explore')}>
-      <ExploreIcon size={25} />
-    </button>Explore
-  </h1>
-  {#if $activeUser}
-    <RadioGroup background="variant-soft-surface" border="none" active="variant-filled-primary" hover="hover:variant-soft-primary">
-      <RadioItem class="btn w-full h-full" bind:group={exploreNetwork} name="select-network" value={false}>
-        <span><GlobalIcon size={16} /></span>
-        <span>Global</span>
-      </RadioItem>
-      <RadioItem class="btn w-full h-full" bind:group={exploreNetwork} name="select-network" value={true}>
-        <span><FriendsIcon size={16} /></span>
-        <span>Friends</span>
-      </RadioItem>
-    </RadioGroup>
-  {/if}
-  <h3 class:hidden={!$page.params.hashtagvalue}>#{$page.params.hashtagvalue}</h3>  
-  <div class="flex flex-col gap-2">
-    <div>
-    {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag }
-    <button on:click={() => goto(`/explore/${eventHashtag}`)}>
-    <span class="common-badge-soft m-1">
-        <HashtagIconcopy size={16} />
-        {eventHashtag}
-      </span>
-    </button>
+<h1 class="inline-flex justify-center">
+  <button type="button" on:click={() => goto(`${base}/explore`)}>
+    <ExploreIcon size={25} />
+  </button>Explore
+</h1>
+{#if $activeUser}
+  <RadioGroup
+    background="variant-soft-surface"
+    border="none"
+    active="variant-filled-primary"
+    hover="hover:variant-soft-primary"
+  >
+    <RadioItem class="btn w-full h-full" bind:group={exploreNetwork} name="select-network" value={false}>
+      <span><GlobalIcon size={16} /></span>
+      <span>Global</span>
+    </RadioItem>
+    <RadioItem class="btn w-full h-full" bind:group={exploreNetwork} name="select-network" value={true}>
+      <span><FriendsIcon size={16} /></span>
+      <span>Friends</span>
+    </RadioItem>
+  </RadioGroup>
+{/if}
+<h3 class:hidden={!$page.params.hashtagvalue}>#{$page.params.hashtagvalue}</h3>
+<div class="flex flex-col gap-2">
+  <div>
+    {#each eventHashtags.slice(0, showAllHashtags ? eventHashtags.length : initialHashtagCount) as eventHashtag}
+      <button on:click={() => goto(`${base}/explore/${eventHashtag}`)}>
+        <span class="common-badge-soft m-1">
+          <HashtagIconcopy size={16} />
+          {eventHashtag}
+        </span>
+      </button>
     {/each}
   </div>
   <div class=" flex flex-wrap justify-center gap-2">
     {#if eventHashtags.length > 10}
-    <button class="common-btn-sm-ghost" type="button" on:click={() => showAllHashtags = !showAllHashtags}>
-      {!showAllHashtags ? `Show more hashtags` : 'Collapse'}
-    </button>
+      <button class="common-btn-sm-ghost" type="button" on:click={() => (showAllHashtags = !showAllHashtags)}>
+        {!showAllHashtags ? `Show more hashtags` : "Collapse"}
+      </button>
     {/if}
-    <button class="common-btn-sm-ghost" type="button" on:click={() => showSearchBar = !showSearchBar}>
-      <span>{!showSearchBar ? `Search hashtags` : 'Collapse search'}</span>
+    <button class="common-btn-sm-ghost" type="button" on:click={() => (showSearchBar = !showSearchBar)}>
+      <span>{!showSearchBar ? `Search hashtags` : "Collapse search"}</span>
       <span><SearchIcon size={16} /></span>
     </button>
     {#if showSearchBar}
-    <SearchBar searchKind={"hashtag"} />
+      <SearchBar searchKind="hashtag" />
     {/if}
   </div>
-  </div>
-  <hr/>
+</div>
+<hr />
 
-  {#each $exploreResults as event}
-    <div class="common-container-content">
-      <ProfileCardCompact userPub={event.author.npub} />
-      <div>
-        <h3>{event.tagValue("title")}</h3>
-        <span class="text-sm" class:hidden={!event.tagValue("summary")}>{event.tagValue("summary")}</span>
-        <span class="text-sm" class:hidden={!event.tagValue("description")}>{event.tagValue("description")}</span>
+{#each $exploreResults as event}
+  <div class="common-container-content">
+    <ProfileCardCompact userPub={event.author.npub} />
+    <div>
+      <h3>{event.tagValue("title")}</h3>
+      <span class="text-sm" class:hidden={!event.tagValue("summary")}>{event.tagValue("summary")}</span>
+      <span class="text-sm" class:hidden={!event.tagValue("description")}>{event.tagValue("description")}</span>
 
-        <div class="flex flex-col gap-2 pt-2">
+      <div class="flex flex-col gap-2 pt-2">
         <RenderLinks eventTags={event.tags} />
       </div>
       {#each findOtherTags(event.tags, "a") as label}
-          <button class="common-btn-icon-ghost" on:click={() => (showForkInfo = !showForkInfo)}>
-            {#if !showForkInfo}
-              <ForkIcon size={20} />
-            {:else}
-              <CloseIcon size={20} />
-            {/if}
-          </button>
-          <div class:hidden={!showForkInfo}>
-              <button
-                class="common-btn-icon-ghost inline-flex"
-                on:click={() => goto(`${$page.url.origin}/a/${naddrEncodeATags(label)}`)}
-                ><span>Go to forked list</span> <ForkIcon size={18} /></button
-              >
-              <h3 class="text-start">Fork info:</h3>
-              <h4 class="text-start">Forked from:</h4>
-              <ProfileCardCompact userPub={nip19.npubEncode(label.split(":")[1])} />
-              <h4 class="text-start">Label:</h4>
-              <code class="text-start">{label}</code>
-          </div>
-          {/each}
-      </div>
-      <div class=" inline-flex gap-2 flex-wrap items-center justify-center">
-        {#each findOtherTags(event.tags, "t") as hashtag}
-          <button class="common-badge-soft w-fit" on:click={() => goto (`/explore/${hashtag}`)}>
-            <HashtagIconcopy size={16}/>{hashtag}
-          </button>
-        {/each}
-      </div>
-      <div>
+        <button class="common-btn-icon-ghost" on:click={() => (showForkInfo = !showForkInfo)}>
+          {#if !showForkInfo}
+            <ForkIcon size={20} />
+          {:else}
+            <CloseIcon size={20} />
+          {/if}
+        </button>
+        <div class:hidden={!showForkInfo}>
+          <button
+            class="common-btn-icon-ghost inline-flex"
+            on:click={() => goto(`${$page.url.origin}{base}/a/${naddrEncodeATags(label)}`)}
+            ><span>Go to forked list</span> <ForkIcon size={18} /></button
+          >
+          <h3 class="text-start">Fork info:</h3>
+          <h4 class="text-start">Forked from:</h4>
+          <ProfileCardCompact userPub={nip19.npubEncode(label.split(":")[1])} />
+          <h4 class="text-start">Label:</h4>
+          <code class="text-start">{label}</code>
+        </div>
+      {/each}
+    </div>
+    <div class=" inline-flex gap-2 flex-wrap items-center justify-center">
+      {#each findOtherTags(event.tags, "t") as hashtag}
+        <button class="common-badge-soft w-fit" on:click={() => goto(`${base}/explore/${hashtag}`)}>
+          <HashtagIconcopy size={16} />{hashtag}
+        </button>
+      {/each}
+    </div>
+    <div>
       <span class="common-badge-glass">{unixToDate(event.created_at)}</span>
     </div>
-    </div>
-    <hr/>
-  {/each}
- 
-  {#if $exploreResults.length == 0}
-    <PlaceHolderLoading colCount={5} />
-  {/if}
+  </div>
+  <hr />
+{/each}
+
+{#if $exploreResults.length == 0}
+  <PlaceHolderLoading colCount={5} />
+{/if}

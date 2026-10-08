@@ -9,11 +9,7 @@
   let searchResults: NostrEventStore | undefined;
   let eventList: NostrEvent[] = [];
   let isSubscribed: boolean = false;
-  const searchRelays: string[] = [
-    "wss://relay.nostr.band",
-    "wss://search.nos.today",
-    "wss://nos.lol",
-  ];
+  const searchRelays: string[] = ["wss://relay.nostr.band", "wss://search.nos.today", "wss://nos.lol"];
 
   async function searchEvents() {
     try {
@@ -38,12 +34,9 @@
 
   $: {
     if ($searchResults) {
-      eventList = $searchResults
-        .filter(event =>
-          JSON.stringify(event.content)
-            .toLocaleLowerCase()
-            .includes(searchQuery.toLowerCase().trim())
-        );
+      eventList = $searchResults.filter((event) =>
+        JSON.stringify(event.content).toLocaleLowerCase().includes(searchQuery.toLowerCase().trim()),
+      );
     }
   }
 
@@ -52,17 +45,18 @@
     isSubscribed = false;
   });
 </script>
+
 <div>
   {#if eventList.length == 0 && isSubscribed == false}
-  <h2>No matching profiles</h2>
+    <h2>No matching profiles</h2>
   {:else}
-  <div class="flex flex-col gap-4">
-  {#each eventList as event}
-    <div class="common-container-content">
-      <ProfileCardCompact userPub={event.author.npub} />
+    <div class="flex flex-col gap-4">
+      {#each eventList as event}
+        <div class="common-container-content">
+          <ProfileCardCompact userPub={event.author.npub} />
+        </div>
+        <hr />
+      {/each}
     </div>
-    <hr/>
-  {/each}
-  </div>
   {/if}
 </div>

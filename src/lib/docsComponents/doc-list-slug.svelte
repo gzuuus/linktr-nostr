@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { base } from "$app/paths";
   import { page } from "$app/stores";
 </script>
+
 <div class="DocsContentContainer">
   <h2>Slug</h2>
   <h3>Slugs are a memorable way to identify your nostree lists.</h3>
@@ -9,8 +11,8 @@
   <p>
     On the other hand, you can write your own to have a memorable way to share your nostree list. <br />For example:
     <code
-      ><a href="{$page.url.origin}/gzuuus/projects" target="_blank" rel="noopener noreferrer"
-        >{$page.url.origin}/gzuuus/projects</a
+      ><a href="{$page.url.origin}{base}/gzuuus/projects" target="_blank" rel="noopener noreferrer"
+        >{$page.url.origin}{base}/gzuuus/projects</a
       ></code
     >
   </p>

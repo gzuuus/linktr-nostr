@@ -1,11 +1,9 @@
 <script lang="ts">
-  import "../app.postcss";
+  import { base } from "$app/paths";
+  import "../app.css";
   import Header from "$lib/components/header.svelte";
   import { ogImageUrl } from "$lib/utils/constants";
-  import { AppShell, Modal, Toast, type ModalComponent} from '@skeletonlabs/skeleton';
-  import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-  import { storePopup } from '@skeletonlabs/skeleton';
-  import { initializeStores } from '@skeletonlabs/skeleton';
+  import { Modal, Toast, type ModalComponent } from "$lib/ui";
   import PublishKind1Modal from "$lib/components/modals/publish-kind1-modal.svelte";
   import SearchWidget from "$lib/components/modals/search-widget-modal.svelte";
   import Drawers from "$lib/components/drawers.svelte";
@@ -18,30 +16,28 @@
   import { localStore } from "$lib/stores/stores";
   import { userCustomTheme } from "$lib/stores/user";
   import LoginModal from "$lib/components/modals/login-modal.svelte";
-    import nostrClientStore, { autoLoginStore, activeUser } from "$lib/stores/provider";
-    import { get } from "svelte/store";
-    import { NIP05_REGEX } from "nostr-tools/nip05";
-    import { autoLoginHandler } from "$lib/utils/helpers";
+  import nostrClientStore, { autoLoginStore, activeUser } from "$lib/stores/provider";
+  import { get } from "svelte/store";
+  import { NIP05_REGEX } from "nostr-tools/nip05";
+  import { autoLoginHandler } from "$lib/utils/helpers";
 
-  initializeStores();
-  storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
   const modalRegistry: Record<string, ModalComponent> = {
-	modalPublishKind1: { ref: PublishKind1Modal},
-  modalSearch: { ref: SearchWidget },
-  modalNoNip07: { ref: NoExtensionModal},
-  modalLoading: { ref: LoadingBackdropModal},
-  modalCreateList: { ref: CreateNewListWidget},
-  modalRelayList: { ref: RelayListModal},
-  modalLogin: { ref: LoginModal},
-};
-	storePreview.subscribe(setBodyThemeAttribute);
-	storeTheme.subscribe(setBodyThemeAttribute);
+    modalPublishKind1: { ref: PublishKind1Modal },
+    modalSearch: { ref: SearchWidget },
+    modalNoNip07: { ref: NoExtensionModal },
+    modalLoading: { ref: LoadingBackdropModal },
+    modalCreateList: { ref: CreateNewListWidget },
+    modalRelayList: { ref: RelayListModal },
+    modalLogin: { ref: LoginModal },
+  };
+  storePreview.subscribe(setBodyThemeAttribute);
+  storeTheme.subscribe(setBodyThemeAttribute);
 
-	function setBodyThemeAttribute(): void {
-		if (!browser) return;
-		document.body.setAttribute('data-theme', $storePreview ? 'customTheme' : $storeTheme);
-	}
-  if (browser && $localStore && get(autoLoginStore)){
+  function setBodyThemeAttribute(): void {
+    if (!browser) return;
+    document.body.setAttribute("data-theme", $storePreview ? "customTheme" : $storeTheme);
+  }
+  if (browser && $localStore && get(autoLoginStore)) {
     if ($localStore.lastUserLogged) {
       let user = $nostrClientStore.getUser({
         pubkey: $localStore.lastUserLogged,
@@ -71,16 +67,16 @@
     property="og:description"
     content="A Nostr-based application to create, manage and discover link lists, show notes and other stuff."
   />
-  <meta property="og:image" content={ogImageUrl} />
+  <meta property="og:image" content={`${base}${ogImageUrl}`} />
 </svelte:head>
 <Modal components={modalRegistry} />
 <Toast position="t" />
 <Drawers />
-<AppShell slotPageHeader="fixed sm:sticky top-0 z-10 w-full" regionPage="scroll-smooth">
-	<svelte:fragment slot="pageHeader">
+<div class="flex flex-col h-full scroll-smooth overflow-y-auto">
+  <header class="fixed sm:sticky top-0 z-10 w-full">
     <Header />
-  </svelte:fragment>
-  <div class="grid place-content-center h-full sm:py-6">
+  </header>
+  <main class="grid place-content-center h-full sm:py-6 flex-1">
     <slot />
-  </div>
-</AppShell>
+  </main>
+</div>

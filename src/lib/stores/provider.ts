@@ -55,10 +55,19 @@ export async function loginWithExtension(): Promise<boolean> {
 
 export async function loginWithNostrAddress(connectionString: string): Promise<boolean> {
   try {
+    const trimmed = connectionString.trim();
+    if (trimmed.startsWith("nsec1")) {
+      // keep the user's secret in memory only (client.signer), never persisted
+      const signer = new PrivateKeySigner(trimmed);
+      client.signer = signer;
+      await fetchUserData();
+      return true;
+    }
+
     const localKey = get(localSignerStore) || undefined;
     const localSigner = new PrivateKeySigner(localKey);
 
-    const signer = await Nip46Signer.connect(client, connectionString, localSigner);
+    const signer = await Nip46Signer.connect(client, trimmed, localSigner);
     signer.rpc.on("authUrl", (url: string) => {
       window.open(url, "_blank", "width=600,height=600");
     });

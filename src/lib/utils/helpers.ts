@@ -2,7 +2,13 @@ import { nip19 } from "nostr-tools";
 import type { Filter } from "nostr-tools";
 import { NostrUser, NostrEvent, type NostrTag, type UserProfile } from "$lib/nostr/client";
 import { userCustomTheme } from "$lib/stores/user";
-import { autoLoginStore, loginWithExtension, loginWithNostrAddress, activeUser, clientReady } from "$lib/stores/provider";
+import {
+  autoLoginStore,
+  loginWithExtension,
+  loginWithNostrAddress,
+  activeUser,
+  clientReady,
+} from "$lib/stores/provider";
 import { nanoid } from "nanoid";
 import { isNip05Valid as isNip05ValidStore } from "$lib/stores/user";
 import {
@@ -45,7 +51,7 @@ export async function fetchWithFallback(address: string): Promise<nip05response 
   const fetchUrl = `https://${domain}/.well-known/nostr.json?name=${name}`;
   try {
     const response = await fetch(fetchUrl);
-    let json = (await response.json()) as nip05response;
+    const json = (await response.json()) as nip05response;
     if (json.names[name]) {
       json.names = { [name]: json.names[name] };
     } else return undefined;
@@ -53,7 +59,7 @@ export async function fetchWithFallback(address: string): Promise<nip05response 
   } catch (error) {
     if (error instanceof Error && error.message.includes("CORS")) {
       const response = await fetch(CORSproxyUrl + fetchUrl);
-      let json = (await response.json()) as nip05response;
+      const json = (await response.json()) as nip05response;
       if (json.names[name]) {
         json.names = { [name]: json.names[name] };
       } else return undefined;
@@ -130,7 +136,7 @@ export async function isNip05Valid(nip05: string | undefined = "", npub: string 
     });
 
     return isNip05Valid;
-  } catch (error) {
+  } catch {
     isNip05ValidStore.set({
       isNip05Valid: false,
       Nip05address: undefined,
@@ -155,7 +161,7 @@ export function propsBuildPointer(
   relays: string[] | undefined = [],
   author: string,
   kind?: number,
-  identifier: string | undefined = ""
+  identifier: string | undefined = "",
 ): string {
   const objPointer: EventPointer | AddressPointer =
     kind === kindNotes ? { id, relays, author, kind } : { identifier, pubkey: author, kind: kind || 0, relays };
@@ -167,14 +173,13 @@ export function propsBuildPointer(
 
 export function buildEventPointer(event: NostrEvent) {
   let objPointer: EventPointer | AddressPointer;
-  let encodedPointer: string;
   if (event.kind == kindNotes) {
     objPointer = {
       id: event.id,
       relays: [event.relay?.url ?? ""],
       author: event.author.pubkey,
     };
-    return (encodedPointer = nip19.neventEncode(objPointer));
+    return nip19.neventEncode(objPointer);
   } else if (event.kind == kindLinks || event.kind == kindArticles || event.kind == kindLinks) {
     console.log(event.tagValue("d")!, event.author.pubkey, event.kind, event.relay?.url);
     objPointer = {
@@ -183,7 +188,7 @@ export function buildEventPointer(event: NostrEvent) {
       kind: event.kind,
       relays: event.relay?.url ? [event.relay?.url] : [],
     };
-    return (encodedPointer = nip19.naddrEncode(objPointer));
+    return nip19.naddrEncode(objPointer);
   }
 }
 export function buildATags(author: string, kind: number, identifier: string): string {
@@ -196,10 +201,10 @@ export function buildATags(author: string, kind: number, identifier: string): st
 }
 
 export function naddrEncodeATags(EventPointer: string) {
-  let objPointer = EventPointer.split(":");
-  let eventKind: number = parseInt(objPointer[0]);
-  let eventAuthor: string = objPointer[1];
-  let eventIdentifier: string = objPointer[2];
+  const objPointer = EventPointer.split(":");
+  const eventKind: number = parseInt(objPointer[0]);
+  const eventAuthor: string = objPointer[1];
+  const eventIdentifier: string = objPointer[2];
 
   return propsBuildPointer(undefined, [], eventAuthor, eventKind, eventIdentifier);
 }
@@ -239,7 +244,7 @@ export function findOtherTags(tags: NostrTag[], tagName: string) {
 
 export function findSlugTag(event: NostrEvent): string {
   const matchingTags = event.tags.filter((tag) => tag[0] == "l");
-  let slugTag = matchingTags.filter((tag) => tag[1] != "nostree")[0];
+  const slugTag = matchingTags.filter((tag) => tag[1] != "nostree")[0];
   return slugTag[1];
 }
 
@@ -247,8 +252,8 @@ export function parseNostrUrls(rawContent: string): string {
   const nostrPattern = /nostr:(nprofile|nevent|naddr|npub1)(\w+)/g;
 
   return rawContent.replace(nostrPattern, (match, type, id) => {
-    let nostrEntity = type + id;
-    let nostrEntityUrl = `${outNostrLinksUrl}/${nostrEntity}`;
+    const nostrEntity = type + id;
+    const nostrEntityUrl = `${outNostrLinksUrl}/${nostrEntity}`;
 
     switch (type) {
       case "nprofile":
@@ -281,7 +286,7 @@ export async function copyToClipboard(textToCopy: string) {
 
 export async function sharePage(urlToShare: string) {
   if (navigator && typeof navigator !== "undefined" && "share" in navigator && typeof navigator.share === "function") {
-    let url = urlToShare;
+    const url = urlToShare;
     try {
       await navigator.share({
         url,
@@ -312,7 +317,7 @@ export function generateNanoId(seed: string | undefined = unixTimeNow().toString
 }
 
 export function setCustomStyles(cssTheme: string) {
-  let styleTag = document.createElement("style");
+  const styleTag = document.createElement("style");
   styleTag.id = "custom-style";
   styleTag.textContent = `${cssTheme}`;
   document.head.appendChild(styleTag);
@@ -339,7 +344,7 @@ export async function fetchCssAsset(user: string) {
   const client = getStore(nostrClientStore);
   const activeUserPub = getStore(activeUser)?.pubkey;
   const $storeTheme = getStore(storeTheme);
-  let filter: Filter = {
+  const filter: Filter = {
     authors: [user],
     kinds: [kindCSSReplaceableAsset],
     "#L": ["nostree-theme"],
@@ -398,7 +403,7 @@ export async function fetchUserAssets(user: NostrUser): Promise<NostrUser | null
     });
     await fetchCssAsset(user.pubkey);
     return user;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -408,7 +413,7 @@ export function processHashtags(events: NostrEvent[]): string[] {
 
   events.forEach((event) => {
     const newHashtags = event.tags.flatMap((tag: string[]) =>
-      tag[0] === "t" && !newHashtagsSet.has(tag[1]) ? [tag[1]] : []
+      tag[0] === "t" && !newHashtagsSet.has(tag[1]) ? [tag[1]] : [],
     );
 
     if (newHashtags.length > 0) {
@@ -422,12 +427,12 @@ export function processHashtags(events: NostrEvent[]): string[] {
 export async function fetchUserEvents(userPubKey: string): Promise<NostrEvent[]> {
   await clientReady;
   const client = getStore(nostrClientStore);
-  let fetchedEvent = await client.fetchEvents({
+  const fetchedEvent = await client.fetchEvents({
     kinds: [kindLinks],
     authors: [userPubKey],
     "#l": ["nostree"],
   });
-  let events = Array.from(fetchedEvent);
+  const events = Array.from(fetchedEvent);
   return events;
 }
 
@@ -441,10 +446,10 @@ export function validateURLTitle(title: string): boolean {
 export async function addLinkToList(link: Link, eventToModify: NostrEvent): Promise<boolean> {
   const client = getStore(nostrClientStore);
 
-  let linkTag = ["r", link.url, link.description];
+  const linkTag = ["r", link.url, link.description];
   try {
     if (!client.signer) return false;
-    let eventToPublish = eventToModify;
+    const eventToPublish = eventToModify;
     eventToPublish.sig = undefined;
     eventToPublish.created_at = unixTimeNow();
     eventToPublish.tags.push(linkTag);
@@ -458,7 +463,7 @@ export async function addLinkToList(link: Link, eventToModify: NostrEvent): Prom
 
 export async function publishKind1(content: string): Promise<boolean> {
   const client = getStore(nostrClientStore);
-  let eventToPublish = new NostrEvent(client);
+  const eventToPublish = new NostrEvent(client);
   try {
     if (!client.signer) return false;
     eventToPublish.kind = 1;

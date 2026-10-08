@@ -2,7 +2,7 @@ import { nip19, type Event, type EventTemplate, type Filter } from "nostr-tools"
 import { queryProfile } from "nostr-tools/nip05";
 import { RelayPool } from "applesauce-relay";
 import type { Subscription } from "rxjs";
-import { lastValueFrom, toArray, defaultIfEmpty } from "rxjs";
+import { lastValueFrom, toArray, defaultIfEmpty, takeUntil, timer } from "rxjs";
 import { writable, type Readable } from "svelte/store";
 import type { NostrSigner } from "./signers";
 
@@ -32,7 +32,11 @@ function unixNow(): number {
 }
 
 export class NostrUser {
-  constructor(public readonly client: NostrClient, public readonly pubkey: string, public profile?: UserProfile) {}
+  constructor(
+    public readonly client: NostrClient,
+    public readonly pubkey: string,
+    public profile?: UserProfile,
+  ) {}
 
   get npub(): string {
     return nip19.npubEncode(this.pubkey);
@@ -105,7 +109,10 @@ export class NostrEvent {
   tags: NostrTag[] = [];
   content = "";
 
-  constructor(private client: NostrClient, raw?: Partial<Event>) {
+  constructor(
+    private client: NostrClient,
+    raw?: Partial<Event>,
+  ) {
     if (raw) {
       if (raw.id !== undefined) this.id = raw.id;
       if (raw.pubkey !== undefined) this.pubkey = raw.pubkey;
@@ -199,7 +206,11 @@ export class NostrEventStore implements Readable<NostrEvent[]> {
   public eosed = false;
   readonly subscribe = this.inner.subscribe;
 
-  constructor(private client: NostrClient, private filter: Filter, private opts: StoreSubscribeOptions = {}) {
+  constructor(
+    private client: NostrClient,
+    private filter: Filter,
+    private opts: StoreSubscribeOptions = {},
+  ) {
     if (opts.autoStart !== false) this.startSubscription();
   }
 
@@ -267,7 +278,9 @@ export class NostrClient {
   }
 
   async request(relays: string[], filter: Filter): Promise<Event[]> {
-    return lastValueFrom(this.pool.request(relays, filter).pipe(toArray(), defaultIfEmpty([])));
+    return lastValueFrom(
+      this.pool.request(relays, filter).pipe(takeUntil(timer(10_000)), toArray(), defaultIfEmpty([])),
+    );
   }
 
   async fetchEvent(filter: Filter, opts: { relays?: string[] } = {}): Promise<NostrEvent | null> {
