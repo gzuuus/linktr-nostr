@@ -85,7 +85,7 @@ type AuthUrlHandler = (url: string) => void;
 /** Resolve any NIP-46 connection input (bunker:// URI, NIP-05 identifier, or remote signer pubkey) to a bunker pointer. */
 export async function resolveBunkerPointer(
   input: string,
-  fallbackRelays: string[] = [],
+  fallbackRelays: string[] = []
 ): Promise<BunkerPointer | null> {
   const trimmed = input.trim();
   const normalized = trimmed.toLowerCase().startsWith("bunker://") ? trimmed : trimmed.toLowerCase();

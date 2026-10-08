@@ -49,14 +49,10 @@ test("remote signer pubkey falls back to the client relays", async () => {
 });
 
 test("delete() emits NIP-09 tags for addressable events", async () => {
-  type PublishedEvent = { id: string; pubkey: string; kind: number; content: string; tags: string[][] };
   const client = new NostrClient({ relayUrls: [] });
   client.signer = new PrivateKeySigner("11".repeat(32));
-  const published: PublishedEvent[] = [];
-  const pool = client.pool as unknown as {
-    publish: (relays: string[], event: PublishedEvent) => Promise<{ ok: boolean; from: string }[]>;
-  };
-  pool.publish = async (_relays, event) => {
+  const published: { id: string; pubkey: string; kind: number; content: string; tags: string[][] }[] = [];
+  (client.pool as any).publish = async (_relays: string[], event: (typeof published)[number]) => {
     published.push(event);
     return [{ ok: true, from: "test" }];
   };
