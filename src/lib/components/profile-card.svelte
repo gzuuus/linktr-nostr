@@ -1,7 +1,7 @@
 <script lang="ts">
   export let userPub: string;
-  export let userProfile: NDKUserProfile | undefined = undefined;
-  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+  export let userProfile: UserProfile | undefined = undefined;
+  import type { UserProfile } from "$lib/nostr/client";
   import { truncateString, sharePage, fetchUserProfile, fetchCssAsset } from "$lib/utils/helpers";
   import QRcode from "qrcode-generator";
   import QrIcon from "$lib/elements/icons/qr-icon.svelte";

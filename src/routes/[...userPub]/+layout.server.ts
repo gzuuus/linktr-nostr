@@ -1,11 +1,11 @@
-import ndkStore from "$lib/stores/provider";
-import { NDKUser } from "@nostr-dev-kit/ndk";
+import nostrClientStore from "$lib/stores/provider";
+import { NostrUser } from "$lib/nostr/client";
 import { nip19 } from "nostr-tools";
 import { NIP05_REGEX } from "nostr-tools/nip05";
 import { get } from "svelte/store";
 
 export async function load({ params }: any) {
-  const ndk = get(ndkStore);
+  const client = get(nostrClientStore);
   const segments = params.userPub.split("/");
   const userPub: string | undefined = segments.shift();
   if (userPub?.startsWith("npub")) {
@@ -21,7 +21,7 @@ export async function load({ params }: any) {
   } else if (userPub && !NIP05_REGEX.test(userPub)) {
     const vanityNip05Build = `${userPub}@nostree.me`;
     try {
-      const user = await NDKUser.fromNip05(vanityNip05Build, ndk);
+      const user = await NostrUser.fromNip05(vanityNip05Build, client);
       return {
         pubkey: user?.pubkey,
         segments,
@@ -31,7 +31,7 @@ export async function load({ params }: any) {
       console.log(e);
     }
   }
-  const user = await NDKUser.fromNip05(userPub!, ndk);
+  const user = await NostrUser.fromNip05(userPub!, client);
 
   return {
     pubkey: user?.pubkey,

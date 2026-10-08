@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { NDKEvent } from '@nostr-dev-kit/ndk';
-	import ndk from "$lib/stores/provider";
+    import { NostrEvent } from '$lib/nostr/client';
+	import nostrClient from "$lib/stores/provider";
 	import { getModalStore } from '@skeletonlabs/skeleton';
-	import { ndkActiveUser } from '$lib/stores/provider';
+	import { activeUser } from '$lib/stores/provider';
 	import Login from '../login.svelte';
 	import { getToastStore } from '@skeletonlabs/skeleton';
 	import { succesPublishToast, errorPublishToast } from '$lib/utils/constants';
@@ -13,16 +13,16 @@
 		eventContent: $modalStore[0].meta.noteContent
 	};
 	async function onFormSubmit(): Promise<void> {
-		if (!$ndk.signer) return
+		if (!$nostrClient.signer) return
 		modalStore.close();
 		modalStore.trigger({ type: 'component', component: 'modalLoading'});
-		const ndkEvent = new NDKEvent($ndk);
-		ndkEvent.kind = 1;
-		ndkEvent.content = formData.eventContent;
-		ndkEvent.tags=[
+		const nostrEvent = new NostrEvent($nostrClient);
+		nostrEvent.kind = 1;
+		nostrEvent.content = formData.eventContent;
+		nostrEvent.tags=[
 		["t", "nostree"],
 		]
-		ndkEvent
+		nostrEvent
 		.publish()
 		.then(() => {
 				modalStore.clear();
@@ -47,7 +47,7 @@
 			</label>
 			<footer class="modal-footer {parent.regionFooter}">
 				<button type="button" class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
-				{#if $ndkActiveUser}
+				{#if $activeUser}
 				<button type="submit" class="btn {parent.buttonPositive}">Share</button>
 				{:else}
 				<Login/>

@@ -1,23 +1,24 @@
 <script lang="ts">
   export let searchQuery: string;
-  import ndk from "$lib/stores/provider";
-  import { NDKRelaySet, type NDKEvent, type NDKFilter, NDKRelay } from "@nostr-dev-kit/ndk";
+  import nostrClient from "$lib/stores/provider";
+  import { type NostrEvent, type NostrEventStore } from "$lib/nostr/client";
+  import type { Filter } from "nostr-tools";
   import ProfileCardCompact from "$lib/components/profile-card-compact.svelte";
   import { onDestroy } from "svelte";
-  import type { ExtendedBaseType, NDKEventStore } from "@nostr-dev-kit/ndk-svelte";
 
-  let searchResults: NDKEventStore<ExtendedBaseType<NDKEvent>> | undefined;
-  let eventList: NDKEvent[] = [];
+  let searchResults: NostrEventStore | undefined;
+  let eventList: NostrEvent[] = [];
   let isSubscribed: boolean = false;
-  const searchRelays: NDKRelaySet = new NDKRelaySet(new Set(), $ndk);
-  searchRelays.addRelay(new NDKRelay("wss://relay.nostr.band"));
-  searchRelays.addRelay(new NDKRelay("wss://search.nos.today"));
-  searchRelays.addRelay(new NDKRelay("wss://nos.lol"));
+  const searchRelays: string[] = [
+    "wss://relay.nostr.band",
+    "wss://search.nos.today",
+    "wss://nos.lol",
+  ];
 
   async function searchEvents() {
     try {
-      const ndkFilter: NDKFilter = { kinds: [0], search: searchQuery, limit: 50 };
-      searchResults = $ndk.storeSubscribe(ndkFilter, {closeOnEose: true, relaySet: searchRelays });
+      const nostrFilter: Filter = { kinds: [0], search: searchQuery, limit: 50 };
+      searchResults = $nostrClient.storeSubscribe(nostrFilter, { closeOnEose: true, relays: searchRelays });
       eventList = [];
       isSubscribed = true;
 

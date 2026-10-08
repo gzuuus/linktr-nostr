@@ -3,10 +3,10 @@
   import ProfileCard from "$lib/components/profile-card.svelte";
   import EventCard from "$lib/components/event-card.svelte";
   import { kindLinks} from "$lib/utils/constants";
-  import type { NDKUserProfile } from "@nostr-dev-kit/ndk";
+  import type { UserProfile } from "$lib/nostr/client";
 
   let isEditHappens: boolean = false;
-  let userProfile: NDKUserProfile;
+  let userProfile: UserProfile;
 </script>
 <svelte:head>
   {#if userProfile}

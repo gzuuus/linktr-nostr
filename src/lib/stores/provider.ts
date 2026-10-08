@@ -1,12 +1,11 @@
 import { get, writable, type Writable } from "svelte/store";
-import { NDKNip07Signer, NDKPrivateKeySigner, NDKNip46Signer } from "@nostr-dev-kit/ndk";
-import NDKSvelte from "@nostr-dev-kit/ndk-svelte";
-import { bytesToHex } from "@noble/hashes/utils";
-import { generateSecretKey } from "nostr-tools/pure";
-import { localStorageStore } from "@skeletonlabs/skeleton";
+import { browser } from "$app/environment";
+import { localStorageStore } from "./local-storage";
 import { localStore } from "./stores";
 import { fetchUserAssets, isNip05Valid } from "$lib/utils/helpers";
-import { NIP05_REGEX } from "nostr-tools/nip05";
+import { NostrClient, NostrUser } from "$lib/nostr/client";
+import { Nip07Signer, Nip46Signer, PrivateKeySigner } from "$lib/nostr/signers";
+
 export const localSignerStore: Writable<string> = localStorageStore("local-signer", "");
 export const autoLoginStore: Writable<boolean> = localStorageStore("auto-login", false);
 
@@ -17,19 +16,17 @@ export const defaulRelaysUrls: string[] = [
   "wss://nos.lol",
 ];
 
-const ndk = new NDKSvelte({
-  explicitRelayUrls: defaulRelaysUrls,
-  outboxRelayUrls: ["wss://purplepag.es"],
-  enableOutboxModel: true,
+const client = new NostrClient({
+  relayUrls: defaulRelaysUrls,
 });
 
 export async function fetchUserData() {
-  if (!ndk.signer) return;
-  const user = await ndk.signer.user();
-  await ndkReady;
+  if (!client.signer) return;
+  const user = await client.signer.user(client);
+  await clientReady;
   await user.fetchProfile();
   await isNip05Valid(user.profile?.nip05, user.npub);
-  ndkActiveUser.set(user);
+  activeUser.set(user);
   fetchUserAssets(user);
   console.log("Fetched user", user);
   localStore.update((current) => {
@@ -42,11 +39,11 @@ export async function fetchUserData() {
 
 export async function loginWithExtension(): Promise<boolean> {
   try {
-    const signer = new NDKNip07Signer();
+    const signer = new Nip07Signer();
     console.log("Waiting for NIP-07 signer");
     await signer.blockUntilReady();
-    await signer.user();
-    ndk.signer = signer;
+    await signer.user(client);
+    client.signer = signer;
 
     await fetchUserData();
     return true;
@@ -58,38 +55,17 @@ export async function loginWithExtension(): Promise<boolean> {
 
 export async function loginWithNostrAddress(connectionString: string): Promise<boolean> {
   try {
-    const localKey = get(localSignerStore) || bytesToHex(generateSecretKey());
-    console.log("Local key", localKey);
-    const localSigner = new NDKPrivateKeySigner(localKey);
+    const localKey = get(localSignerStore) || undefined;
+    const localSigner = new PrivateKeySigner(localKey);
 
-    let signer: NDKNip46Signer;
-
-    if (NIP05_REGEX.test(connectionString)) {
-      connectionString.endsWith("@nsec.app") && ndk.addExplicitRelay("wss://relay.nsec.app");
-      const user = await ndk.getUserFromNip05(connectionString.toLowerCase());
-      if (!user?.pubkey) throw new Error("Cant find user");
-      signer = new NDKNip46Signer(ndk, connectionString, localSigner);
-      signer.remoteUser = user;
-      signer.remotePubkey = user.pubkey;
-    } else if (connectionString.startsWith("bunker://")) {
-      const uri = new URL(connectionString);
-
-      const pubkey = uri.host || uri.pathname.replace("//", "");
-      const relays = uri.searchParams.getAll("relay");
-      for (let relay of relays) ndk.addExplicitRelay(relay);
-      if (relays.length == 0) throw new Error("Missing relays");
-      signer = new NDKNip46Signer(ndk, pubkey, localSigner);
-      signer.relayUrls = relays;
-    } else {
-      signer = new NDKNip46Signer(ndk, connectionString, localSigner);
-    }
+    const signer = await Nip46Signer.connect(client, connectionString, localSigner);
     signer.rpc.on("authUrl", (url: string) => {
       window.open(url, "_blank", "width=600,height=600");
     });
 
     await signer.blockUntilReady();
-    await signer.user();
-    ndk.signer = signer;
+    await signer.user(client);
+    client.signer = signer;
     localSignerStore.set(localSigner.privateKey ?? "");
     await fetchUserData();
     return true;
@@ -99,12 +75,12 @@ export async function loginWithNostrAddress(connectionString: string): Promise<b
   }
 }
 
-export const ndkActiveUser = writable(ndk.activeUser);
+export const activeUser = writable<NostrUser | undefined>(undefined);
 
-export const ndkReady: Promise<void> = ndk
-  .connect(5000)
-  .then(() => console.log("ndk connected successfully"));
+export const clientReady: Promise<void> = browser
+  ? client.connect().then(() => console.log("relay pool initialized successfully"))
+  : Promise.resolve();
 
-const ndkStore = writable(ndk);
+const nostrClientStore = writable(client);
 
-export default ndkStore;
+export default nostrClientStore;

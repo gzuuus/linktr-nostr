@@ -1,12 +1,12 @@
 <script lang="ts">
   export let isFormSent: boolean = false;
   export let doGoto: boolean = true;
-  export let eventToEdit: NDKEvent | null = null;
+  export let eventToEdit: NostrEvent | null = null;
   export let listTemplate: string = "blank";
   export let addLink: Link | undefined = undefined;
   export let autoPublish: boolean = false;
-  import { NDKEvent } from "@nostr-dev-kit/ndk";
-  import ndk from "$lib/stores/provider";
+  import { NostrEvent } from "$lib/nostr/client";
+  import nostrClient from "$lib/stores/provider";
   import ResetIcon from "$lib/elements/icons/reset-icon.svelte";
   import LinkIcon from "$lib/elements/icons/link-icon.svelte";
   import TextIcon from "$lib/elements/icons/text-icon.svelte";
@@ -15,7 +15,7 @@
   import { v4 as uuidv4 } from "uuid";
   import InfoIcon from "$lib/elements/icons/info-icon.svelte";
   import { goto } from "$app/navigation";
-  import { ndkActiveUser } from "$lib/stores/provider";
+  import { activeUser } from "$lib/stores/provider";
   import { kindLinks, specialCharsRegex, validPrefixes } from "$lib/utils/constants";
   import { generateNanoId } from "$lib/utils/helpers";
   import SlugIcon from "$lib/elements/icons/slug-icon.svelte";
@@ -118,57 +118,57 @@
     linkNameValidationStatus.every((status) => status);
 
   async function handleSubmit() {
-    if (!$ndk.signer) await autoLoginHandler()
-    if (!$ndk.signer) return;
+    if (!$nostrClient.signer) await autoLoginHandler()
+    if (!$nostrClient.signer) return;
     modalStore.trigger({ type: 'component', component: 'modalLoading'});
-    const ndkEvent = new NDKEvent($ndk);
-    ndkEvent.kind = kindLinks;
+    const nostrEvent = new NostrEvent($nostrClient);
+    nostrEvent.kind = kindLinks;
     if (eventToEdit) {
-      ndkEvent.tags = [
+      nostrEvent.tags = [
         ["title", formData.title],
         ["description", formData.description],
         ["d", eventToEdit.tagValue("d")!],
         ["L", formData.nameSpace],
       ];
 
-      if (formData.forkData && eventToEdit.author.npub == $ndkActiveUser?.npub) {
+      if (formData.forkData && eventToEdit.author.npub == $activeUser?.npub) {
         if (eventToEdit.tagValue("p") != null && eventToEdit.tagValue("a") != null) {
-          ndkEvent.tags.push(["p", eventToEdit.tagValue("p")!]);
-          ndkEvent.tags.push(["a", eventToEdit.tagValue("a")!]);
+          nostrEvent.tags.push(["p", eventToEdit.tagValue("p")!]);
+          nostrEvent.tags.push(["a", eventToEdit.tagValue("a")!]);
         }
       }
-      if (formData.forkData && eventToEdit.author.npub != $ndkActiveUser?.npub) {
-        ndkEvent.tags.push(["p", nip19.decode(eventToEdit.author.npub).data.toString()]);
-        ndkEvent.tags.push([
+      if (formData.forkData && eventToEdit.author.npub != $activeUser?.npub) {
+        nostrEvent.tags.push(["p", nip19.decode(eventToEdit.author.npub).data.toString()]);
+        nostrEvent.tags.push([
           "a",
           buildATags(eventToEdit.author.pubkey, eventToEdit.kind!, eventToEdit.tagValue("d")!),
         ]);
       }
       for (const labelData of formData.labels) {
         const { label } = labelData;
-        ndkEvent.tags.push(["l", label.trim().replace(specialCharsRegex, '-').toLowerCase()]);
+        nostrEvent.tags.push(["l", label.trim().replace(specialCharsRegex, '-').toLowerCase()]);
       }
 
     } else {
-      ndkEvent.tags = [
+      nostrEvent.tags = [
         ["title", formData.title],
         ["description", formData.description],
         ["d", newDTag],
         ["L", "me.nostree.ontology"],
         ["l", "nostree"],
-        ["l", formData.labels[0].label.trim() ? formData.labels[0].label.toLowerCase().trim() : generateNanoId($ndkActiveUser?.npub)],
+        ["l", formData.labels[0].label.trim() ? formData.labels[0].label.toLowerCase().trim() : generateNanoId($activeUser?.npub)],
       ];
     }
     for (const linkData of formData.links) {
       const { url, description } = linkData;
-      ndkEvent.tags.push(["r", url.trim(), description.trim()]);
+      nostrEvent.tags.push(["r", url.trim(), description.trim()]);
     }
     for (const hashtag of formData.hashtags) {
       if (hashtag.trim() !== "") {
-        ndkEvent.tags.push(["t", hashtag.trim().toLowerCase()]);
+        nostrEvent.tags.push(["t", hashtag.trim().toLowerCase()]);
       }
   }
-    ndkEvent
+    nostrEvent
       .publish()
       .then(() => {
         isFormSent = true;

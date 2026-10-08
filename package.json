@@ -48,14 +48,15 @@
   "dependencies": {
     "@floating-ui/dom": "^1.6.13",
     "@noble/hashes": "^1.7.1",
-    "@nostr-dev-kit/ndk": "^2.11.0",
-    "@nostr-dev-kit/ndk-svelte": "^2.4.0",
-    "dexie": "^3.2.7",
+    "applesauce-core": "^6.2.0",
+    "applesauce-relay": "^6.2.1",
+    "applesauce-signers": "^6.2.3",
     "linkify-it": "^4.0.1",
     "markdown-it": "^13.0.2",
     "nanoid": "^4.0.2",
     "nostr-tools": "^2.10.4",
     "qrcode-generator": "^1.4.4",
+    "rxjs": "^7.8.2",
     "uuid": "^9.0.1"
   }
 }

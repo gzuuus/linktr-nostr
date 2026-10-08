@@ -3,9 +3,9 @@
     import MinusSmall from "$lib/elements/icons/minus-small.svelte";
     import { outNostrLinksUrl } from "$lib/utils/constants";
     import { findListTags } from "$lib/utils/helpers";
-    import type { NDKTag } from "@nostr-dev-kit/ndk";
+    import type { NostrTag } from "$lib/nostr/client";
 
-    export let eventTags: NDKTag[];
+    export let eventTags: NostrTag[];
     $: linkTags = findListTags(eventTags)
     let showAll = false;
     let visibleItems = 5;

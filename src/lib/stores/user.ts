@@ -1,5 +1,4 @@
 import { writable } from "svelte/store";
-import type { NDKUser } from "@nostr-dev-kit/ndk";
 
 export interface UserProfileIdentifiers {
   isNip05Valid: boolean | null;
