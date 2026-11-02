@@ -76,7 +76,7 @@
   <header class="fixed sm:sticky top-0 z-10 w-full">
     <Header />
   </header>
-  <main class="grid place-content-center h-full sm:py-6 flex-1">
+  <main class="grid place-content-center-safe h-full sm:py-6 flex-1">
     <slot />
   </main>
 </div>

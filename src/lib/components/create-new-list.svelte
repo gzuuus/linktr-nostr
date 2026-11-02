@@ -290,27 +290,6 @@
               on:input={validateAllURLs}
             />
           </div>
-          <div class="card p-4 variant-filled max-w-lg" data-popup="popupSlug">
-            <p>
-              Slugs are a memorable way to identify your Nostree lists. It gives you a link to your list like
-              nostree.me/user/SLUG
-            </p>
-            <div class="arrow variant-filled"></div>
-          </div>
-          <div class="card p-4 variant-filled max-w-lg" data-popup="popupPrefix">
-            <ol class="list">
-              Allowed prefixes:
-              <hr class="border-t-2!" />
-              {#each validPrefixes as prefix}
-                <li>
-                  <span class="flex-auto">{prefix}</span>
-                </li>
-                <hr class=" opacity-50" />
-              {/each}
-            </ol>
-            <div class="arrow variant-filled"></div>
-          </div>
-
           {#if !linkValidationStatus[index] && linkData.url.trim()}
             <span
               class="badge variant-ghost-error flex flex-row gap-1 w-fit m-auto"
@@ -349,6 +328,26 @@
           {/if}
         </div>
       {/each}
+      <div class="card p-4 variant-filled max-w-lg" data-popup="popupSlug">
+        <p>
+          Slugs are a memorable way to identify your Nostree lists. It gives you a link to your list like
+          nostree.me/user/SLUG
+        </p>
+        <div class="arrow variant-filled"></div>
+      </div>
+      <div class="card p-4 variant-filled max-w-lg" data-popup="popupPrefix">
+        <ol class="list">
+          Allowed prefixes:
+          <hr class="border-t-2!" />
+          {#each validPrefixes as prefix}
+            <li>
+              <span class="flex-auto">{prefix}</span>
+            </li>
+            <hr class=" opacity-50" />
+          {/each}
+        </ol>
+        <div class="arrow variant-filled"></div>
+      </div>
     </label>
     <Accordion regionControl=" variant-soft">
       <AccordionItem>
